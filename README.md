@@ -1,5 +1,11 @@
 # Whisper
 
+## Pitch 
+
+Whisper is a top down turn based game. You play as the Divine Shadow and the goal is to stop The Emperor from reaching immortality.
+
+## Lore
+
 A game in which you play as a the shadow of an Eldrich God, charged with keeping all mortal races... mortal.
 In this universe, Gods are not omnipresent nor are they omnipotent. 
 They belong to a Pantheon and each of them has their own abilities suited to their duty. 
@@ -26,3 +32,12 @@ The Emperor ordered all of the alchemists in his empire to abandon everything an
 artifact which is said to bring eternal life to the one stabbed by it. This would seem like a classic tale of a Mad King, but in this case, the Dagger of Undeath was real,
 it was one of the artifacts which belonged to from a time before Death. These artifacts pose great danger to the very fabric of the universe and you, as a Divine Shadow, 
 must stop them, or else...
+
+## Mechanics
+
+As a Shadow, you cannot interact with the physical world, you need to reach your goal using soul manipulation and trickery:
+- **Shadowstep**: You can move to any location in the map inside a single turn, ignoring terrain, closed doors and any other obstacle.
+- **Observer Shade**: These are Shades you can place in locations and they will give you vision inside even if you are not currently located there.  
+You get a limited amount of these but you can despawn them at will to regain stacks and place them somewhere else. These will log useful information in your Shadowy Tome.
+- **Soul Mirror**: You can use this on Mortals to gain insights of their souls, their past, their ambitions and their biggest secrets. The amount of information you get is dependent on the Mortal's `Resolve`.
+- **Soul Whisper**: This is your main tool of manipulation, you can whisper into Mortal's souls to plant thoughts in their head and have them do your bidding. The effectivity of this tool is dependend on the Mortal's `Resolve`. You get a limited amount of whispers each turn.
