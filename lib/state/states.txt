@@ -1,0 +1,14 @@
+Peasant:
+tendingFields
+foundGlowy
+goingToAlchemistLab
+inAlchemistLab
+comingHome
+
+Glowy:
+inFarm
+inLab
+
+VillageAlchemist:
+inLab
+studyingGlowy
