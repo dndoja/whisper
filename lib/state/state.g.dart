@@ -6,23 +6,23 @@ class Peasant extends EntityType {
   const Peasant();
 }
 
-class PeasantTendingFields extends WorldState<Peasant> {
+class PeasantTendingFields extends EntityState<Peasant> {
   const PeasantTendingFields();
 }
 
-class PeasantFoundGlowy extends WorldState<Peasant> {
+class PeasantFoundGlowy extends EntityState<Peasant> {
   const PeasantFoundGlowy();
 }
 
-class PeasantGoingToAlchemistLab extends WorldState<Peasant> {
+class PeasantGoingToAlchemistLab extends EntityState<Peasant> {
   const PeasantGoingToAlchemistLab();
 }
 
-class PeasantInAlchemistLab extends WorldState<Peasant> {
+class PeasantInAlchemistLab extends EntityState<Peasant> {
   const PeasantInAlchemistLab();
 }
 
-class PeasantComingHome extends WorldState<Peasant> {
+class PeasantComingHome extends EntityState<Peasant> {
   const PeasantComingHome();
 }
 
@@ -30,11 +30,11 @@ class Glowy extends EntityType {
   const Glowy();
 }
 
-class GlowyInFarm extends WorldState<Glowy> {
+class GlowyInFarm extends EntityState<Glowy> {
   const GlowyInFarm();
 }
 
-class GlowyInLab extends WorldState<Glowy> {
+class GlowyInLab extends EntityState<Glowy> {
   const GlowyInLab();
 }
 
@@ -42,10 +42,10 @@ class VillageAlchemist extends EntityType {
   const VillageAlchemist();
 }
 
-class VillageAlchemistInLab extends WorldState<VillageAlchemist> {
+class VillageAlchemistInLab extends EntityState<VillageAlchemist> {
   const VillageAlchemistInLab();
 }
 
-class VillageAlchemistStudyingGlowy extends WorldState<VillageAlchemist> {
+class VillageAlchemistStudyingGlowy extends EntityState<VillageAlchemist> {
   const VillageAlchemistStudyingGlowy();
 }

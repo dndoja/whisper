@@ -19,7 +19,7 @@ void main() {
     ..writeln();
 
   bool isFirstLine = true;
-  String? entityName;
+  final List<String> entityNames = [];
 
   for (final line in lines) {
     if (line.isEmpty) {
@@ -33,11 +33,12 @@ void main() {
         ..writeln('class $className extends EntityType {')
         ..writeln('  const $className();')
         ..writeln('}');
-      entityName = className;
+      entityNames.add(className);
     } else {
-      final className = '${_capitalize(entityName!)}${_capitalize(line)}';
+      final entityName = entityNames.last;
+      final className = '${_capitalize(entityName)}${_capitalize(line)}';
       buffer
-        ..writeln('class $className extends WorldState<$entityName> {')
+        ..writeln('class $className extends EntityState<$entityName> {')
         ..writeln('  const $className();')
         ..writeln('}');
     }
