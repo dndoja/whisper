@@ -3,12 +3,13 @@ tendingFields
 foundGlowy
 goingToAlchemistLab
 inAlchemistLab
-stabsAlchemist
+smashesFlaskInAlchemistHead
 comingHome
 
 Glowy:
 inFarm
-inLab
+withPeasant
+withVillageAlchemist
 
 VillageAlchemist:
 inLab

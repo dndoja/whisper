@@ -22,8 +22,8 @@ class PeasantInAlchemistLab extends EntityState<Peasant> {
   const PeasantInAlchemistLab();
 }
 
-class PeasantStabsAlchemist extends EntityState<Peasant> {
-  const PeasantStabsAlchemist();
+class PeasantSmashesFlaskInAlchemistHead extends EntityState<Peasant> {
+  const PeasantSmashesFlaskInAlchemistHead();
 }
 
 class PeasantComingHome extends EntityState<Peasant> {
@@ -38,8 +38,12 @@ class GlowyInFarm extends EntityState<Glowy> {
   const GlowyInFarm();
 }
 
-class GlowyInLab extends EntityState<Glowy> {
-  const GlowyInLab();
+class GlowyWithPeasant extends EntityState<Glowy> {
+  const GlowyWithPeasant();
+}
+
+class GlowyWithVillageAlchemist extends EntityState<Glowy> {
+  const GlowyWithVillageAlchemist();
 }
 
 class VillageAlchemist extends EntityType {

@@ -12,17 +12,14 @@ const List<List<StateTransition>> stateTransitions = [
 
   // Peasant
   [
-    $([], [
-      PeasantTendingFields(),
-      EntityMentalState(Peasant(), MentalState.normal),
-    ]),
+    $([], [PeasantTendingFields()]),
     $(
       [PeasantTendingFields(), GlowyInFarm()],
       [PeasantFoundGlowy()],
     ),
     $(
       [PeasantFoundGlowy()],
-      [PeasantGoingToAlchemistLab()],
+      [PeasantGoingToAlchemistLab(), GlowyWithPeasant()],
     ),
     $(
       [PeasantGoingToAlchemistLab()],
@@ -31,14 +28,18 @@ const List<List<StateTransition>> stateTransitions = [
     ),
     $(
       [PeasantInAlchemistLab()],
-      [PeasantComingHome(), GlowyInLab()],
+      [PeasantComingHome(), GlowyWithVillageAlchemist()],
     ),
     $(
       [
         PeasantInAlchemistLab(),
-        EntityMentalState(Peasant(), MentalState.manic)
+        EntityMentalState(Peasant(), MentalState.manic),
       ],
-      [PeasantStabsAlchemist(), VillageAlchemistIsDead()],
+      [PeasantSmashesFlaskInAlchemistHead(), VillageAlchemistIsDead()],
+    ),
+    $(
+      [PeasantSmashesFlaskInAlchemistHead()],
+      [PeasantComingHome()],
     ),
     $(
       [PeasantComingHome()],
@@ -49,12 +50,9 @@ const List<List<StateTransition>> stateTransitions = [
 
   // Village Alchemist
   [
-    $([], [
-      VillageAlchemistInLab(),
-      EntityMentalState(VillageAlchemist(), MentalState.normal),
-    ]),
+    $([], [VillageAlchemistInLab()]),
     $(
-      [VillageAlchemistInLab(), GlowyInLab()],
+      [VillageAlchemistInLab(), GlowyWithVillageAlchemist()],
       [VillageAlchemistStudyingGlowy()],
     ),
   ],
