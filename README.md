@@ -2,7 +2,8 @@
 
 ## Pitch 
 
-Whisper is a top down turn based game. You play as the Divine Shadow and the goal is to stop The Emperor from reaching immortality.
+Whisper is a turn based game puzzle game focused on emotional manipulation and trickery. 
+You play as a celestial being trying to prevent the mortal races from discovering the secret of immortality.
 
 ## Lore
 
