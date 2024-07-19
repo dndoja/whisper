@@ -12,7 +12,10 @@ const List<List<StateTransition>> stateTransitions = [
 
   // Peasant
   [
-    $([], [PeasantTendingFields()]),
+    $([], [
+      PeasantTendingFields(),
+      EntityMentalState(Peasant(), MentalState.normal),
+    ]),
     $(
       [PeasantTendingFields(), GlowyInFarm()],
       [PeasantFoundGlowy()],
@@ -31,6 +34,13 @@ const List<List<StateTransition>> stateTransitions = [
       [PeasantComingHome(), GlowyInLab()],
     ),
     $(
+      [
+        PeasantInAlchemistLab(),
+        EntityMentalState(Peasant(), MentalState.manic)
+      ],
+      [PeasantStabsAlchemist(), VillageAlchemistIsDead()],
+    ),
+    $(
       [PeasantComingHome()],
       [PeasantTendingFields()],
       duration: peasantTravelTime,
@@ -39,7 +49,10 @@ const List<List<StateTransition>> stateTransitions = [
 
   // Village Alchemist
   [
-    $([], [VillageAlchemistInLab()]),
+    $([], [
+      VillageAlchemistInLab(),
+      EntityMentalState(VillageAlchemist(), MentalState.normal),
+    ]),
     $(
       [VillageAlchemistInLab(), GlowyInLab()],
       [VillageAlchemistStudyingGlowy()],

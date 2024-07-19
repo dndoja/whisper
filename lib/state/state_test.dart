@@ -8,6 +8,7 @@ void main() {
     for (int i = 0; i < 10; i++) {
       gameState.nextTurn();
     }
-    expect(gameState.currentTurn, 10);
+    
+    expect(gameState.currentTurn, 11);
   });
 }

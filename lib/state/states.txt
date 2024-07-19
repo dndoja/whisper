@@ -3,6 +3,7 @@ tendingFields
 foundGlowy
 goingToAlchemistLab
 inAlchemistLab
+stabsAlchemist
 comingHome
 
 Glowy:
@@ -11,4 +12,5 @@ inLab
 
 VillageAlchemist:
 inLab
+isDead
 studyingGlowy
