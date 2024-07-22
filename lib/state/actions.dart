@@ -1,18 +1,18 @@
-part of 'state.dart';
+part of 'state_machine.dart';
 
 sealed class UserAction {
   const UserAction();
 
   int get maxUsagesPerTurn => switch (this) {
-        Shadowstep() => 1,
+        ShadowStep() => 1,
         SoulMirror() => 1 << 31,
         ObserverShade() => 2,
         SoulWhisper() => 1,
       };
 }
 
-class Shadowstep extends UserAction {
-  const Shadowstep();
+class ShadowStep extends UserAction {
+  const ShadowStep();
 
   @override
   String toString() => 'Shadowstep';

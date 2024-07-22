@@ -3,8 +3,8 @@
 import 'dart:io';
 
 const dir = './lib/state';
-const input = 'states.txt';
-const fileName = 'state';
+const input = 'flags.txt';
+const fileName = 'flags';
 
 void main() {
   final file = File('$dir/$input');
@@ -28,7 +28,8 @@ void main() {
     }
 
     if (isFirstLine) {
-      final className = _capitalize(line).replaceFirst(':', '');
+      final className =
+          _capitalize(line).replaceFirst(':', '').replaceAll(' ', '');
       buffer
         ..writeln('class $className extends EntityType {')
         ..writeln('  const $className();')
@@ -38,7 +39,7 @@ void main() {
       final entityName = entityNames.last;
       final className = '${_capitalize(entityName)}${_capitalize(line)}';
       buffer
-        ..writeln('class $className extends EntityState<$entityName> {')
+        ..writeln('class $className extends EntityFlag<$entityName> {')
         ..writeln('  const $className();')
         ..writeln('}');
     }

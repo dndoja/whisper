@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 
-import 'state.dart';
+import 'state_machine.dart';
 
 void main() {
   test('state', () {

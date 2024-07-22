@@ -1,30 +1,44 @@
-import 'package:flame/components.dart';
-import 'package:flame/game.dart';
+import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 
-import 'actors/actors.dart';
+import 'state/state.dart';
+export 'state/state.dart';
 
-class WhisperGame extends FlameGame {
-  WhisperGame();
+import 'characters/crazy_joe.dart';
+import 'characters/player.dart';
 
-  TheShadow? theShadow;
+final gameState = GameState();
 
-  @override
-  Future<void> onLoad() async {
-    print('Loading the game');
-    await images.loadAll(const [
-      'ember.png',
-      'shadow.png',
-    ]);
-
-    camera.viewfinder.anchor = Anchor.topLeft;
-
-    theShadow = TheShadow(
-      position: Vector2(400, canvasSize.y - 270),
-    );
-    world.add(theShadow!);
-  }
+class GameWidget extends StatelessWidget {
+  const GameWidget({super.key});
 
   @override
-  Color backgroundColor() => Colors.blueGrey;
+  Widget build(BuildContext context) => BonfireWidget(
+        playerControllers: [
+          Keyboard(
+            config: KeyboardConfig(
+              enable: true,
+              directionalKeys: [
+                KeyboardDirectionalKeys.wasd(),
+              ],
+            ),
+          ),
+        ],
+        cameraConfig: CameraConfig(
+          // zoom: 50,
+          resolution: Vector2(500, 300),
+          moveOnlyMapArea: true,
+        ),
+        onReady: initGame,
+        showCollisionArea: false,
+        // collisionAreaColor: Colors.red,
+        player: Knight(Vector2(40, 40)),
+        map: WorldMapByTiled(
+          WorldMapReader.fromAsset('village.json'),
+        ),
+      );
+}
+
+void initGame(BonfireGameInterface game) {
+  game.add(CrazyJoeBrain(KeyLocation.crazyJoeFarm.ref.mapPosition));
 }
