@@ -6,8 +6,7 @@ export 'state/state.dart';
 
 import 'characters/crazy_joe.dart';
 import 'characters/player.dart';
-
-final gameState = GameState();
+import 'ui/bottom_panel.dart';
 
 class GameWidget extends StatelessWidget {
   const GameWidget({super.key});
@@ -29,10 +28,12 @@ class GameWidget extends StatelessWidget {
           resolution: Vector2(500, 300),
           moveOnlyMapArea: true,
         ),
+        overlayBuilderMap: {'bottom': (_, __) => const BottomPanel()},
+        initialActiveOverlays: const ['bottom'],
         onReady: initGame,
         showCollisionArea: false,
         // collisionAreaColor: Colors.red,
-        player: Knight(Vector2(40, 40)),
+        player: Knight(KeyLocation.crazyJoeFarm.br.mapPosition),
         map: WorldMapByTiled(
           WorldMapReader.fromAsset('village.json'),
         ),

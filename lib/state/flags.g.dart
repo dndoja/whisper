@@ -6,10 +6,10 @@ class CrazyJoe extends EntityType {
   const CrazyJoe();
 }
 
-class CrazyJoeChilling extends EntityFlag<CrazyJoe> {
+class CrazyJoeChilling extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeChilling();
 }
 
-class CrazyJoeRampaging extends EntityFlag<CrazyJoe> {
+class CrazyJoeRampaging extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeRampaging();
 }

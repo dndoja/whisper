@@ -4,37 +4,37 @@ import 'package:whisper/game.dart';
 import 'animations.dart';
 
 class CrazyJoeBrain extends SimpleEnemy
-    with BlockMovementCollision, RandomMovement, GameCharacter<CrazyJoe> {
+    with
+        // BlockMovementCollision,
+        RandomMovement,
+        GameCharacter<CrazyJoe>,
+        PathFinding {
   CrazyJoeBrain(Vector2 position)
       : super(
           size: Vector2.all(16),
           position: position,
           animation: PlayerSpriteSheet.simpleDirectionAnimation,
         ) {
-    subscribeToGameState(gameState);
+    subscribeToGameState();
   }
 
-  CharacterState<CrazyJoe> state = CharacterState(
-    entityType: const CrazyJoe(),
-    behavior: const CrazyJoeChilling(),
-  );
+  BehaviourFlag<CrazyJoe> prevBehaviour = const CrazyJoeChilling();
+  BehaviourFlag<CrazyJoe> currBehaviour = const CrazyJoeChilling();
+
+  @override
+  bool transitioningToNewTurn = false;
 
   @override
   CrazyJoe get character => const CrazyJoe();
 
   @override
-  Future<void> onLoad() {
-    return super.onLoad();
-  }
-
-  @override
   void update(double dt) {
-    switch (state.behavior) {
+    switch (currBehaviour) {
       case CrazyJoeChilling():
         patrolFarm(dt);
+      case CrazyJoeRampaging():
       case EntityAtKeyLocation<CrazyJoe>():
       case EntityMentalState<CrazyJoe>():
-      case CrazyJoeRampaging():
     }
     super.update(dt);
   }
@@ -62,5 +62,24 @@ class CrazyJoeBrain extends SimpleEnemy
   }
 
   @override
-  void onStateChange(CharacterState<CrazyJoe> newState) {}
+  void onStateChange(CharacterState newState) {
+    if (newState.behaviour != currBehaviour) {
+      prevBehaviour = currBehaviour;
+      currBehaviour = newState.behaviour as BehaviourFlag<CrazyJoe>;
+
+      turnTransitionStart();
+      switch (currBehaviour) {
+        case CrazyJoeRampaging():
+          gameRef.camera.follow(this);
+          moveToPositionWithPathFinding(
+            const Point16(50, 50).mapPosition,
+            onFinish: turnTransitionEnd,
+          );
+        case CrazyJoeChilling():
+          turnTransitionEnd();
+      }
+    } else {
+      turnTransitionEnd();
+    }
+  }
 }

@@ -22,17 +22,16 @@ sealed class EntityType {
 sealed class EntityFlag<T extends EntityType> {
   const EntityFlag();
 
-  bool get isBehavior => switch (this) {
-        EntityMentalState() => false,
-        _ => true,
-      };
-
   @override
   String toString() => switch (this) {
         EntityMentalState(:final entity, :final mentalState) =>
           '${entity}MentalState(${mentalState.name})',
         _ => runtimeType.toString(),
       };
+}
+
+sealed class BehaviourFlag<T extends EntityType> extends EntityFlag<T> {
+  const BehaviourFlag();
 }
 
 class EntityAtKeyLocation<T extends EntityType> extends EntityFlag<T> {
@@ -64,10 +63,7 @@ extension EntityTypeX on EntityType {
 
 extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
   EntityType get type => switch (this) {
-        // EntityFlag<Peasant>() => const Peasant(),
-        // EntityFlag<Glowy>() => const Glowy(),
-        // EntityFlag<VillageAlchemist>() => const VillageAlchemist(),
-        EntityFlag<CrazyJoe>() => const CrazyJoe(),
+        BehaviourFlag<CrazyJoe>() => const CrazyJoe(),
         EntityMentalState(:final entity) => entity,
         EntityAtKeyLocation(:final entity) => entity,
       };

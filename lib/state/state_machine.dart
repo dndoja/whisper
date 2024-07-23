@@ -1,4 +1,8 @@
+import 'dart:collection';
+
+import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
+import 'package:whisper/state/state.dart';
 
 import 'flags.dart';
 import 'transitions.dart';
@@ -24,7 +28,7 @@ class StateTransition {
 class CharacterState<T extends EntityType> {
   CharacterState({
     required this.entityType,
-    required this.behavior,
+    required this.behaviour,
     this.updatedAt = 0,
     Map<MentalState, int>? mentalStates,
   }) : mentalStates = mentalStates != null
@@ -36,7 +40,7 @@ class CharacterState<T extends EntityType> {
 
   final T entityType;
   final int updatedAt;
-  EntityFlag<T> behavior;
+  BehaviourFlag<T> behaviour;
 
   final Map<MentalState, int> mentalStates;
   EntityMentalState<T>? get currentMentalState => entityType.isHuman
@@ -57,20 +61,33 @@ class CharacterState<T extends EntityType> {
   }
 
   Iterable<EntityFlag<T>> flags() sync* {
-    yield behavior;
+    yield behaviour;
     final currentMentalState = this.currentMentalState;
     if (currentMentalState != null) yield currentMentalState;
   }
 }
 
-mixin GameCharacter<T extends EntityType> {
+mixin GameCharacter<T extends EntityType> on Npc {
+  bool get transitioningToNewTurn;
+  set transitioningToNewTurn(bool _);
+
   T get character;
 
-  void subscribeToGameState(GameState gameState) {
-    gameState._listeners.add(this);
+  void onStateChange(CharacterState newState);
+
+  void turnTransitionStart() {
+    transitioningToNewTurn = true;
+    gameRef.camera.follow(this);
   }
 
-  void onStateChange(CharacterState<T> newState);
+  void turnTransitionEnd() {
+    if (!transitioningToNewTurn) return;
+    GameState.$._nextTransition(character);
+    transitioningToNewTurn = false;
+    gameRef.camera.follow(gameRef.query<SimplePlayer>().first);
+  }
+
+  void subscribeToGameState() => GameState.$._listeners.add(this);
 }
 
 class GameState {
@@ -78,12 +95,16 @@ class GameState {
     endTurn();
   }
 
+  static final GameState $ = GameState();
+
   final Map<EntityType, List<CharacterState>> entityStates = {};
   final Map<StateTransition, int> ongoingTransitions = {};
 
   final List<GameCharacter> _listeners = [];
+  final Queue<GameCharacter> _turnTransitionQueue = Queue();
 
   int currentTurn = 0;
+  EntityType? lockedBy;
 
   @override
   String toString() {
@@ -97,7 +118,7 @@ class GameState {
 
       final name = entityType.toString();
       final physicalState =
-          state.behavior.toString().removePrefix(name).decapitalize();
+          state.behaviour.toString().removePrefix(name).decapitalize();
       buffer
         ..write(entityType.toString())
         ..write(': $physicalState');
@@ -113,6 +134,8 @@ class GameState {
   }
 
   void endTurn([List<UserAction> turnActions = const []]) {
+    if (lockedBy != null) return;
+
     for (final action in turnActions) {
       switch (action) {
         case SoulWhisper(:final target, :final mentalState, :final bonus):
@@ -152,35 +175,39 @@ class GameState {
 
         if (prev == null) {
           assert(
-            nextState.isBehavior,
+            nextState is BehaviourFlag,
             "The initial state of the character must be physical!",
           );
 
           stateHistory.add(CharacterState(
             entityType: nextState.type,
-            behavior: nextState,
+            behaviour: nextState as BehaviourFlag,
             updatedAt: currentTurn,
           ));
         } else if (prev.updatedAt == currentTurn) {
           switch (nextState) {
             case EntityMentalState():
               prev.boostMentalState(nextState.mentalState);
-            default:
-              prev.behavior = nextState;
+            case BehaviourFlag():
+              prev.behaviour = nextState;
+            case EntityAtKeyLocation<EntityType>():
+              throw UnimplementedError();
           }
         } else {
           final newState = CharacterState(
             entityType: prev.entityType,
             mentalStates: prev.mentalStates,
-            behavior: prev.behavior,
+            behaviour: prev.behaviour,
             updatedAt: currentTurn,
           );
 
           switch (nextState) {
             case EntityMentalState():
               newState.boostMentalState(nextState.mentalState);
-            default:
-              newState.behavior = nextState;
+            case BehaviourFlag():
+              newState.behaviour = nextState;
+            case EntityAtKeyLocation<EntityType>():
+              throw UnimplementedError();
           }
 
           stateHistory.add(newState);
@@ -190,12 +217,37 @@ class GameState {
       }
     }
 
-    currentTurn++;
-
-    for (final listener in _listeners) {
-      if (updated.contains(listener.character)) {
-        listener.onStateChange(entityStates[listener.character]!.last);
-      }
+    print(updated);
+    for (final l in _listeners) {
+      if (updated.contains(l.character)) _turnTransitionQueue.add(l);
     }
+    _nextTransition(null);
+  }
+
+  void _nextTransition(EntityType? from) {
+    // print('$lockedBy, $from, ${_turnTransitionQueue.length}');
+    if (lockedBy != null && lockedBy != from) return;
+    if (_turnTransitionQueue.isEmpty) {
+      lockedBy = null;
+      currentTurn++;
+      print(toString());
+      return;
+    }
+
+    final curr = _turnTransitionQueue.removeFirst();
+    curr.onStateChange(entityStates[curr.character]!.last);
+    lockedBy = curr.character;
+  }
+
+  void notify<T extends EntityType>(
+    GameCharacter<T> char,
+    CharacterState state,
+  ) {
+    assert(
+      state is CharacterState<T>,
+      'Wrong state type passed to character of type $T, found ${state.runtimeType}',
+    );
+
+    char.onStateChange(state as CharacterState<T>);
   }
 }

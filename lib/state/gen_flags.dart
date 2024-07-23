@@ -39,7 +39,7 @@ void main() {
       final entityName = entityNames.last;
       final className = '${_capitalize(entityName)}${_capitalize(line)}';
       buffer
-        ..writeln('class $className extends EntityFlag<$entityName> {')
+        ..writeln('class $className extends BehaviourFlag<$entityName> {')
         ..writeln('  const $className();')
         ..writeln('}');
     }
