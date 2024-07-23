@@ -37,8 +37,7 @@ must stop them, or else...
 ## Mechanics
 
 As a Shadow, you cannot interact with the physical world, you need to reach your goal using soul manipulation and trickery:
-- **Shadowstep**: You can move to any location in the map inside a single turn, ignoring terrain, closed doors and any other obstacle.
-- **Subjugate**: Attempt to Subjugate a targeted Mortal, making them bend to your will. It has a % chance to fail based on the target's `Resolve`.
-- **Command**: Command the subjugated mortal to do something.
+- **Shadowstep**: Instantly teleport to a Mortal who is vulnerable to manipulation.
 - **Soul Mirror**: You can use this on Mortals to gain insights of their souls, their past, their ambitions and their biggest secrets. The amount of information you get is dependent on the Mortal's `Resolve`.
 - **Soul Whisper**: This is your main tool of manipulation, you can whisper into Mortal's souls to plant thoughts in their head and have them do your bidding. The effectivity of this tool is dependend on the Mortal's `Resolve`. You get a limited amount of whispers each turn.
+- **Shadow Clone**: Project a temporary illusion at the targeted location, appearing as a Mortal being which can be seen by other Mortals. You can talk to them but you cannot interact with them physically.

@@ -1,9 +1,18 @@
+import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 
 import '../state/state.dart';
 
-class BottomPanel extends StatelessWidget {
-  const BottomPanel({super.key});
+class BottomPanel extends StatefulWidget {
+  const BottomPanel(this.gameRef, {super.key});
+  final BonfireGame gameRef;
+
+  @override
+  State<BottomPanel> createState() => _BottomPanelState();
+}
+
+class _BottomPanelState extends State<BottomPanel> {
+  final List<SimpleEnemy> shadowStepTargets = [];
 
   @override
   Widget build(BuildContext context) => Material(
@@ -22,7 +31,7 @@ class BottomPanel extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ActionButton('1', onTap: () {}),
+                        ActionButton('1', onTap: shadowStep),
                         const SizedBox(width: 32),
                         ActionButton('2', onTap: () {}),
                         const SizedBox(width: 32),
@@ -54,6 +63,38 @@ class BottomPanel extends StatelessWidget {
           ],
         ),
       );
+
+  void shadowStep() {
+    if (shadowStepTargets.isEmpty) {
+      final Iterable<SimpleEnemy> enemies = widget.gameRef.query();
+      if (enemies.isEmpty) return;
+      shadowStepTargets.addAll(enemies);
+    }
+
+    final player = widget.gameRef.player!;
+    int nextTargetIndex = 0;
+    double distanceToTarget = -1;
+
+    for (int i = 0; i < shadowStepTargets.length; i++) {
+      final SimpleEnemy target = shadowStepTargets[i];
+      final double distance = target.distance(player);
+      if (distance > distanceToTarget) {
+        nextTargetIndex = i;
+        distanceToTarget = distance;
+      }
+    }
+
+    final SimpleEnemy target = shadowStepTargets.removeAt(nextTargetIndex);
+    widget.gameRef.camera.moveToTargetAnimated(
+      target: target,
+      onComplete: () {
+        player.position = target.position.clone()..add(Vector2(0, -16));
+        widget.gameRef.camera.moveToPlayerAnimated(
+          onComplete: () => widget.gameRef.camera.follow(player),
+        );
+      },
+    );
+  }
 }
 
 class ActionButton extends StatelessWidget {

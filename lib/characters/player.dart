@@ -2,7 +2,7 @@ import 'package:bonfire/bonfire.dart';
 
 import 'animations.dart';
 
-class Knight extends SimplePlayer { 
+class Knight extends SimplePlayer {
   Knight(Vector2 position)
       : super(
           position: position,

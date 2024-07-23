@@ -28,7 +28,7 @@ class GameWidget extends StatelessWidget {
           resolution: Vector2(500, 300),
           moveOnlyMapArea: true,
         ),
-        overlayBuilderMap: {'bottom': (_, __) => const BottomPanel()},
+        overlayBuilderMap: {'bottom': (_, game) => BottomPanel(game)},
         initialActiveOverlays: const ['bottom'],
         onReady: initGame,
         showCollisionArea: false,
