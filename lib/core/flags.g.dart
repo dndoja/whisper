@@ -13,3 +13,11 @@ class CrazyJoeChilling extends BehaviourFlag<CrazyJoe> {
 class CrazyJoeRampaging extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeRampaging();
 }
+
+class PriestAbraham extends EntityType {
+  const PriestAbraham();
+}
+
+class PriestAbrahamChilling extends BehaviourFlag<PriestAbraham> {
+  const PriestAbrahamChilling();
+}

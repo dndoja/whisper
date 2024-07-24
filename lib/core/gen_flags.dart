@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-const dir = './lib/state';
+const dir = './lib/core';
 const input = 'flags.txt';
 const fileName = 'flags';
 

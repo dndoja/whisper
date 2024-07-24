@@ -12,9 +12,15 @@ const List<List<StateTransition>> stateTransitions = [
   [
     $([], [CrazyJoeChilling()]),
     $(
-      [CurrentMentalState(CrazyJoe(), {MentalState.paranoid: Level.slight})],
+      [
+        CurrentMentalState(CrazyJoe(), {MentalTrait.paranoid: Level.slight})
+      ],
       [CrazyJoeRampaging()],
     ),
+  ],
+  // Priest Abraham
+  [
+    $([], [PriestAbrahamChilling()]),
   ],
 ];
 

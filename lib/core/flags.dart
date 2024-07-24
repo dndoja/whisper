@@ -4,7 +4,7 @@ import 'key_locations.dart';
 
 part 'flags.g.dart';
 
-enum MentalState {
+enum MentalTrait {
   normal,
   manic,
   paranoid,
@@ -12,6 +12,7 @@ enum MentalState {
   doubtful,
   insecure,
   depressed,
+  zealous,
 }
 
 enum Level {
@@ -53,7 +54,7 @@ class EntityAtKeyLocation<T extends EntityType> extends EntityFlag<T> {
 class CurrentMentalState<T extends EntityType> extends EntityFlag<T> {
   const CurrentMentalState(this.entity, this.mentalStates);
   final T entity;
-  final Map<MentalState, Level> mentalStates;
+  final Map<MentalTrait, Level> mentalStates;
 
   @override
   bool operator ==(Object other) =>
@@ -75,6 +76,7 @@ extension EntityTypeX on EntityType {
 extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
   EntityType get type => switch (this) {
         BehaviourFlag<CrazyJoe>() => const CrazyJoe(),
+        BehaviourFlag<PriestAbraham>() => const PriestAbraham(),
         CurrentMentalState(:final entity) => entity,
         EntityAtKeyLocation(:final entity) => entity,
       };

@@ -1,9 +1,8 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 
+import 'characters/characters.dart';
 import 'core/core.dart';
-import 'characters/crazy_joe.dart';
-import 'characters/player.dart';
 import 'ui/bottom_panel.dart';
 
 class GameWidget extends StatelessWidget {
@@ -31,7 +30,7 @@ class GameWidget extends StatelessWidget {
         onReady: initGame,
         showCollisionArea: false,
         // collisionAreaColor: Colors.red,
-        player: Knight(KeyLocation.crazyJoeFarm.br.mapPosition),
+        player: ShadowPlayer(KeyLocation.church.br.mapPosition),
         map: WorldMapByTiled(
           WorldMapReader.fromAsset('village.json'),
         ),
@@ -39,5 +38,8 @@ class GameWidget extends StatelessWidget {
 }
 
 void initGame(BonfireGameInterface game) {
-  game.add(CrazyJoeBrain(KeyLocation.crazyJoeFarm.ref.mapPosition));
+  game.addAll([
+    CrazyJoeController(KeyLocation.crazyJoeFarm.ref.mapPosition),
+    PriestController(KeyLocation.church.ref.mapPosition),
+  ]);
 }

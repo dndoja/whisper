@@ -9,7 +9,7 @@ environment:
 
 scripts:
   gen:
-    flags: dart lib/state/gen_flags.dart
+    flags: dart lib/core/gen_flags.dart
 
 dependencies:
   flutter:

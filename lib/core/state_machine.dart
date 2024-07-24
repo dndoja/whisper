@@ -30,18 +30,18 @@ class CharacterState<T extends EntityType> {
     required this.entityType,
     required this.behaviour,
     this.updatedAt = 0,
-    Map<MentalState, Level>? mentalStates,
+    Map<MentalTrait, Level>? mentalStates,
   }) : mentalStates = mentalStates != null
             ? Map.of(mentalStates)
-            : {MentalState.normal: Level.slight};
+            : {MentalTrait.normal: Level.slight};
 
   final T entityType;
   final int updatedAt;
   BehaviourFlag<T> behaviour;
 
-  final Map<MentalState, Level> mentalStates;
+  final Map<MentalTrait, Level> mentalStates;
 
-  void boostMentalState(MentalState state, [int levels = 1]) {
+  void boostMentalState(MentalTrait state, [int levels = 1]) {
     assert(levels > 0, 'levels should be > 0');
     final currLevel = mentalStates[state] ?? Level.none;
     final nextIndex = math.min(

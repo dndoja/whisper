@@ -4,14 +4,14 @@ import 'package:whisper/core/core.dart';
 
 import 'common.dart';
 
-class CrazyJoeController extends SimpleEnemy
+class PriestController extends SimpleEnemy
     with
         BlockMovementCollision,
         RandomMovement,
         MouseEventListener,
-        GameCharacter<CrazyJoe>,
+        GameCharacter<PriestAbraham>,
         PathFinding {
-  CrazyJoeController(Vector2 position)
+  PriestController(Vector2 position)
       : super(
           size: Vector2.all(16),
           position: position,
@@ -20,25 +20,22 @@ class CrazyJoeController extends SimpleEnemy
     subscribeToGameState();
   }
 
-  BehaviourFlag<CrazyJoe> prevBehaviour = const CrazyJoeChilling();
-  BehaviourFlag<CrazyJoe> currBehaviour = const CrazyJoeChilling();
+  BehaviourFlag<PriestAbraham> prevBehaviour = const PriestAbrahamChilling();
+  BehaviourFlag<PriestAbraham> currBehaviour = const PriestAbrahamChilling();
 
   @override
   bool transitioningToNewTurn = false;
 
   @override
-  CrazyJoe get character => const CrazyJoe();
+  PriestAbraham get character => const PriestAbraham();
 
   @override
   void update(double dt) {
     if (GameState.$.isPaused) return;
 
     switch (currBehaviour) {
-      case CrazyJoeChilling():
-        patrol(KeyLocation.crazyJoeFarm, dt);
-      case CrazyJoeRampaging():
-      case EntityAtKeyLocation<CrazyJoe>():
-      case CurrentMentalState<CrazyJoe>():
+      case PriestAbrahamChilling():
+        patrol(KeyLocation.church, dt);
     }
     super.update(dt);
   }
@@ -47,22 +44,10 @@ class CrazyJoeController extends SimpleEnemy
   void onStateChange(CharacterState newState) {
     if (newState.behaviour != currBehaviour) {
       prevBehaviour = currBehaviour;
-      currBehaviour = newState.behaviour as BehaviourFlag<CrazyJoe>;
-
-      turnTransitionStart();
-      switch (currBehaviour) {
-        case CrazyJoeRampaging():
-          gameRef.camera.follow(this);
-          moveToPositionWithPathFinding(
-            const Point16(50, 50).mapPosition,
-            onFinish: turnTransitionEnd,
-          );
-        case CrazyJoeChilling():
-          turnTransitionEnd();
-      }
-    } else {
-      turnTransitionEnd();
+      currBehaviour = newState.behaviour as BehaviourFlag<PriestAbraham>;
     }
+
+    turnTransitionEnd();
   }
 
   @override
@@ -82,3 +67,4 @@ class CrazyJoeController extends SimpleEnemy
     (gameRef as BonfireGame).mouseCursor = MouseCursor.defer;
   }
 }
+

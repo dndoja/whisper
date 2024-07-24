@@ -14,19 +14,24 @@ class Point16 {
 }
 
 enum KeyLocation {
-  crazyJoeFarm(
-    Point16(13, 50),
-    Point16(0, 43),
-    Point16(23, 59),
-  ),
   alchemistLab(
     Point16(0, 0),
     Point16(0, 0),
     Point16(0, 0),
   ),
+  church(
+    Point16(25, 10),
+    Point16(31, 14),
+    Point16(37, 22),
+  ),
+  crazyJoeFarm(
+    Point16(0, 43),
+    Point16(13, 50),
+    Point16(23, 59),
+  ),
   ;
 
-  const KeyLocation(this.ref, this.tl, this.br);
+  const KeyLocation(this.tl, this.ref, this.br);
   final Point16 tl;
   final Point16 br;
   final Point16 ref;

@@ -207,7 +207,7 @@ class _BottomPanelState extends State<BottomPanel> {
     for (int i = 0; i < shadowStepTargets.length; i++) {
       final SimpleEnemy target = shadowStepTargets[i];
       final double distance = target.distance(player);
-      if (distance > distanceToTarget) {
+      if (distance < distanceToTarget) {
         nextTargetIndex = i;
         distanceToTarget = distance;
       }
@@ -222,11 +222,11 @@ class _BottomPanelState extends State<BottomPanel> {
       followTarget: false,
       target: target,
       onComplete: () {
-        player.position = target.position.clone()..add(Vector2(0, -16));
         widget.gameRef.camera.follow(player);
         GameState.$.isPaused = false;
       },
     );
+    player.position = target.position.clone()..add(Vector2(0, -16));
   }
 
   void closeSoulMirror() {

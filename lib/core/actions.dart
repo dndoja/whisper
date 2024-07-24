@@ -10,20 +10,20 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
   CrazyJoe(): [
     ActionGroup(
       [
-        CurrentMentalState(CrazyJoe(), {MentalState.normal: Level.slight})
+        CurrentMentalState(CrazyJoe(), {MentalTrait.normal: Level.slight})
       ],
       [
         SoulWhisper(
           'Something is off with this town',
-          MentalState.paranoid,
+          MentalTrait.paranoid,
         ),
         SoulWhisper(
           'Old Bianca is sick',
-          MentalState.paranoid,
+          MentalTrait.paranoid,
         ),
         SoulWhisper(
           'Those damn kids',
-          MentalState.paranoid,
+          MentalTrait.paranoid,
         ),
       ],
     ),
@@ -44,7 +44,7 @@ class SoulWhisper extends TurnAction {
   ]);
 
   final String text;
-  final MentalState mentalState;
+  final MentalTrait mentalState;
   final int mentalStateLevelUp;
 
   @override
@@ -60,7 +60,7 @@ class ShadowyVisions extends TurnAction {
   );
 
   final String text;
-  final MentalState mentalState;
+  final MentalTrait mentalState;
   final int mentalStateBoost;
 
   @override
