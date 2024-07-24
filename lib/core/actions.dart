@@ -9,22 +9,21 @@ class ActionGroup {
 const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
   CrazyJoe(): [
     ActionGroup(
-      [CurrentMentalState(CrazyJoe(), MentalState.normal, 1)],
+      [
+        CurrentMentalState(CrazyJoe(), {MentalState.normal: Level.slight})
+      ],
       [
         SoulWhisper(
           'Something is off with this town',
           MentalState.paranoid,
-          200,
         ),
         SoulWhisper(
           'Old Bianca is sick',
           MentalState.paranoid,
-          10,
         ),
         SoulWhisper(
           'Those damn kids',
           MentalState.paranoid,
-          5,
         ),
       ],
     ),
@@ -40,17 +39,17 @@ sealed class TurnAction {
 class SoulWhisper extends TurnAction {
   const SoulWhisper(
     this.text,
-    this.mentalState,
-    this.mentalStateBoost,
-  );
+    this.mentalState, [
+    this.mentalStateLevelUp = 1,
+  ]);
 
   final String text;
   final MentalState mentalState;
-  final int mentalStateBoost;
+  final int mentalStateLevelUp;
 
   @override
   String toString() =>
-      'SoulWhisper($text, +$mentalStateBoost ${mentalState.name})';
+      'SoulWhisper($text, +$mentalStateLevelUp ${mentalState.name})';
 }
 
 class ShadowyVisions extends TurnAction {

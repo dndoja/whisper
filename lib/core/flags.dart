@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'key_locations.dart';
 
 part 'flags.g.dart';
@@ -12,6 +14,14 @@ enum MentalState {
   depressed,
 }
 
+enum Level {
+  none,
+  slight,
+  moderate,
+  major,
+  extreme,
+}
+
 sealed class EntityType {
   const EntityType();
 
@@ -24,8 +34,8 @@ sealed class EntityFlag<T extends EntityType> {
 
   @override
   String toString() => switch (this) {
-        CurrentMentalState(:final entity, :final mentalState) =>
-          '${entity}MentalState(${mentalState.name})',
+        CurrentMentalState(:final entity, :final mentalStates) =>
+          '${entity}MentalState($mentalStates)',
         _ => runtimeType.toString(),
       };
 }
@@ -41,17 +51,17 @@ class EntityAtKeyLocation<T extends EntityType> extends EntityFlag<T> {
 }
 
 class CurrentMentalState<T extends EntityType> extends EntityFlag<T> {
-  const CurrentMentalState(this.entity, this.mentalState, this.level);
+  const CurrentMentalState(this.entity, this.mentalStates);
   final T entity;
-  final MentalState mentalState;
-  final int level;
+  final Map<MentalState, Level> mentalStates;
 
   @override
   bool operator ==(Object other) =>
-      other is CurrentMentalState<T> && mentalState == other.mentalState;
+      other is CurrentMentalState<T> &&
+      mapEquals(mentalStates, other.mentalStates);
 
   @override
-  int get hashCode => entity.hashCode ^ mentalState.hashCode;
+  int get hashCode => Object.hashAll([entity, mentalStates]);
 }
 
 extension EntityTypeX on EntityType {

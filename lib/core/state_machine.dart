@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math' as math;
 
 import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
@@ -29,43 +30,30 @@ class CharacterState<T extends EntityType> {
     required this.entityType,
     required this.behaviour,
     this.updatedAt = 0,
-    Map<MentalState, int>? mentalStates,
+    Map<MentalState, Level>? mentalStates,
   }) : mentalStates = mentalStates != null
             ? Map.of(mentalStates)
-            : {
-                for (final mentalState in MentalState.values) mentalState: 0,
-                MentalState.normal: mentalStateCheckpoints[0],
-              };
+            : {MentalState.normal: Level.slight};
 
   final T entityType;
   final int updatedAt;
   BehaviourFlag<T> behaviour;
 
-  final Map<MentalState, int> mentalStates;
-  CurrentMentalState<T> get currentMentalState {
-    final mostProminent = mentalStates.entries.maxBy((e) => e.value)!.key;
-    final mostProminentVal = mentalStates[mostProminent]!;
-    return CurrentMentalState(
-      entityType,
-      mostProminent,
-      mentalStateCheckpoints.lastIndexWhere((c) => c <= mostProminentVal),
-    );
-  }
+  final Map<MentalState, Level> mentalStates;
 
-  void boostMentalState(MentalState mentalState, [int? amount]) {
-    if (amount == null) {
-      final max = mentalStates.entries.maxBy((e) => e.value)!;
-      if (max.key != mentalState) mentalStates[mentalState] = max.value + 1;
-    } else {
-      final int curr = mentalStates[mentalState] ?? 0;
-      mentalStates[mentalState] = curr + amount;
-    }
+  void boostMentalState(MentalState state, [int levels = 1]) {
+    assert(levels > 0, 'levels should be > 0');
+    final currLevel = mentalStates[state] ?? Level.none;
+    final nextIndex = math.min(
+      currLevel.index + levels,
+      Level.values.lastIndex,
+    );
+    mentalStates[state] = Level.values[nextIndex];
   }
 
   Iterable<EntityFlag<T>> flags() sync* {
     yield behaviour;
-    final currentMentalState = this.currentMentalState;
-    yield currentMentalState;
+    yield CurrentMentalState(entityType, mentalStates);
   }
 }
 
@@ -127,7 +115,7 @@ class GameState {
         ..write(entityType.toString())
         ..write(': $physicalState');
       if (entityType.isHuman) {
-        buffer.write(', ${state.currentMentalState.mentalState.name}');
+        buffer.write(', ${state.mentalStates}');
       }
 
       buffer.write(' (mut: ${state.updatedAt})');
@@ -154,7 +142,7 @@ class GameState {
       final target = entry.key;
       switch (entry.value) {
         case ShadowyVisions(:final mentalState, :final mentalStateBoost):
-        case SoulWhisper(:final mentalState, :final mentalStateBoost):
+        case SoulWhisper(:final mentalState, mentalStateLevelUp:final mentalStateBoost):
           entityStates[target]!
               .last
               .boostMentalState(mentalState, mentalStateBoost);
@@ -205,7 +193,7 @@ class GameState {
         } else if (prev.updatedAt == currentTurn) {
           switch (nextState) {
             case CurrentMentalState():
-              prev.boostMentalState(nextState.mentalState);
+              prev.mentalStates.addAll(nextState.mentalStates);
             case BehaviourFlag():
               prev.behaviour = nextState;
             case EntityAtKeyLocation<EntityType>():
@@ -221,7 +209,7 @@ class GameState {
 
           switch (nextState) {
             case CurrentMentalState():
-              newState.boostMentalState(nextState.mentalState);
+              newState.mentalStates.addAll(nextState.mentalStates);
             case BehaviourFlag():
               newState.behaviour = nextState;
             case EntityAtKeyLocation<EntityType>():
