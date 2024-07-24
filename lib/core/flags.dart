@@ -24,7 +24,7 @@ sealed class EntityFlag<T extends EntityType> {
 
   @override
   String toString() => switch (this) {
-        EntityMentalState(:final entity, :final mentalState) =>
+        CurrentMentalState(:final entity, :final mentalState) =>
           '${entity}MentalState(${mentalState.name})',
         _ => runtimeType.toString(),
       };
@@ -40,14 +40,15 @@ class EntityAtKeyLocation<T extends EntityType> extends EntityFlag<T> {
   final KeyLocation location;
 }
 
-class EntityMentalState<T extends EntityType> extends EntityFlag<T> {
-  const EntityMentalState(this.entity, this.mentalState);
+class CurrentMentalState<T extends EntityType> extends EntityFlag<T> {
+  const CurrentMentalState(this.entity, this.mentalState, this.level);
   final T entity;
   final MentalState mentalState;
+  final int level;
 
   @override
   bool operator ==(Object other) =>
-      other is EntityMentalState<T> && mentalState == other.mentalState;
+      other is CurrentMentalState<T> && mentalState == other.mentalState;
 
   @override
   int get hashCode => entity.hashCode ^ mentalState.hashCode;
@@ -64,7 +65,7 @@ extension EntityTypeX on EntityType {
 extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
   EntityType get type => switch (this) {
         BehaviourFlag<CrazyJoe>() => const CrazyJoe(),
-        EntityMentalState(:final entity) => entity,
+        CurrentMentalState(:final entity) => entity,
         EntityAtKeyLocation(:final entity) => entity,
       };
 }

@@ -1,9 +1,7 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 
-import 'state/state.dart';
-export 'state/state.dart';
-
+import 'core/core.dart';
 import 'characters/crazy_joe.dart';
 import 'characters/player.dart';
 import 'ui/bottom_panel.dart';

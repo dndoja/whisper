@@ -1,12 +1,14 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:whisper/game.dart';
+import 'package:flutter/services.dart';
+import 'package:whisper/core/core.dart';
 
 import 'animations.dart';
 
 class CrazyJoeBrain extends SimpleEnemy
     with
-        // BlockMovementCollision,
+        BlockMovementCollision,
         RandomMovement,
+        MouseEventListener,
         GameCharacter<CrazyJoe>,
         PathFinding {
   CrazyJoeBrain(Vector2 position)
@@ -29,12 +31,14 @@ class CrazyJoeBrain extends SimpleEnemy
 
   @override
   void update(double dt) {
+    if (GameState.$.isPaused) return;
+
     switch (currBehaviour) {
       case CrazyJoeChilling():
         patrolFarm(dt);
       case CrazyJoeRampaging():
       case EntityAtKeyLocation<CrazyJoe>():
-      case EntityMentalState<CrazyJoe>():
+      case CurrentMentalState<CrazyJoe>():
     }
     super.update(dt);
   }
@@ -81,5 +85,22 @@ class CrazyJoeBrain extends SimpleEnemy
     } else {
       turnTransitionEnd();
     }
+  }
+
+  @override
+  void onMouseTap(MouseButton button) {
+    if (button == MouseButton.left) CharacterTapManager.$.onTap(character);
+  }
+
+  @override
+  void onMouseHoverEnter(int pointer, Vector2 position) {
+    if (CharacterTapManager.$.waitingForTaps) {
+      (gameRef as BonfireGame).mouseCursor = SystemMouseCursors.click;
+    }
+  }
+
+  @override
+  void onMouseHoverExit(int pointer, Vector2 position) {
+    (gameRef as BonfireGame).mouseCursor = MouseCursor.defer;
   }
 }

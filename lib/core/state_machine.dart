@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
-import 'package:whisper/state/state.dart';
 
 import 'flags.dart';
 import 'transitions.dart';
@@ -35,7 +34,7 @@ class CharacterState<T extends EntityType> {
             ? Map.of(mentalStates)
             : {
                 for (final mentalState in MentalState.values) mentalState: 0,
-                MentalState.normal: 100,
+                MentalState.normal: mentalStateCheckpoints[0],
               };
 
   final T entityType;
@@ -43,12 +42,15 @@ class CharacterState<T extends EntityType> {
   BehaviourFlag<T> behaviour;
 
   final Map<MentalState, int> mentalStates;
-  EntityMentalState<T>? get currentMentalState => entityType.isHuman
-      ? EntityMentalState(
-          entityType,
-          mentalStates.entries.maxBy((e) => e.value)!.key,
-        )
-      : null;
+  CurrentMentalState<T> get currentMentalState {
+    final mostProminent = mentalStates.entries.maxBy((e) => e.value)!.key;
+    final mostProminentVal = mentalStates[mostProminent]!;
+    return CurrentMentalState(
+      entityType,
+      mostProminent,
+      mentalStateCheckpoints.lastIndexWhere((c) => c <= mostProminentVal),
+    );
+  }
 
   void boostMentalState(MentalState mentalState, [int? amount]) {
     if (amount == null) {
@@ -63,11 +65,11 @@ class CharacterState<T extends EntityType> {
   Iterable<EntityFlag<T>> flags() sync* {
     yield behaviour;
     final currentMentalState = this.currentMentalState;
-    if (currentMentalState != null) yield currentMentalState;
+    yield currentMentalState;
   }
 }
 
-mixin GameCharacter<T extends EntityType> on Npc {
+mixin GameCharacter<T extends EntityType> on SimpleEnemy {
   bool get transitioningToNewTurn;
   set transitioningToNewTurn(bool _);
 
@@ -106,6 +108,8 @@ class GameState {
   int currentTurn = 0;
   EntityType? lockedBy;
 
+  bool isPaused = false;
+
   @override
   String toString() {
     final StringBuffer buffer = StringBuffer();
@@ -123,7 +127,7 @@ class GameState {
         ..write(entityType.toString())
         ..write(': $physicalState');
       if (entityType.isHuman) {
-        buffer.write(', ${state.currentMentalState?.mentalState.name}');
+        buffer.write(', ${state.currentMentalState.mentalState.name}');
       }
 
       buffer.write(' (mut: ${state.updatedAt})');
@@ -133,13 +137,27 @@ class GameState {
     return buffer.toString();
   }
 
-  void endTurn([List<UserAction> turnActions = const []]) {
-    if (lockedBy != null) return;
+  Iterable<TurnAction> availableActionsFor(EntityType entity) sync* {
+    final Iterable<EntityFlag> currFlags =
+        entityStates[entity]?.lastOrNull?.flags() ?? const [];
+    final List<ActionGroup> actionGroups = entityAvailableOptions[entity] ?? [];
 
-    for (final action in turnActions) {
-      switch (action) {
-        case SoulWhisper(:final target, :final mentalState, :final bonus):
-          entityStates[target]!.last.boostMentalState(mentalState, bonus);
+    for (final group in actionGroups) {
+      if (currFlags.containsAll(group.conditions)) yield* group.actions;
+    }
+  }
+
+  void endTurn([Map<EntityType, TurnAction> turnActions = const {}]) {
+    if (lockedBy != null || isPaused) return;
+
+    for (final entry in turnActions.entries) {
+      final target = entry.key;
+      switch (entry.value) {
+        case ShadowyVisions(:final mentalState, :final mentalStateBoost):
+        case SoulWhisper(:final mentalState, :final mentalStateBoost):
+          entityStates[target]!
+              .last
+              .boostMentalState(mentalState, mentalStateBoost);
         default:
       }
     }
@@ -186,7 +204,7 @@ class GameState {
           ));
         } else if (prev.updatedAt == currentTurn) {
           switch (nextState) {
-            case EntityMentalState():
+            case CurrentMentalState():
               prev.boostMentalState(nextState.mentalState);
             case BehaviourFlag():
               prev.behaviour = nextState;
@@ -202,7 +220,7 @@ class GameState {
           );
 
           switch (nextState) {
-            case EntityMentalState():
+            case CurrentMentalState():
               newState.boostMentalState(nextState.mentalState);
             case BehaviourFlag():
               newState.behaviour = nextState;

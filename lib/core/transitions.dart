@@ -12,11 +12,13 @@ const List<List<StateTransition>> stateTransitions = [
   [
     $([], [CrazyJoeChilling()]),
     $(
-      [EntityMentalState(CrazyJoe(), MentalState.paranoid)],
+      [CurrentMentalState(CrazyJoe(), MentalState.paranoid, 1)],
       [CrazyJoeRampaging()],
     ),
   ],
 ];
+
+const List<int> mentalStateCheckpoints = [100, 130, 160, 180, 200];
 
 // const List<List<StateTransition>> stateTransitions = [
 //   // Glowy
@@ -71,4 +73,3 @@ const List<List<StateTransition>> stateTransitions = [
 //     ),
 //   ],
 // ];
-
