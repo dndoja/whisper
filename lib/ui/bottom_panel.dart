@@ -114,10 +114,7 @@ class _BottomPanelState extends State<BottomPanel> {
                       ),
                       const SizedBox(width: 16),
                       InkWell(
-                        onTap: () => setState(() {
-                          GameState.$.endTurn(turnActions);
-                          turnActions = {};
-                        }),
+                        onTap: endTurn,
                         child: Container(
                           margin: const EdgeInsets.all(8),
                           decoration: const BoxDecoration(
@@ -137,6 +134,25 @@ class _BottomPanelState extends State<BottomPanel> {
           ],
         ),
       );
+
+  void endTurn() {
+    setState(() {
+      GameState.$.endTurn(turnActions);
+      turnActions = {};
+    });
+
+    final Iterable<(EntityType, String)> dialogs =
+        GameState.$.characterDialogs();
+
+    if (dialogs.isEmpty) return;
+
+    TalkDialog.show(
+      context,
+      [
+        for (final (_, dialog) in dialogs) Say(text: [TextSpan(text: dialog)]),
+      ],
+    );
+  }
 
   bool _onKeyPressed(KeyEvent event) {
     if (event is! KeyUpEvent) return false;
@@ -350,8 +366,7 @@ class SoulMirrorWidget extends StatelessWidget {
                   text: 'Behaviour: ${characterState.behaviour}',
                   style: const TextStyle(fontSize: 24),
                 ),
-                const TextSpan(text: '\n'),
-                const TextSpan(text: '\n'),
+                const TextSpan(text: '\n\n'),
                 const TextSpan(text: 'Mental States:'),
                 const TextSpan(text: '\n'),
                 for (final entry in characterState.mentalStates.entries)

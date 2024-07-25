@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
 
+import 'dialogs.dart';
 import 'flags.dart';
 import 'transitions.dart';
 
@@ -29,9 +30,9 @@ class CharacterState<T extends EntityType> {
   CharacterState({
     required this.entityType,
     required this.behaviour,
-    this.updatedAt = 0,
     int? sanityLevel,
     Map<MentalTrait, Level>? mentalStates,
+    this.updatedAt = 0,
   })  : mentalStates = mentalStates != null ? Map.of(mentalStates) : {},
         sanityLevel = sanityLevel ?? entityType.initialSanity;
 
@@ -43,6 +44,14 @@ class CharacterState<T extends EntityType> {
   BehaviourFlag<T> behaviour;
 
   final Map<MentalTrait, Level> mentalStates;
+
+  CharacterState<T> cloneIn(int turnNumber) => CharacterState(
+        entityType: entityType,
+        behaviour: behaviour,
+        sanityLevel: sanityLevel,
+        mentalStates: Map.of(mentalStates),
+        updatedAt: turnNumber,
+      );
 
   void boostMentalState(MentalTrait state, [int levels = 1]) {
     assert(levels > 0, 'levels should be > 0');
@@ -151,6 +160,40 @@ class GameState {
 
   CharacterState ofCharacter(EntityType entity) => entityStates[entity]!.last;
 
+  Iterable<(EntityType, String)> characterDialogs() sync* {
+    for (final entity in entityDialogs.keys) {
+      final EntityDialogs dialogs = entityDialogs[entity]!;
+
+      final List<CharacterState> states = entityStates[entity] ?? const [];
+      if (states.length < 2) continue;
+
+      final CharacterState prev = states[states.length - 2];
+      final CharacterState curr = states[states.length - 1];
+
+      final bool hasNewBehaviour = curr.behaviour != prev.behaviour;
+      if (hasNewBehaviour) {
+        final dialog = dialogs.forBehaviours[curr.behaviour];
+        if (dialog != null) {
+          yield (entity, dialog);
+          continue;
+        }
+      }
+
+      for (final trait in curr.mentalStates.keys) {
+        final Level currLvl = curr.mentalStates[trait]!;
+        final Level prevLvl = prev.mentalStates[trait] ?? Level.none;
+
+        if (currLvl.index > prevLvl.index) {
+          final dialog = dialogs.forMentalTraits[(trait, currLvl)];
+          if (dialog != null) {
+            yield (entity, dialog);
+            continue;
+          }
+        }
+      }
+    }
+  }
+
   void endTurn([Map<EntityType, TurnAction> turnActions = const {}]) {
     if (lockedBy != null || isPaused) return;
 
@@ -160,7 +203,12 @@ class GameState {
 
     for (final entry in turnActions.entries) {
       final target = entry.key;
-      final targetState = entityStates[target]!.last;
+      final history = entityStates[target]!;
+      if (history.last.updatedAt < currentTurn) {
+        history.add(history.last.cloneIn(currentTurn));
+      }
+      final CharacterState targetState = history.last;
+
       switch (entry.value) {
         case SoulWhisper(
             :final mentalState,
@@ -225,14 +273,8 @@ class GameState {
             updatedAt: currentTurn,
           ));
         } else {
-          final CharacterState mutated = prev.updatedAt == currentTurn
-              ? prev
-              : CharacterState(
-                  entityType: prev.entityType,
-                  mentalStates: prev.mentalStates,
-                  behaviour: prev.behaviour,
-                  updatedAt: currentTurn,
-                );
+          final CharacterState mutated =
+              prev.updatedAt == currentTurn ? prev : prev.cloneIn(currentTurn);
 
           switch (nextState) {
             case CurrentMentalState():

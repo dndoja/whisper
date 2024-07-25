@@ -9,30 +9,37 @@ class GameWidget extends StatelessWidget {
   const GameWidget({super.key});
 
   @override
-  Widget build(BuildContext context) => BonfireWidget(
-        playerControllers: [
-          Keyboard(
-            config: KeyboardConfig(
-              enable: true,
-              directionalKeys: [
-                KeyboardDirectionalKeys.wasd(),
-              ],
-            ),
-          ),
+  Widget build(BuildContext context) => MaterialApp(
+        localizationsDelegates: const [
+          DefaultMaterialLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
         ],
-        cameraConfig: CameraConfig(
-          // zoom: 50,
-          resolution: Vector2(500, 300),
-          moveOnlyMapArea: true,
-        ),
-        overlayBuilderMap: {'bottom': (_, game) => BottomPanel(game)},
-        initialActiveOverlays: const ['bottom'],
-        onReady: initGame,
-        showCollisionArea: false,
-        // collisionAreaColor: Colors.red,
-        player: ShadowPlayer(KeyLocation.church.br.mapPosition),
-        map: WorldMapByTiled(
-          WorldMapReader.fromAsset('village.json'),
+        home: BonfireWidget(
+          playerControllers: [
+            Keyboard(
+              config: KeyboardConfig(
+                enable: true,
+                directionalKeys: [
+                  KeyboardDirectionalKeys.wasd(),
+                ],
+              ),
+            ),
+          ],
+          cameraConfig: CameraConfig(
+            // zoom: 50,
+            resolution: Vector2(500, 300),
+            moveOnlyMapArea: true,
+          ),
+          overlayBuilderMap: {
+            'bottom': (_, game) => BottomPanel(game),
+          },
+          initialActiveOverlays: const ['bottom'],
+          onReady: initGame,
+          showCollisionArea: false,
+          player: ShadowPlayer(KeyLocation.church.br.mapPosition),
+          map: WorldMapByTiled(
+            WorldMapReader.fromAsset('village.json'),
+          ),
         ),
       );
 }

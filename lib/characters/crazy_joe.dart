@@ -48,6 +48,7 @@ class CrazyJoeController extends SimpleEnemy
       case CrazyJoeRunningFromUndead():
       case CrazyJoeAtoneing():
         // throw UnimplementedError();
+        return;
     }
     super.update(dt);
   }
