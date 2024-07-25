@@ -4,19 +4,16 @@ import 'package:flutter/services.dart';
 
 import 'package:whisper/core/core.dart';
 
-const loremIpsum =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vitae leo ac nisl sodales molestie sit amet eu nunc. Ut in mi vel tortor auctor tempus a sit amet erat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac nisl a ex malesuada ornare sed et velit. In nec nisi eget est eleifend aliquet. Etiam vel porttitor neque, sed dignissim risus. Duis enim erat, efficitur sed augue vel, ornare rhoncus libero.';
-
-class SoulMirrorTarget {
-  const SoulMirrorTarget(
+class ShadowyTendrilsTarget {
+  const ShadowyTendrilsTarget(
     this.target, {
-    required this.availableShadowyVisions,
-    required this.availableSoulWhispers,
+    required this.availableVisionsOfMadness,
+    required this.availableDarkWhispers,
   });
 
   final EntityType target;
-  final List<SurrenderToMadness> availableShadowyVisions;
-  final List<SoulWhisper> availableSoulWhispers;
+  final List<VisionsOfMadness> availableVisionsOfMadness;
+  final List<DarkWhispers> availableDarkWhispers;
 }
 
 class BottomPanel extends StatefulWidget {
@@ -28,17 +25,17 @@ class BottomPanel extends StatefulWidget {
 }
 
 class _BottomPanelState extends State<BottomPanel> {
-  final List<SimpleEnemy> shadowStepTargets = [];
+  final List<SimpleEnemy> shadowstepTargets = [];
   Map<EntityType, TurnAction> turnActions = {};
 
-  SoulMirrorTarget? soulMirrorTarget;
+  ShadowyTendrilsTarget? tendrilsTarget;
   TurnActionType? selectedActionType;
 
-  bool get canSoulWhisper =>
-      soulMirrorTarget?.availableSoulWhispers.isNotEmpty == true;
+  bool get canCastDarkWhispers =>
+      tendrilsTarget?.availableDarkWhispers.isNotEmpty == true;
 
-  bool get canShadowyVisions =>
-      soulMirrorTarget?.availableShadowyVisions.isNotEmpty == true;
+  bool get canCastVisionsOfMadness =>
+      tendrilsTarget?.availableVisionsOfMadness.isNotEmpty == true;
 
   @override
   void initState() {
@@ -64,24 +61,25 @@ class _BottomPanelState extends State<BottomPanel> {
                 style: const TextStyle(fontSize: 40),
               ),
             ),
-            if (soulMirrorTarget != null)
+            if (tendrilsTarget != null)
               Align(
                 alignment: Alignment.centerLeft,
-                child: SoulMirrorWidget(soulMirrorTarget!.target),
+                child: ShadowyTendrilsWidget(tendrilsTarget!.target),
               ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (selectedActionType == TurnActionType.soulWhisper)
+                  if (selectedActionType == TurnActionType.darkWhispers)
                     SoulWhisperWidget(
-                      options: soulMirrorTarget!.availableSoulWhispers,
+                      options: tendrilsTarget!.availableDarkWhispers,
                       onPicked: finishOptionPicking,
                     )
-                  else if (selectedActionType == TurnActionType.shadowyVisions)
+                  else if (selectedActionType ==
+                      TurnActionType.visionsOfMadness)
                     ShadowyVisionsWidget(
-                      options: soulMirrorTarget!.availableShadowyVisions,
+                      options: tendrilsTarget!.availableVisionsOfMadness,
                       onPicked: finishOptionPicking,
                     ),
                   Row(
@@ -94,19 +92,19 @@ class _BottomPanelState extends State<BottomPanel> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ActionButton('1', onTap: shadowStep),
+                            ActionButton('1', onTap: shadowstep),
                             const SizedBox(width: 32),
-                            ActionButton('2', onTap: soulMirror),
+                            ActionButton('2', onTap: shadowyTendrils),
                             const SizedBox(width: 32),
                             ActionButton(
                               '3',
-                              onTap: canSoulWhisper ? soulWhisperStart : null,
+                              onTap: canCastDarkWhispers ? darkWhispersStart : null,
                             ),
                             const SizedBox(width: 32),
                             ActionButton(
                               '4',
-                              onTap: canShadowyVisions
-                                  ? shadowyVisionsStart
+                              onTap: canCastVisionsOfMadness
+                                  ? visionsOfMadnessStart
                                   : null,
                             ),
                           ],
@@ -158,10 +156,10 @@ class _BottomPanelState extends State<BottomPanel> {
     if (event is! KeyUpEvent) return false;
 
     final List<TurnAction> currentActions = switch (selectedActionType) {
-      TurnActionType.soulWhisper =>
-        soulMirrorTarget?.availableSoulWhispers ?? const [],
-      TurnActionType.shadowyVisions =>
-        soulMirrorTarget?.availableShadowyVisions ?? const [],
+      TurnActionType.darkWhispers =>
+        tendrilsTarget?.availableDarkWhispers ?? const [],
+      TurnActionType.visionsOfMadness =>
+        tendrilsTarget?.availableVisionsOfMadness ?? const [],
       _ => const []
     };
 
@@ -201,13 +199,13 @@ class _BottomPanelState extends State<BottomPanel> {
 
     switch (event.logicalKey) {
       case LogicalKeyboardKey.digit1:
-        shadowStep();
+        shadowstep();
       case LogicalKeyboardKey.digit2:
-        soulMirror();
+        shadowyTendrils();
       case LogicalKeyboardKey.digit3:
-        soulWhisperStart();
+        darkWhispersStart();
       case LogicalKeyboardKey.digit4:
-        shadowyVisionsStart();
+        visionsOfMadnessStart();
       default:
         return false;
     }
@@ -215,23 +213,23 @@ class _BottomPanelState extends State<BottomPanel> {
     return true;
   }
 
-  void shadowStep() {
+  void shadowstep() {
     if (GameState.$.isPaused) return;
 
     GameState.$.isPaused = true;
 
-    if (shadowStepTargets.isEmpty) {
+    if (shadowstepTargets.isEmpty) {
       final Iterable<SimpleEnemy> enemies = widget.gameRef.query();
       if (enemies.isEmpty) return;
-      shadowStepTargets.addAll(enemies);
+      shadowstepTargets.addAll(enemies);
     }
 
     final player = widget.gameRef.player!;
     int nextTargetIndex = 0;
     double distanceToTarget = -1;
 
-    for (int i = 0; i < shadowStepTargets.length; i++) {
-      final SimpleEnemy target = shadowStepTargets[i];
+    for (int i = 0; i < shadowstepTargets.length; i++) {
+      final SimpleEnemy target = shadowstepTargets[i];
       final double distance = target.distance(player);
       if (distance < distanceToTarget) {
         nextTargetIndex = i;
@@ -239,7 +237,7 @@ class _BottomPanelState extends State<BottomPanel> {
       }
     }
 
-    final SimpleEnemy target = shadowStepTargets.removeAt(nextTargetIndex);
+    final SimpleEnemy target = shadowstepTargets.removeAt(nextTargetIndex);
     widget.gameRef.camera.moveToTargetAnimated(
       effectController: EffectController(
         curve: Curves.easeInOut,
@@ -255,19 +253,18 @@ class _BottomPanelState extends State<BottomPanel> {
     player.position = target.position.clone()..add(Vector2(0, -16));
   }
 
-  void closeSoulMirror() {
+  void closeShadowyTendrils() {
     setState(() {
-      soulMirrorTarget = null;
+      tendrilsTarget = null;
       selectedActionType = null;
     });
 
     if (GameState.$.isPaused) GameState.$.isPaused = false;
   }
 
-  Future<void> soulMirror() async {
-    print('Opening soul mirror ${GameState.$.isPaused}');
-    if (soulMirrorTarget != null) {
-      closeSoulMirror();
+  Future<void> shadowyTendrils() async {
+    if (tendrilsTarget != null) {
+      closeShadowyTendrils();
       return;
     }
 
@@ -276,44 +273,44 @@ class _BottomPanelState extends State<BottomPanel> {
 
     setState(() {
       final availableActions = GameState.$.availableActionsFor(character);
-      final target = SoulMirrorTarget(
+      final target = ShadowyTendrilsTarget(
         character,
-        availableSoulWhispers: [],
-        availableShadowyVisions: [],
+        availableDarkWhispers: [],
+        availableVisionsOfMadness: [],
       );
 
       for (final action in availableActions) {
         switch (action) {
-          case SoulWhisper():
-            target.availableSoulWhispers.add(action);
-          case SurrenderToMadness():
-            target.availableShadowyVisions.add(action);
+          case DarkWhispers():
+            target.availableDarkWhispers.add(action);
+          case VisionsOfMadness():
+            target.availableVisionsOfMadness.add(action);
         }
       }
 
-      soulMirrorTarget = target;
+      tendrilsTarget = target;
     });
   }
 
-  void soulWhisperStart() {
-    final SoulMirrorTarget? target = soulMirrorTarget;
+  void darkWhispersStart() {
+    final ShadowyTendrilsTarget? target = tendrilsTarget;
     if (target == null) return;
-    if (target.availableSoulWhispers.isEmpty) return;
+    if (target.availableDarkWhispers.isEmpty) return;
 
-    setState(() => selectedActionType = TurnActionType.soulWhisper);
+    setState(() => selectedActionType = TurnActionType.darkWhispers);
   }
 
-  Future<void> shadowyVisionsStart() async {
-    final SoulMirrorTarget? target = soulMirrorTarget;
+  Future<void> visionsOfMadnessStart() async {
+    final ShadowyTendrilsTarget? target = tendrilsTarget;
     if (target == null) return;
-    if (target.availableSoulWhispers.isEmpty) return;
+    if (target.availableDarkWhispers.isEmpty) return;
 
-    setState(() => selectedActionType = TurnActionType.shadowyVisions);
+    setState(() => selectedActionType = TurnActionType.visionsOfMadness);
   }
 
   void finishOptionPicking(TurnAction pickedOption) {
-    turnActions[soulMirrorTarget!.target] = pickedOption;
-    closeSoulMirror();
+    turnActions[tendrilsTarget!.target] = pickedOption;
+    closeShadowyTendrils();
   }
 }
 
@@ -335,8 +332,8 @@ class ActionButton extends StatelessWidget {
       );
 }
 
-class SoulMirrorWidget extends StatelessWidget {
-  const SoulMirrorWidget(this.target);
+class ShadowyTendrilsWidget extends StatelessWidget {
+  const ShadowyTendrilsWidget(this.target);
   final EntityType target;
 
   @override
@@ -385,8 +382,8 @@ class SoulWhisperWidget extends StatelessWidget {
     required this.options,
     required this.onPicked,
   });
-  final List<SoulWhisper> options;
-  final void Function(SoulWhisper) onPicked;
+  final List<DarkWhispers> options;
+  final void Function(DarkWhispers) onPicked;
 
   @override
   Widget build(BuildContext context) => Background(
@@ -406,8 +403,8 @@ class ShadowyVisionsWidget extends StatelessWidget {
     required this.options,
     required this.onPicked,
   });
-  final List<SurrenderToMadness> options;
-  final void Function(SurrenderToMadness) onPicked;
+  final List<VisionsOfMadness> options;
+  final void Function(VisionsOfMadness) onPicked;
 
   @override
   Widget build(BuildContext context) => Background(

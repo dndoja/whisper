@@ -11,7 +11,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
     ActionGroup(
       [SanityLevel(CrazyJoe(), 1)],
       [
-        SurrenderToMadness(
+        VisionsOfMadness(
           'God speaks to Joe, letting him know that he is his strongest soldier.',
           [
             StateTransition(
@@ -43,85 +43,85 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       ],
     ),
     ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 0)],
+      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 0)],
       [
-        SoulWhisper(
+        DarkWhispers(
           'Paranoid',
           MentalTrait.paranoid,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Zealous',
           MentalTrait.zealous,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Superstitious',
           MentalTrait.superstitious,
         ),
       ],
     ),
     ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 1)],
+      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 1)],
       [
-        SoulWhisper(
+        DarkWhispers(
           'Paranoid',
           MentalTrait.paranoid,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Zealous',
           MentalTrait.zealous,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Superstitious',
           MentalTrait.superstitious,
         ),
       ],
     ),
     ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 2)],
+      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 2)],
       [
-        SoulWhisper(
+        DarkWhispers(
           'Paranoid',
           MentalTrait.paranoid,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Zealous',
           MentalTrait.zealous,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Superstitious',
           MentalTrait.superstitious,
         ),
       ],
     ),
     ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 3)],
+      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 3)],
       [
-        SoulWhisper(
+        DarkWhispers(
           'Paranoid',
           MentalTrait.paranoid,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Zealous',
           MentalTrait.zealous,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Superstitious',
           MentalTrait.superstitious,
         ),
       ],
     ),
     ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 4)],
+      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 4)],
       [
-        SoulWhisper(
+        DarkWhispers(
           'Paranoid',
           MentalTrait.paranoid,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Zealous',
           MentalTrait.zealous,
         ),
-        SoulWhisper(
+        DarkWhispers(
           'Superstitious',
           MentalTrait.superstitious,
         ),
@@ -130,14 +130,14 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
   ],
 };
 
-enum TurnActionType { soulWhisper, shadowyVisions }
+enum TurnActionType { darkWhispers, visionsOfMadness }
 
 sealed class TurnAction {
   const TurnAction();
 }
 
-class SoulWhisper extends TurnAction {
-  const SoulWhisper(
+class DarkWhispers extends TurnAction {
+  const DarkWhispers(
     this.text,
     this.mentalState, {
     this.mentalStateLevelIncrease = 1,
@@ -151,11 +151,11 @@ class SoulWhisper extends TurnAction {
 
   @override
   String toString() =>
-      'SoulWhisper($text, +$mentalStateLevelIncrease ${mentalState.name}, -$sanityDamage sanity)';
+      'DarkWhisper($text, +$mentalStateLevelIncrease ${mentalState.name}, -$sanityDamage sanity)';
 }
 
-class SurrenderToMadness extends TurnAction {
-  const SurrenderToMadness(this.text, this.transitions);
+class VisionsOfMadness extends TurnAction {
+  const VisionsOfMadness(this.text, this.transitions);
   final String text;
   final List<StateTransition> transitions;
 

@@ -2,7 +2,7 @@
 
 ## Pitch 
 
-Whisper is a turn based game puzzle game focused on emotional manipulation and trickery. 
+Whisper is a psychological turn based game puzzle game focused on emotional manipulation and trickery. 
 You play as a celestial being trying to prevent the mortal races from discovering the secret of immortality.
 
 ## Lore
@@ -37,7 +37,64 @@ must stop them, or else...
 ## Mechanics
 
 As a Shadow, you cannot interact with the physical world, you need to reach your goal using soul manipulation and trickery:
-- **Shadowstep**: Instantly teleport to a Mortal who is vulnerable to manipulation.
-- **Soul Mirror**: You can use this on Mortals to gain insights of their souls, their past, their ambitions and their biggest secrets. The amount of information you get is dependent on the Mortal's `Resolve`.
-- **Soul Whisper**: This is your main tool of manipulation, you can whisper into Mortal's souls to plant thoughts in their head and have them do your bidding. The effectivity of this tool is dependend on the Mortal's `Resolve`. You get a limited amount of whispers each turn.
-- **Shadow Clone**: Project a temporary illusion at the targeted location, appearing as a Mortal being which can be seen by other Mortals. You can talk to them but you cannot interact with them physically.
+- **Shadowstep**: Instantly teleport to a Mortal who is vulnerable to manipulation. If `Shadowy Tendrils` are active, they will also move to the new target.
+- **Shadowy Tendrils**: Extend a pair of Shadowy Tendrils and invade the targeted Mortal's soul. 
+Invading a Mortal's soul gives you access to their thoughts and enables you to use `Dark Whispers` and `Visions of Madness` on them. Only usable on Mortals with a `Wounded` soul.
+- **Dark Whispers**: Impersonate the Mortal's subconciousness and plant a thought in their head, affecting their emotional state and pushing them one step further to the Brink of Madness.
+- **Visions of Madness**: Plant a powerful vision to a Mortal that is in the `Brink of Madness`, pushing them over the edge and greatly altering their behaviour.
+Depending on their emotional state and type of vision chosen, it can bring greatly benefitial or catastrophic results.
+
+## Planning:
+
+Plan A:
+
+25 Jul:
+[ ] Design the Priest's behaviour tree.  
+[ ] Finish with the implementation of Crazy Joe's behaviour.
+
+26 Jul:
+[ ] Design the Lovers' behaviour tree.  
+[ ] Finish with the implementation of the Priest's behaviour.
+
+27 Jul:
+[ ] Design the Fisherman's behaviour tree.  
+[ ] Finish with the implementation of the Lovers' behaviour.
+
+28 Jul:
+[ ] Finish with the implementation of the Fisherman's behaviour.
+[ ] Add the intro and game end animations
+[ ] Fix bugs
+
+29 Jul:
+[ ] Polish the UI, add `Shadowy Tendrils` animation, make `Shadowstep` work while `Shadowy Tendrils` are active, add decoration to vulnerable NPCs.
+[ ] Add ability introductions
+
+30 Jul:
+[ ] Polish the map, add animations, change to Night time.
+[ ] Add some uninteractable NPCs
+
+Plan B:
+
+25 Jul:
+[ ] Design the all of the behaviour trees.  
+[ ] Implement the cutscene/dialog system.
+
+26 Jul:
+[ ] Implement Crazy Joe's behaviour.
+[ ] Implement the Priest's behaviour.
+
+27 Jul:
+[ ] Implement The Lovers' behaviour.
+[ ] Implement the Fisherman's behaviour.
+
+28 Jul:
+[ ] Add the intro and game end animations
+[ ] Fix bugs
+
+29 Jul:
+[ ] Polish the UI, add `Shadowy Tendrils` animation, make `Shadowstep` work while `Shadowy Tendrils` are active, add decoration to vulnerable NPCs.
+[ ] Add ability introductions
+
+30 Jul:
+[ ] Polish the map, add animations, change to Night time.
+[ ] Add some uninteractable NPCs

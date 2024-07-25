@@ -74,7 +74,7 @@ class CharacterState<T extends EntityType> {
     yield SanityLevel(entityType, sanityLevel);
     yield EntityActionCount(
       entityType,
-      TurnActionType.soulWhisper,
+      TurnActionType.darkWhispers,
       soulWhisperCount,
     );
   }
@@ -210,7 +210,7 @@ class GameState {
       final CharacterState targetState = history.last;
 
       switch (entry.value) {
-        case SoulWhisper(
+        case DarkWhispers(
             :final mentalState,
             :final mentalStateLevelIncrease,
             :final sanityDamage,
@@ -221,7 +221,7 @@ class GameState {
             // SoulWhisper cannot reduce Sanity below 1
             ..sanityLevel = math.max(1, targetState.sanityLevel - sanityDamage);
 
-        case SurrenderToMadness(:final transitions):
+        case VisionsOfMadness(:final transitions):
           targetState.sanityLevel = 0;
           potentialTransitions.add(transitions);
       }
