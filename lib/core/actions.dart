@@ -9,9 +9,7 @@ class ActionGroup {
 const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
   CrazyJoe(): [
     ActionGroup(
-      [
-        CurrentMentalState(CrazyJoe(), {MentalTrait.normal: Level.slight})
-      ],
+      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 0)],
       [
         SoulWhisper(
           'Something is off with this town',
@@ -23,6 +21,23 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
         ),
         SoulWhisper(
           'Those damn kids',
+          MentalTrait.paranoid,
+        ),
+      ],
+    ),
+    ActionGroup(
+      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 1)],
+      [
+        SoulWhisper(
+          'Bigongon',
+          MentalTrait.paranoid,
+        ),
+        SoulWhisper(
+          'Bonognognog',
+          MentalTrait.paranoid,
+        ),
+        SoulWhisper(
+          'Rocbaidboa ndoasd i oai sjdsak dj',
           MentalTrait.paranoid,
         ),
       ],
@@ -39,17 +54,19 @@ sealed class TurnAction {
 class SoulWhisper extends TurnAction {
   const SoulWhisper(
     this.text,
-    this.mentalState, [
-    this.mentalStateLevelUp = 1,
-  ]);
+    this.mentalState, {
+    this.mentalStateLevelIncrease = 1,
+    this.sanityDamage = 1,
+  });
 
   final String text;
   final MentalTrait mentalState;
-  final int mentalStateLevelUp;
+  final int mentalStateLevelIncrease;
+  final int sanityDamage;
 
   @override
   String toString() =>
-      'SoulWhisper($text, +$mentalStateLevelUp ${mentalState.name})';
+      'SoulWhisper($text, +$mentalStateLevelIncrease ${mentalState.name}, -$sanityDamage sanity)';
 }
 
 class ShadowyVisions extends TurnAction {

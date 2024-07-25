@@ -30,13 +30,18 @@ class CharacterState<T extends EntityType> {
     required this.entityType,
     required this.behaviour,
     this.updatedAt = 0,
+    int? sanityLevel,
     Map<MentalTrait, Level>? mentalStates,
-  }) : mentalStates = mentalStates != null
+  })  : mentalStates = mentalStates != null
             ? Map.of(mentalStates)
-            : {MentalTrait.normal: Level.slight};
+            : {MentalTrait.normal: Level.slight},
+        sanityLevel = sanityLevel ?? entityType.initialSanity;
 
   final T entityType;
   final int updatedAt;
+
+  int sanityLevel;
+  int soulWhisperCount = 0;
   BehaviourFlag<T> behaviour;
 
   final Map<MentalTrait, Level> mentalStates;
@@ -54,6 +59,12 @@ class CharacterState<T extends EntityType> {
   Iterable<EntityFlag<T>> flags() sync* {
     yield behaviour;
     yield CurrentMentalState(entityType, mentalStates);
+    yield SanityLevel(entityType, sanityLevel);
+    yield EntityActionCount(
+      entityType,
+      TurnActionType.soulWhisper,
+      soulWhisperCount,
+    );
   }
 }
 
@@ -113,13 +124,10 @@ class GameState {
           state.behaviour.toString().removePrefix(name).decapitalize();
       buffer
         ..write(entityType.toString())
-        ..write(': $physicalState');
-      if (entityType.isHuman) {
-        buffer.write(', ${state.mentalStates}');
-      }
-
-      buffer.write(' (mut: ${state.updatedAt})');
-      buffer.writeln();
+        ..write(': $physicalState')
+        ..write(', ${state.mentalStates}')
+        ..write(' (mut: ${state.updatedAt})')
+        ..writeln();
     }
 
     return buffer.toString();
@@ -135,17 +143,26 @@ class GameState {
     }
   }
 
+  CharacterState ofCharacter(EntityType entity) => entityStates[entity]!.last;
+
   void endTurn([Map<EntityType, TurnAction> turnActions = const {}]) {
     if (lockedBy != null || isPaused) return;
 
-    for (final entry in turnActions.entries) {
+   for (final entry in turnActions.entries) {
       final target = entry.key;
       switch (entry.value) {
-        case ShadowyVisions(:final mentalState, :final mentalStateBoost):
-        case SoulWhisper(:final mentalState, mentalStateLevelUp:final mentalStateBoost):
-          entityStates[target]!
-              .last
-              .boostMentalState(mentalState, mentalStateBoost);
+        case SoulWhisper(
+            :final mentalState,
+            :final mentalStateLevelIncrease,
+            :final sanityDamage,
+          ):
+          final state = entityStates[target]!.last;
+          state
+            ..boostMentalState(mentalState, mentalStateLevelIncrease)
+            ..soulWhisperCount += 1
+            // SoulWhisper cannot reduce Sanity below 1
+            ..sanityLevel = math.max(1, state.sanityLevel - sanityDamage);
+
         default:
       }
     }
@@ -182,7 +199,7 @@ class GameState {
         if (prev == null) {
           assert(
             nextState is BehaviourFlag,
-            "The initial state of the character must be physical!",
+            "The initial state of the character must be behavioural!",
           );
 
           stateHistory.add(CharacterState(
@@ -190,33 +207,29 @@ class GameState {
             behaviour: nextState as BehaviourFlag,
             updatedAt: currentTurn,
           ));
-        } else if (prev.updatedAt == currentTurn) {
-          switch (nextState) {
-            case CurrentMentalState():
-              prev.mentalStates.addAll(nextState.mentalStates);
-            case BehaviourFlag():
-              prev.behaviour = nextState;
-            case EntityAtKeyLocation<EntityType>():
-              throw UnimplementedError();
-          }
         } else {
-          final newState = CharacterState(
-            entityType: prev.entityType,
-            mentalStates: prev.mentalStates,
-            behaviour: prev.behaviour,
-            updatedAt: currentTurn,
-          );
+          final CharacterState mutated = prev.updatedAt == currentTurn
+              ? prev
+              : CharacterState(
+                  entityType: prev.entityType,
+                  mentalStates: prev.mentalStates,
+                  behaviour: prev.behaviour,
+                  updatedAt: currentTurn,
+                );
 
           switch (nextState) {
             case CurrentMentalState():
-              newState.mentalStates.addAll(nextState.mentalStates);
+              mutated.mentalStates.addAll(nextState.mentalStates);
             case BehaviourFlag():
-              newState.behaviour = nextState;
-            case EntityAtKeyLocation<EntityType>():
+              mutated.behaviour = nextState;
+            case SanityLevel(:final sanity):
+              mutated.sanityLevel = sanity;
+            case EntityAtKeyLocation():
+            case EntityActionCount():
               throw UnimplementedError();
           }
 
-          stateHistory.add(newState);
+          if (mutated != prev) stateHistory.add(mutated);
         }
 
         updated.add(nextState.type);

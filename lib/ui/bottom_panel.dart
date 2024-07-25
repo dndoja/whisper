@@ -57,10 +57,11 @@ class _BottomPanelState extends State<BottomPanel> {
         color: Colors.transparent,
         child: Stack(
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: SoulMirrorWidget(soulMirrorTarget?.target),
-            ),
+            if (soulMirrorTarget != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: SoulMirrorWidget(soulMirrorTarget!.target),
+              ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Column(
@@ -310,25 +311,26 @@ class ActionButton extends StatelessWidget {
 
 class SoulMirrorWidget extends StatelessWidget {
   const SoulMirrorWidget(this.target);
-  final EntityType? target;
+  final EntityType target;
 
   @override
-  Widget build(BuildContext context) => AnimatedOpacity(
-        duration: const Duration(milliseconds: 200),
-        opacity: target != null ? 1 : 0,
-        child: const Background(
-          width: 300,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // SpriteWidget.asset(
-              //   path: 'knight_idle.png',
-              //   srcSize: Vector2.all(16),
-              // ),
-              SizedBox(height: 16),
-              Text(loremIpsum)
-            ],
-          ),
+  Widget build(BuildContext context) => Background(
+        width: 300,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // SpriteWidget.asset(
+            //   path: 'knight_idle.png',
+            //   srcSize: Vector2.all(16),
+            // ),
+            const SizedBox(height: 16),
+            Text(
+              '${GameState.$.ofCharacter(target).sanityLevel}/${target.initialSanity}',
+              style: const TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 16),
+            const Text(loremIpsum)
+          ],
         ),
       );
 }

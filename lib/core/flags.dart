@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'key_locations.dart';
+import 'state_machine.dart';
 
 part 'flags.g.dart';
 
@@ -23,11 +23,18 @@ enum Level {
   extreme,
 }
 
+const Map<EntityType, int> entitiesInitialSanity = {
+  CrazyJoe(): 5,
+  PriestAbraham(): 5,
+};
+
 sealed class EntityType {
   const EntityType();
 
   @override
   String toString() => runtimeType.toString();
+
+  int get initialSanity => entitiesInitialSanity[this]!;
 }
 
 sealed class EntityFlag<T extends EntityType> {
@@ -43,6 +50,22 @@ sealed class EntityFlag<T extends EntityType> {
 
 sealed class BehaviourFlag<T extends EntityType> extends EntityFlag<T> {
   const BehaviourFlag();
+}
+
+class EntityActionCount<T extends EntityType> extends EntityFlag<T> {
+  const EntityActionCount(this.entity, this.actionType, this.actionCount);
+  final T entity;
+  final TurnActionType actionType;
+  final int actionCount;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EntityActionCount<T> &&
+      actionType == other.actionType &&
+      actionCount == other.actionCount;
+
+  @override
+  int get hashCode => Object.hashAll([entity, actionType, actionCount]);
 }
 
 class EntityAtKeyLocation<T extends EntityType> extends EntityFlag<T> {
@@ -65,12 +88,12 @@ class CurrentMentalState<T extends EntityType> extends EntityFlag<T> {
   int get hashCode => Object.hashAll([entity, mentalStates]);
 }
 
-extension EntityTypeX on EntityType {
-  static const Map<EntityType, bool> humanityMap = {
-    CrazyJoe(): true,
-  };
+class SanityLevel<T extends EntityType> extends EntityFlag<T> {
+  const SanityLevel(this.entity, this.sanity);
+  final T entity;
 
-  bool get isHuman => humanityMap[this] ?? true;
+  /// Sanity level, 0 is the lowest (a.k.a Insane)
+  final int sanity;
 }
 
 extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
@@ -78,6 +101,8 @@ extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
         BehaviourFlag<CrazyJoe>() => const CrazyJoe(),
         BehaviourFlag<PriestAbraham>() => const PriestAbraham(),
         CurrentMentalState(:final entity) => entity,
+        EntityActionCount(:final entity) => entity,
         EntityAtKeyLocation(:final entity) => entity,
+        SanityLevel(:final entity) => entity,
       };
 }
