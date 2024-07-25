@@ -5,13 +5,8 @@ import 'state_machine.dart';
 part 'flags.g.dart';
 
 enum MentalTrait {
-  normal,
-  manic,
   paranoid,
-  scared,
-  doubtful,
-  insecure,
-  depressed,
+  superstitious,
   zealous,
 }
 
@@ -24,7 +19,7 @@ enum Level {
 }
 
 const Map<EntityType, int> entitiesInitialSanity = {
-  CrazyJoe(): 5,
+  CrazyJoe(): 2,
   PriestAbraham(): 5,
 };
 
@@ -88,12 +83,32 @@ class CurrentMentalState<T extends EntityType> extends EntityFlag<T> {
   int get hashCode => Object.hashAll([entity, mentalStates]);
 }
 
+class DominantMentalTrait<T extends EntityType> extends EntityFlag<T> {
+  const DominantMentalTrait(this.entity, this.dominantTrait);
+  final T entity;
+  final MentalTrait dominantTrait;
+
+  @override
+  bool operator ==(Object other) =>
+      other is DominantMentalTrait<T> && dominantTrait == other.dominantTrait;
+
+  @override
+  int get hashCode => entity.hashCode ^ dominantTrait.hashCode;
+}
+
 class SanityLevel<T extends EntityType> extends EntityFlag<T> {
   const SanityLevel(this.entity, this.sanity);
   final T entity;
 
   /// Sanity level, 0 is the lowest (a.k.a Insane)
   final int sanity;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SanityLevel<T> && other.sanity == sanity;
+
+  @override
+  int get hashCode => entity.hashCode ^ sanity.hashCode;
 }
 
 extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
@@ -101,6 +116,7 @@ extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
         BehaviourFlag<CrazyJoe>() => const CrazyJoe(),
         BehaviourFlag<PriestAbraham>() => const PriestAbraham(),
         CurrentMentalState(:final entity) => entity,
+        DominantMentalTrait(:final entity) => entity,
         EntityActionCount(:final entity) => entity,
         EntityAtKeyLocation(:final entity) => entity,
         SanityLevel(:final entity) => entity,

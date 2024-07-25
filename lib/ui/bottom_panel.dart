@@ -15,7 +15,7 @@ class SoulMirrorTarget {
   });
 
   final EntityType target;
-  final List<ShadowyVisions> availableShadowyVisions;
+  final List<SurrenderToMadness> availableShadowyVisions;
   final List<SoulWhisper> availableSoulWhispers;
 }
 
@@ -57,6 +57,13 @@ class _BottomPanelState extends State<BottomPanel> {
         color: Colors.transparent,
         child: Stack(
           children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: Text(
+                'Turn: ${GameState.$.currentTurn}',
+                style: const TextStyle(fontSize: 40),
+              ),
+            ),
             if (soulMirrorTarget != null)
               Align(
                 alignment: Alignment.centerLeft,
@@ -98,17 +105,19 @@ class _BottomPanelState extends State<BottomPanel> {
                             const SizedBox(width: 32),
                             ActionButton(
                               '4',
-                              onTap: canShadowyVisions ? shadowyVisions : null,
+                              onTap: canShadowyVisions
+                                  ? shadowyVisionsStart
+                                  : null,
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 16),
                       InkWell(
-                        onTap: () {
+                        onTap: () => setState(() {
                           GameState.$.endTurn(turnActions);
                           turnActions = {};
-                        },
+                        }),
                         child: Container(
                           margin: const EdgeInsets.all(8),
                           decoration: const BoxDecoration(
@@ -182,7 +191,7 @@ class _BottomPanelState extends State<BottomPanel> {
       case LogicalKeyboardKey.digit3:
         soulWhisperStart();
       case LogicalKeyboardKey.digit4:
-        shadowyVisions();
+        shadowyVisionsStart();
       default:
         return false;
     }
@@ -261,7 +270,7 @@ class _BottomPanelState extends State<BottomPanel> {
         switch (action) {
           case SoulWhisper():
             target.availableSoulWhispers.add(action);
-          case ShadowyVisions():
+          case SurrenderToMadness():
             target.availableShadowyVisions.add(action);
         }
       }
@@ -278,16 +287,17 @@ class _BottomPanelState extends State<BottomPanel> {
     setState(() => selectedActionType = TurnActionType.soulWhisper);
   }
 
+  Future<void> shadowyVisionsStart() async {
+    final SoulMirrorTarget? target = soulMirrorTarget;
+    if (target == null) return;
+    if (target.availableSoulWhispers.isEmpty) return;
+
+    setState(() => selectedActionType = TurnActionType.shadowyVisions);
+  }
+
   void finishOptionPicking(TurnAction pickedOption) {
     turnActions[soulMirrorTarget!.target] = pickedOption;
     closeSoulMirror();
-  }
-
-  Future<void> shadowyVisions() async {
-    final SoulMirrorTarget? target = soulMirrorTarget;
-    if (target == null) return;
-    final actions = target.availableShadowyVisions;
-    if (actions.isEmpty) return;
   }
 }
 
@@ -314,25 +324,45 @@ class SoulMirrorWidget extends StatelessWidget {
   final EntityType target;
 
   @override
-  Widget build(BuildContext context) => Background(
-        width: 300,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // SpriteWidget.asset(
-            //   path: 'knight_idle.png',
-            //   srcSize: Vector2.all(16),
-            // ),
-            const SizedBox(height: 16),
-            Text(
-              '${GameState.$.ofCharacter(target).sanityLevel}/${target.initialSanity}',
+  Widget build(BuildContext context) {
+    final characterState = GameState.$.ofCharacter(target);
+
+    return Background(
+      width: 300,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // SpriteWidget.asset(
+          //   path: 'knight_idle.png',
+          //   srcSize: Vector2.all(16),
+          // ),
+          const SizedBox(height: 16),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
               style: const TextStyle(fontSize: 24),
+              children: [
+                TextSpan(
+                  text: '${characterState.sanityLevel}/${target.initialSanity}',
+                ),
+                const TextSpan(text: '\n'),
+                TextSpan(
+                  text: 'Behaviour: ${characterState.behaviour}',
+                  style: const TextStyle(fontSize: 24),
+                ),
+                const TextSpan(text: '\n'),
+                const TextSpan(text: '\n'),
+                const TextSpan(text: 'Mental States:'),
+                const TextSpan(text: '\n'),
+                for (final entry in characterState.mentalStates.entries)
+                  TextSpan(text: '${entry.key.name}: ${entry.value.name}\n'),
+              ],
             ),
-            const SizedBox(height: 16),
-            const Text(loremIpsum)
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class SoulWhisperWidget extends StatelessWidget {
@@ -361,8 +391,8 @@ class ShadowyVisionsWidget extends StatelessWidget {
     required this.options,
     required this.onPicked,
   });
-  final List<ShadowyVisions> options;
-  final void Function(ShadowyVisions) onPicked;
+  final List<SurrenderToMadness> options;
+  final void Function(SurrenderToMadness) onPicked;
 
   @override
   Widget build(BuildContext context) => Background(
@@ -385,7 +415,7 @@ class Background extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
-          color: Colors.black45,
+          color: Colors.white,
           border: Border.all(color: Colors.red, width: 5),
         ),
         padding: const EdgeInsets.all(16),

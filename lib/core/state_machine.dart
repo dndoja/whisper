@@ -32,9 +32,7 @@ class CharacterState<T extends EntityType> {
     this.updatedAt = 0,
     int? sanityLevel,
     Map<MentalTrait, Level>? mentalStates,
-  })  : mentalStates = mentalStates != null
-            ? Map.of(mentalStates)
-            : {MentalTrait.normal: Level.slight},
+  })  : mentalStates = mentalStates != null ? Map.of(mentalStates) : {},
         sanityLevel = sanityLevel ?? entityType.initialSanity;
 
   final T entityType;
@@ -57,6 +55,11 @@ class CharacterState<T extends EntityType> {
   }
 
   Iterable<EntityFlag<T>> flags() sync* {
+    final MentalTrait? dominantMentalTrait =
+        mentalStates.entries.maxBy((e) => e.value.index)?.key;
+    if (dominantMentalTrait != null) {
+      yield DominantMentalTrait(entityType, dominantMentalTrait);
+    }
     yield behaviour;
     yield CurrentMentalState(entityType, mentalStates);
     yield SanityLevel(entityType, sanityLevel);
@@ -126,6 +129,7 @@ class GameState {
         ..write(entityType.toString())
         ..write(': $physicalState')
         ..write(', ${state.mentalStates}')
+        ..write(', sanity=${state.sanityLevel}')
         ..write(' (mut: ${state.updatedAt})')
         ..writeln();
     }
@@ -139,7 +143,9 @@ class GameState {
     final List<ActionGroup> actionGroups = entityAvailableOptions[entity] ?? [];
 
     for (final group in actionGroups) {
-      if (currFlags.containsAll(group.conditions)) yield* group.actions;
+      if (flagsMatchPreReqs(currFlags, preReqs: group.conditions)) {
+        yield* group.actions;
+      }
     }
   }
 
@@ -148,22 +154,28 @@ class GameState {
   void endTurn([Map<EntityType, TurnAction> turnActions = const {}]) {
     if (lockedBy != null || isPaused) return;
 
-   for (final entry in turnActions.entries) {
+    final List<List<StateTransition>> potentialTransitions = [
+      ...stateTransitions
+    ];
+
+    for (final entry in turnActions.entries) {
       final target = entry.key;
+      final targetState = entityStates[target]!.last;
       switch (entry.value) {
         case SoulWhisper(
             :final mentalState,
             :final mentalStateLevelIncrease,
             :final sanityDamage,
           ):
-          final state = entityStates[target]!.last;
-          state
+          targetState
             ..boostMentalState(mentalState, mentalStateLevelIncrease)
             ..soulWhisperCount += 1
             // SoulWhisper cannot reduce Sanity below 1
-            ..sanityLevel = math.max(1, state.sanityLevel - sanityDamage);
+            ..sanityLevel = math.max(1, targetState.sanityLevel - sanityDamage);
 
-        default:
+        case SurrenderToMadness(:final transitions):
+          targetState.sanityLevel = 0;
+          potentialTransitions.add(transitions);
       }
     }
 
@@ -172,11 +184,16 @@ class GameState {
         .toList();
 
     final List<StateTransition> stagedTransitions = [];
-    for (final group in stateTransitions) {
+    for (final group in potentialTransitions) {
       for (final transition in group.reversed) {
         if (transition.preRequisites.isEmpty && currentTurn > 0) continue;
 
-        if (currentStates.containsAll(transition.preRequisites)) {
+        final bool canApply = flagsMatchPreReqs(
+          currentStates,
+          preReqs: transition.preRequisites,
+        );
+
+        if (canApply) {
           stagedTransitions.add(transition);
           break;
         }
@@ -224,6 +241,7 @@ class GameState {
               mutated.behaviour = nextState;
             case SanityLevel(:final sanity):
               mutated.sanityLevel = sanity;
+            case DominantMentalTrait():
             case EntityAtKeyLocation():
             case EntityActionCount():
               throw UnimplementedError();
@@ -269,4 +287,40 @@ class GameState {
 
     char.onStateChange(state as CharacterState<T>);
   }
+}
+
+bool flagsMatchPreReqs(
+  Iterable<EntityFlag> flags, {
+  required Iterable<EntityFlag> preReqs,
+}) {
+  for (final req in preReqs) {
+    bool hasMatch = false;
+
+    if (req case CurrentMentalState(:final entity, :final mentalStates)) {
+      for (final other in flags) {
+        if (other is! CurrentMentalState) continue;
+        if (entity != other.entity) continue;
+
+        bool allValuesMatch = true;
+        for (final entry in mentalStates.entries) {
+          final otherLevel = other.mentalStates[entry.key] ?? Level.none;
+          if (otherLevel.index < entry.value.index) {
+            allValuesMatch = false;
+            break;
+          }
+        }
+
+        if (allValuesMatch == true) {
+          hasMatch = true;
+          break;
+        }
+      }
+    } else {
+      hasMatch = flags.contains(req);
+    }
+
+    if (!hasMatch) return false;
+  }
+
+  return true;
 }

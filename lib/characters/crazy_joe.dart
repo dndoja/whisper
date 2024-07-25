@@ -37,8 +37,17 @@ class CrazyJoeController extends SimpleEnemy
       case CrazyJoeChilling():
         patrol(KeyLocation.crazyJoeFarm, dt);
       case CrazyJoeRampaging():
-      case EntityAtKeyLocation<CrazyJoe>():
-      case CurrentMentalState<CrazyJoe>():
+      case CrazyJoeCrusading():
+      case CrazyJoeSavingKingdom():
+      case CrazyJoeFearingDevil():
+      case CrazyJoeFindingGod():
+      case CrazyJoeThinkingHeIsDead():
+      case CrazyJoeLeavingVillage():
+      case CrazyJoeFightingForPeace():
+      case CrazyJoeStabbingPriest():
+      case CrazyJoeRunningFromUndead():
+      case CrazyJoeAtoneing():
+        // throw UnimplementedError();
     }
     super.update(dt);
   }
@@ -57,7 +66,7 @@ class CrazyJoeController extends SimpleEnemy
             const Point16(50, 50).mapPosition,
             onFinish: turnTransitionEnd,
           );
-        case CrazyJoeChilling():
+        default:
           turnTransitionEnd();
       }
     } else {

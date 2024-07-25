@@ -9,19 +9,53 @@ class ActionGroup {
 const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
   CrazyJoe(): [
     ActionGroup(
+      [SanityLevel(CrazyJoe(), 1)],
+      [
+        SurrenderToMadness(
+          'God speaks to Joe, letting him know that he is his strongest soldier.',
+          [
+            StateTransition(
+              [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
+              [CrazyJoeFindingGod()],
+            ),
+            StateTransition(
+              [DominantMentalTrait(CrazyJoe(), MentalTrait.zealous)],
+              [CrazyJoeSavingKingdom()],
+            ),
+            StateTransition(
+              [DominantMentalTrait(CrazyJoe(), MentalTrait.paranoid)],
+              [CrazyJoeFearingDevil()],
+            ),
+            StateTransition(
+              [
+                CurrentMentalState(
+                  CrazyJoe(),
+                  {
+                    MentalTrait.paranoid: Level.slight,
+                    MentalTrait.zealous: Level.slight,
+                  },
+                )
+              ],
+              [CrazyJoeCrusading()],
+            ),
+          ],
+        ),
+      ],
+    ),
+    ActionGroup(
       [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 0)],
       [
         SoulWhisper(
-          'Something is off with this town',
+          'Paranoid',
           MentalTrait.paranoid,
         ),
         SoulWhisper(
-          'Old Bianca is sick',
-          MentalTrait.paranoid,
+          'Zealous',
+          MentalTrait.zealous,
         ),
         SoulWhisper(
-          'Those damn kids',
-          MentalTrait.paranoid,
+          'Superstitious',
+          MentalTrait.superstitious,
         ),
       ],
     ),
@@ -29,16 +63,67 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 1)],
       [
         SoulWhisper(
-          'Bigongon',
+          'Paranoid',
           MentalTrait.paranoid,
         ),
         SoulWhisper(
-          'Bonognognog',
+          'Zealous',
+          MentalTrait.zealous,
+        ),
+        SoulWhisper(
+          'Superstitious',
+          MentalTrait.superstitious,
+        ),
+      ],
+    ),
+    ActionGroup(
+      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 2)],
+      [
+        SoulWhisper(
+          'Paranoid',
           MentalTrait.paranoid,
         ),
         SoulWhisper(
-          'Rocbaidboa ndoasd i oai sjdsak dj',
+          'Zealous',
+          MentalTrait.zealous,
+        ),
+        SoulWhisper(
+          'Superstitious',
+          MentalTrait.superstitious,
+        ),
+      ],
+    ),
+    ActionGroup(
+      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 3)],
+      [
+        SoulWhisper(
+          'Paranoid',
           MentalTrait.paranoid,
+        ),
+        SoulWhisper(
+          'Zealous',
+          MentalTrait.zealous,
+        ),
+        SoulWhisper(
+          'Superstitious',
+          MentalTrait.superstitious,
+        ),
+      ],
+    ),
+    ActionGroup(
+      [EntityActionCount(CrazyJoe(), TurnActionType.soulWhisper, 4)],
+      [
+        SoulWhisper(
+          'Paranoid',
+          MentalTrait.paranoid,
+        ),
+        SoulWhisper(
+          'Zealous',
+          MentalTrait.zealous,
+        ),
+        SoulWhisper(
+          'Superstitious',
+          MentalTrait.superstitious,
         ),
       ],
     ),
@@ -69,18 +154,11 @@ class SoulWhisper extends TurnAction {
       'SoulWhisper($text, +$mentalStateLevelIncrease ${mentalState.name}, -$sanityDamage sanity)';
 }
 
-class ShadowyVisions extends TurnAction {
-  const ShadowyVisions(
-    this.text,
-    this.mentalState,
-    this.mentalStateBoost,
-  );
-
+class SurrenderToMadness extends TurnAction {
+  const SurrenderToMadness(this.text, this.transitions);
   final String text;
-  final MentalTrait mentalState;
-  final int mentalStateBoost;
+  final List<StateTransition> transitions;
 
   @override
-  String toString() =>
-      'ShadowyVision($text, +$mentalStateBoost ${mentalState.name})';
+  String toString() => 'SurrenderToMadness($text)';
 }
