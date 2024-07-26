@@ -35,7 +35,6 @@ class GameWidget extends StatelessWidget {
           },
           initialActiveOverlays: const ['bottom'],
           onReady: initGame,
-          showCollisionArea: false,
           player: ShadowPlayer(KeyLocation.church.br.mapPosition),
           map: WorldMapByTiled(
             WorldMapReader.fromAsset('village.json'),
@@ -46,7 +45,7 @@ class GameWidget extends StatelessWidget {
 
 void initGame(BonfireGameInterface game) {
   game.addAll([
-    CrazyJoeController(KeyLocation.crazyJoeFarm.ref.mapPosition),
-    PriestController(KeyLocation.church.ref.mapPosition),
+    characterTracker.register(CrazyJoeController(KeyLocation.crazyJoeFarm.ref.mapPosition)),
+    characterTracker.register(PriestController(KeyLocation.church.ref.mapPosition)),
   ]);
 }

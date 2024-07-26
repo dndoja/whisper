@@ -14,8 +14,9 @@ class PriestController extends SimpleEnemy
   PriestController(Vector2 position)
       : super(
           size: Vector2.all(16),
-          position: position,
           animation: PlayerSpriteSheet.simpleDirectionAnimation,
+          position: position,
+          receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
         ) {
     subscribeToGameState();
   }
@@ -24,14 +25,23 @@ class PriestController extends SimpleEnemy
   BehaviourFlag<PriestAbraham> currBehaviour = const PriestAbrahamChilling();
 
   @override
-  bool transitioningToNewTurn = false;
+  PriestAbraham get entityType => const PriestAbraham();
 
   @override
-  PriestAbraham get character => const PriestAbraham();
+  Future<void> onLoad() {
+    add(
+      CircleHitbox(
+        anchor: Anchor.topLeft,
+        position: Vector2(4, 4),
+        radius: 4,
+      ),
+    );
+    return super.onLoad();
+  }
 
   @override
   void update(double dt) {
-    if (GameState.$.isPaused) return;
+    if (gameState.isPaused || isDead) return;
 
     switch (currBehaviour) {
       case PriestAbrahamChilling():
@@ -46,13 +56,11 @@ class PriestController extends SimpleEnemy
       prevBehaviour = currBehaviour;
       currBehaviour = newState.behaviour as BehaviourFlag<PriestAbraham>;
     }
-
-    turnTransitionEnd();
   }
 
   @override
   void onMouseTap(MouseButton button) {
-    if (button == MouseButton.left) CharacterTapManager.$.onTap(character);
+    if (button == MouseButton.left) CharacterTapManager.$.onTap(entityType);
   }
 
   @override
@@ -67,4 +75,3 @@ class PriestController extends SimpleEnemy
     (gameRef as BonfireGame).mouseCursor = MouseCursor.defer;
   }
 }
-

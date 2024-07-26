@@ -24,7 +24,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
             ),
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.paranoid)],
-              [CrazyJoeFearingDevil()],
+              [CrazyJoeStabbingPriest()],
             ),
             StateTransition(
               [

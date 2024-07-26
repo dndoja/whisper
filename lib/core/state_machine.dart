@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:math' as math;
 
@@ -11,6 +12,8 @@ import 'transitions.dart';
 export 'key_locations.dart';
 
 part 'actions.dart';
+
+final GameState gameState = GameState();
 
 class StateTransition {
   const StateTransition(
@@ -81,34 +84,40 @@ class CharacterState<T extends EntityType> {
 }
 
 mixin GameCharacter<T extends EntityType> on SimpleEnemy {
-  bool get transitioningToNewTurn;
-  set transitioningToNewTurn(bool _);
+  bool _transitioningToNewTurn = false;
+  T get entityType;
 
-  T get character;
+  void subscribeToGameState() => gameState._listeners.add(this);
+  FutureOr<void> onStateChange(CharacterState newState);
+}
 
-  void onStateChange(CharacterState newState);
-
-  void turnTransitionStart() {
-    transitioningToNewTurn = true;
+extension on GameCharacter {
+  Future<void> runTurnTransition(
+    CharacterState newState, {
+    required bool isLast,
+  }) async {
+    print('Running turn transition on $entityType');
+    _transitioningToNewTurn = true;
     gameRef.camera.follow(this);
-  }
 
-  void turnTransitionEnd() {
-    if (!transitioningToNewTurn) return;
-    GameState.$._nextTransition(character);
-    transitioningToNewTurn = false;
-    gameRef.camera.follow(gameRef.query<SimplePlayer>().first);
-  }
+    await onStateChange(newState);
 
-  void subscribeToGameState() => GameState.$._listeners.add(this);
+    print('Finished turn transition on $entityType');
+    if (!_transitioningToNewTurn) return;
+    gameState._nextTransition(entityType);
+    _transitioningToNewTurn = false;
+
+    if (isLast) {
+      gameRef.player!.position = position + Vector2(0, 16);
+      gameRef.camera.follow(gameRef.query<SimplePlayer>().first);
+    }
+  }
 }
 
 class GameState {
   GameState() {
     endTurn();
   }
-
-  static final GameState $ = GameState();
 
   final Map<EntityType, List<CharacterState>> entityStates = {};
   final Map<StateTransition, int> ongoingTransitions = {};
@@ -298,13 +307,13 @@ class GameState {
 
     print(updated);
     for (final l in _listeners) {
-      if (updated.contains(l.character)) _turnTransitionQueue.add(l);
+      if (updated.contains(l.entityType)) _turnTransitionQueue.add(l);
     }
     _nextTransition(null);
   }
 
   void _nextTransition(EntityType? from) {
-    // print('$lockedBy, $from, ${_turnTransitionQueue.length}');
+    print('$lockedBy, $from, ${_turnTransitionQueue.length}');
     if (lockedBy != null && lockedBy != from) return;
     if (_turnTransitionQueue.isEmpty) {
       lockedBy = null;
@@ -314,8 +323,11 @@ class GameState {
     }
 
     final curr = _turnTransitionQueue.removeFirst();
-    curr.onStateChange(entityStates[curr.character]!.last);
-    lockedBy = curr.character;
+    lockedBy = curr.entityType;
+    curr.runTurnTransition(
+      entityStates[curr.entityType]!.last,
+      isLast: _turnTransitionQueue.isEmpty,
+    );
   }
 
   void notify<T extends EntityType>(

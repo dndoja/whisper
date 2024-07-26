@@ -1,3 +1,5 @@
+export 'character_tracker.dart';
+export 'extensions.dart';
 export 'dialogs.dart';
 export 'flags.dart';
 export 'key_locations.dart';

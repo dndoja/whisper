@@ -1,4 +1,5 @@
 import 'package:bonfire/bonfire.dart';
+import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -57,7 +58,7 @@ class _BottomPanelState extends State<BottomPanel> {
             Align(
               alignment: Alignment.topCenter,
               child: Text(
-                'Turn: ${GameState.$.currentTurn}',
+                'Turn: ${gameState.currentTurn}',
                 style: const TextStyle(fontSize: 40),
               ),
             ),
@@ -135,14 +136,14 @@ class _BottomPanelState extends State<BottomPanel> {
 
   void endTurn() {
     setState(() {
-      GameState.$.endTurn(turnActions);
+      gameState.endTurn(turnActions);
       turnActions = {};
     });
 
     final Iterable<(EntityType, String)> dialogs =
-        GameState.$.characterDialogs();
+        gameState.characterDialogs();
 
-    if (dialogs.isEmpty) return;
+    if (dialogs.none((d) => d.$2.isNotEmpty)) return;
 
     TalkDialog.show(
       context,
@@ -214,9 +215,9 @@ class _BottomPanelState extends State<BottomPanel> {
   }
 
   void shadowstep() {
-    if (GameState.$.isPaused) return;
+    if (gameState.isPaused) return;
 
-    GameState.$.isPaused = true;
+    gameState.isPaused = true;
 
     if (shadowstepTargets.isEmpty) {
       final Iterable<SimpleEnemy> enemies = widget.gameRef.query();
@@ -247,7 +248,7 @@ class _BottomPanelState extends State<BottomPanel> {
       target: target,
       onComplete: () {
         widget.gameRef.camera.follow(player);
-        GameState.$.isPaused = false;
+        gameState.isPaused = false;
       },
     );
     player.position = target.position.clone()..add(Vector2(0, -16));
@@ -259,7 +260,7 @@ class _BottomPanelState extends State<BottomPanel> {
       selectedActionType = null;
     });
 
-    if (GameState.$.isPaused) GameState.$.isPaused = false;
+    if (gameState.isPaused) gameState.isPaused = false;
   }
 
   Future<void> shadowyTendrils() async {
@@ -268,11 +269,11 @@ class _BottomPanelState extends State<BottomPanel> {
       return;
     }
 
-    GameState.$.isPaused = true;
+    gameState.isPaused = true;
     final character = await CharacterTapManager.$.waitForTap();
 
     setState(() {
-      final availableActions = GameState.$.availableActionsFor(character);
+      final availableActions = gameState.availableActionsFor(character);
       final target = ShadowyTendrilsTarget(
         character,
         availableDarkWhispers: [],
@@ -338,7 +339,9 @@ class ShadowyTendrilsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final characterState = GameState.$.ofCharacter(target);
+    final characterState = gameState.ofCharacter(target);
+    final hp = characterTracker.ofType(target).life;
+    final isDead = characterTracker.ofType(target).isDead;
 
     return Background(
       width: 300,
@@ -355,6 +358,7 @@ class ShadowyTendrilsWidget extends StatelessWidget {
             text: TextSpan(
               style: const TextStyle(fontSize: 24),
               children: [
+                TextSpan(text: '$hp/100 ${isDead ? '💀':'❤️❤️'}'),
                 TextSpan(
                   text: '${characterState.sanityLevel}/${target.initialSanity}',
                 ),
