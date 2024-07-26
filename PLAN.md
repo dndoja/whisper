@@ -37,8 +37,7 @@ Plan B:
 
 25 Jul:
 
-[ ] Design the all of the behaviour trees.  
-[ ] Implement the cutscene/dialog system.
+[x] Design the all of the behaviour trees.  
 
 26 Jul:
 
