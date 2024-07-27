@@ -1,4 +1,5 @@
 export 'character_tracker.dart';
+export 'bubble.dart';
 export 'extensions.dart';
 export 'dialogs.dart';
 export 'flags.dart';

@@ -26,8 +26,7 @@ class GameWidget extends StatelessWidget {
             ),
           ],
           cameraConfig: CameraConfig(
-            // zoom: 50,
-            resolution: Vector2(500, 300),
+            zoom: 4,
             moveOnlyMapArea: true,
           ),
           overlayBuilderMap: {

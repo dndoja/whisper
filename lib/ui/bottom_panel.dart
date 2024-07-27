@@ -26,7 +26,7 @@ class BottomPanel extends StatefulWidget {
 }
 
 class _BottomPanelState extends State<BottomPanel> {
-  final List<SimpleEnemy> shadowstepTargets = [];
+  final List<GameCharacter> shadowstepTargets = [];
   Map<EntityType, TurnAction> turnActions = {};
 
   ShadowyTendrilsTarget? tendrilsTarget;
@@ -99,7 +99,9 @@ class _BottomPanelState extends State<BottomPanel> {
                             const SizedBox(width: 32),
                             ActionButton(
                               '3',
-                              onTap: canCastDarkWhispers ? darkWhispersStart : null,
+                              onTap: canCastDarkWhispers
+                                  ? darkWhispersStart
+                                  : null,
                             ),
                             const SizedBox(width: 32),
                             ActionButton(
@@ -140,17 +142,16 @@ class _BottomPanelState extends State<BottomPanel> {
       turnActions = {};
     });
 
-    final Iterable<(EntityType, String)> dialogs =
-        gameState.characterDialogs();
+    final Iterable<(EntityType, String)> dialogs = gameState.characterDialogs();
 
     if (dialogs.none((d) => d.$2.isNotEmpty)) return;
 
-    TalkDialog.show(
-      context,
-      [
-        for (final (_, dialog) in dialogs) Say(text: [TextSpan(text: dialog)]),
-      ],
-    );
+    // TalkDialog.show(
+    //   context,
+    //   [
+    //     for (final (_, dialog) in dialogs) Say(text: [TextSpan(text: dialog)]),
+    //   ],
+    // );
   }
 
   bool _onKeyPressed(KeyEvent event) {
@@ -215,12 +216,11 @@ class _BottomPanelState extends State<BottomPanel> {
   }
 
   void shadowstep() {
-    if (gameState.isPaused) return;
-
     gameState.isPaused = true;
 
     if (shadowstepTargets.isEmpty) {
-      final Iterable<SimpleEnemy> enemies = widget.gameRef.query();
+      final Iterable<GameCharacter> enemies =
+          widget.gameRef.query<GameCharacter>().where((e) => !e.isRemoved);
       if (enemies.isEmpty) return;
       shadowstepTargets.addAll(enemies);
     }
@@ -238,7 +238,12 @@ class _BottomPanelState extends State<BottomPanel> {
       }
     }
 
-    final SimpleEnemy target = shadowstepTargets.removeAt(nextTargetIndex);
+    final GameCharacter target = shadowstepTargets.removeAt(nextTargetIndex);
+    if (target.isRemoved){
+      shadowstep();
+      return;
+    }
+
     widget.gameRef.camera.moveToTargetAnimated(
       effectController: EffectController(
         curve: Curves.easeInOut,
@@ -252,6 +257,8 @@ class _BottomPanelState extends State<BottomPanel> {
       },
     );
     player.position = target.position.clone()..add(Vector2(0, -16));
+
+    if (tendrilsTarget != null) setShadowyTendrilsTarget(target.entityType);
   }
 
   void closeShadowyTendrils() {
@@ -271,27 +278,28 @@ class _BottomPanelState extends State<BottomPanel> {
 
     gameState.isPaused = true;
     final character = await CharacterTapManager.$.waitForTap();
-
-    setState(() {
-      final availableActions = gameState.availableActionsFor(character);
-      final target = ShadowyTendrilsTarget(
-        character,
-        availableDarkWhispers: [],
-        availableVisionsOfMadness: [],
-      );
-
-      for (final action in availableActions) {
-        switch (action) {
-          case DarkWhispers():
-            target.availableDarkWhispers.add(action);
-          case VisionsOfMadness():
-            target.availableVisionsOfMadness.add(action);
-        }
-      }
-
-      tendrilsTarget = target;
-    });
+    setShadowyTendrilsTarget(character);
   }
+
+  void setShadowyTendrilsTarget(EntityType entityType) => setState(() {
+        final availableActions = gameState.availableActionsFor(entityType);
+        final target = ShadowyTendrilsTarget(
+          entityType,
+          availableDarkWhispers: [],
+          availableVisionsOfMadness: [],
+        );
+
+        for (final action in availableActions) {
+          switch (action) {
+            case DarkWhispers():
+              target.availableDarkWhispers.add(action);
+            case VisionsOfMadness():
+              target.availableVisionsOfMadness.add(action);
+          }
+        }
+
+        tendrilsTarget = target;
+      });
 
   void darkWhispersStart() {
     final ShadowyTendrilsTarget? target = tendrilsTarget;
@@ -358,7 +366,7 @@ class ShadowyTendrilsWidget extends StatelessWidget {
             text: TextSpan(
               style: const TextStyle(fontSize: 24),
               children: [
-                TextSpan(text: '$hp/100 ${isDead ? '💀':'❤️❤️'}'),
+                TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️❤️'}'),
                 TextSpan(
                   text: '${characterState.sanityLevel}/${target.initialSanity}',
                 ),

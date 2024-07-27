@@ -84,7 +84,7 @@ class CharacterState<T extends EntityType> {
 }
 
 mixin GameCharacter<T extends EntityType> on SimpleEnemy {
-  bool _transitioningToNewTurn = false;
+  bool transitioningToNewTurn = false;
   T get entityType;
 
   void subscribeToGameState() => gameState._listeners.add(this);
@@ -97,19 +97,23 @@ extension on GameCharacter {
     required bool isLast,
   }) async {
     print('Running turn transition on $entityType');
-    _transitioningToNewTurn = true;
+    transitioningToNewTurn = true;
     gameRef.camera.follow(this);
 
     await onStateChange(newState);
 
     print('Finished turn transition on $entityType');
-    if (!_transitioningToNewTurn) return;
+    if (!transitioningToNewTurn) return;
     gameState._nextTransition(entityType);
-    _transitioningToNewTurn = false;
+    transitioningToNewTurn = false;
 
     if (isLast) {
-      gameRef.player!.position = position + Vector2(0, 16);
-      gameRef.camera.follow(gameRef.query<SimplePlayer>().first);
+      if (newState.behaviour.endsInLeavingMap) {
+        gameRef.camera.moveToPlayerAnimated();
+      } else {
+        gameRef.player!.position = position + Vector2(0, 16);
+        gameRef.camera.follow(gameRef.query<SimplePlayer>().first);
+      }
     }
   }
 }
@@ -210,6 +214,8 @@ class GameState {
       ...stateTransitions
     ];
 
+    final Set<EntityType> updated = {};
+
     for (final entry in turnActions.entries) {
       final target = entry.key;
       final history = entityStates[target]!;
@@ -229,6 +235,7 @@ class GameState {
             ..soulWhisperCount += 1
             // SoulWhisper cannot reduce Sanity below 1
             ..sanityLevel = math.max(1, targetState.sanityLevel - sanityDamage);
+          updated.add(entry.key);
 
         case VisionsOfMadness(:final transitions):
           targetState.sanityLevel = 0;
@@ -256,8 +263,6 @@ class GameState {
         }
       }
     }
-
-    final Set<EntityType> updated = {};
 
     for (final transition in stagedTransitions) {
       final int startedAt = ongoingTransitions[transition] ??= currentTurn;
@@ -328,18 +333,6 @@ class GameState {
       entityStates[curr.entityType]!.last,
       isLast: _turnTransitionQueue.isEmpty,
     );
-  }
-
-  void notify<T extends EntityType>(
-    GameCharacter<T> char,
-    CharacterState state,
-  ) {
-    assert(
-      state is CharacterState<T>,
-      'Wrong state type passed to character of type $T, found ${state.runtimeType}',
-    );
-
-    char.onStateChange(state as CharacterState<T>);
   }
 }
 

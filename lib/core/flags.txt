@@ -1,7 +1,7 @@
 Crazy Joe:
 chilling
 crusading
-helpingKing
+savingKingdom
 fearingDevil
 findingGod
 rampaging
@@ -9,8 +9,9 @@ thinkingHeIsDead
 leavingVillage
 fightingForPeace
 stabbingPriest
+doomsaying
 runningFromUndead
-atoneing
+repenting
 
 Priest Abraham:
 chilling

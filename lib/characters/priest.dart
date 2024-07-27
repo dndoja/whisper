@@ -41,7 +41,12 @@ class PriestController extends SimpleEnemy
 
   @override
   void update(double dt) {
-    if (gameState.isPaused || isDead) return;
+    if (isDead) {
+      // TODO: Play death animation
+      return;
+    }
+
+    if (gameState.isPaused) return;
 
     switch (currBehaviour) {
       case PriestAbrahamChilling():

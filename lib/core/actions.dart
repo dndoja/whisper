@@ -12,31 +12,31 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       [SanityLevel(CrazyJoe(), 1)],
       [
         VisionsOfMadness(
-          'God speaks to Joe, letting him know that he is his strongest soldier.',
+          'A vision of the Priest summoning an army of undead',
           [
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
-              [CrazyJoeFindingGod()],
+              [CrazyJoeDoomsaying()],
             ),
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.zealous)],
-              [CrazyJoeSavingKingdom()],
+              [CrazyJoeRepenting()],
             ),
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.paranoid)],
-              [CrazyJoeStabbingPriest()],
+              [CrazyJoeRunningFromUndead()],
             ),
             StateTransition(
               [
                 CurrentMentalState(
                   CrazyJoe(),
                   {
-                    MentalTrait.paranoid: Level.slight,
-                    MentalTrait.zealous: Level.slight,
+                    MentalTrait.superstitious: Level.moderately,
+                    MentalTrait.zealous: Level.highly,
                   },
                 )
               ],
-              [CrazyJoeCrusading()],
+              [CrazyJoeStabbingPriest()],
             ),
           ],
         ),

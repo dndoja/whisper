@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:bonfire/bonfire.dart';
-import 'package:flutter/services.dart';
+import 'package:dartx/dartx.dart';
+import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/core/chase.dart';
 import 'package:whisper/core/utils.dart';
@@ -41,6 +42,7 @@ class CrazyJoeController extends SimpleEnemy
         radius: 4,
       ),
     );
+
     return super.onLoad();
   }
 
@@ -51,19 +53,38 @@ class CrazyJoeController extends SimpleEnemy
     switch (currBehaviour) {
       case CrazyJoeChilling():
         patrol(KeyLocation.crazyJoeFarm, dt);
+      case CrazyJoeDoomsaying():
+        patrol(KeyLocation.villageMainSquare, dt);
+        showTextBubble(
+          'DEATH IS COMING!',
+          dt: dt,
+          periodSeconds: 10,
+          yell: true,
+        );
+      case CrazyJoeRepenting():
+        showTextBubble(
+          'I must repent... *whips himself*',
+          dt: dt,
+          periodSeconds: 10,
+          onComplete: () => playBloodAnimation(maxForce: 200, count: 50),
+        );
+      case CrazyJoeRunningFromUndead():
+        if (!transitioningToNewTurn) {
+          if (isVisibleInCamera()) {
+            moveDown();
+          }else if (!isRemoved){
+            removeFromParent();
+          }
+        }
+      case CrazyJoeLeavingVillage():
       case CrazyJoeRampaging():
       case CrazyJoeCrusading():
       case CrazyJoeSavingKingdom():
       case CrazyJoeFearingDevil():
       case CrazyJoeFindingGod():
       case CrazyJoeThinkingHeIsDead():
-      case CrazyJoeLeavingVillage():
       case CrazyJoeFightingForPeace():
       case CrazyJoeStabbingPriest():
-      case CrazyJoeRunningFromUndead():
-      case CrazyJoeAtoneing():
-      // throw UnimplementedError();
-      // return;
     }
 
     super.update(dt);
@@ -71,33 +92,45 @@ class CrazyJoeController extends SimpleEnemy
 
   @override
   Future<void> onStateChange(CharacterState newState) async {
+    final dialog = gameState
+        .characterDialogs()
+        .firstOrNullWhere((d) => d.$1 == entityType);
+    if (dialog != null) showTextBubble(dialog.$2);
+
     if (newState.behaviour == currBehaviour) return;
 
     prevBehaviour = currBehaviour;
     currBehaviour = newState.behaviour as BehaviourFlag<CrazyJoe>;
 
+    setupBlockMovementCollision(enabled: false);
+
     switch (currBehaviour) {
-      case CrazyJoeRampaging():
-      // await pathfindToPosition(const Point16(50, 50).mapPosition);
+      case CrazyJoeRunningFromUndead():
+        await pathfindToPosition(KeyLocation.villageExitSouth.br.mapPosition);
+      case CrazyJoeDoomsaying():
+        await pathfindToPosition(KeyLocation.villageMainSquare.ref.mapPosition);
+      case CrazyJoeRepenting():
+        await pathfindToPosition(KeyLocation.church.ref.mapPosition);
       case CrazyJoeStabbingPriest():
         final priest = characterTracker.priest;
-
-        setupBlockMovementCollision(enabled: false);
 
         await pathfindToPosition(KeyLocation.church.ref.mapPosition);
         await chase(priest);
 
         if (distance(priest) <= 16) {
-          priest.removeLife(100);
-          showDamage(100);
+          showTextBubble('Die you piece of shit', onComplete: () {
+            priest.removeLife(100);
+            priest.playBloodAnimation();
+          });
         }
 
         await pathfindToPosition(KeyLocation.crazyJoeFarm.ref.mapPosition);
-
-        setupBlockMovementCollision(enabled: true);
+        if (!isRemoved) removeFromParent();
 
       default:
     }
+
+    setupBlockMovementCollision(enabled: true);
   }
 
   @override
@@ -116,4 +149,66 @@ class CrazyJoeController extends SimpleEnemy
   void onMouseHoverExit(int pointer, Vector2 position) {
     (gameRef as BonfireGame).mouseCursor = MouseCursor.defer;
   }
+
+  TextBubble? currTextBubble;
+  double secondsElapsedSinceLastBubble = 0;
+  bool showTextBubble(
+    String text, {
+    int? periodSeconds,
+    double dt = 0,
+    bool yell = false,
+    void Function()? onComplete,
+  }) {
+    secondsElapsedSinceLastBubble += dt;
+    if (periodSeconds != null &&
+        secondsElapsedSinceLastBubble < periodSeconds) {
+      return false;
+    }
+
+    if (currTextBubble != null && !currTextBubble!.isRemoved) {
+      remove(currTextBubble!);
+    }
+
+    secondsElapsedSinceLastBubble = 0;
+    currTextBubble = TextBubble(
+      text,
+      onComplete: onComplete,
+      position: Vector2(8, -24),
+      yell: yell,
+    );
+    add(currTextBubble!);
+    return true;
+  }
+}
+
+extension BloodAnimation on SimpleEnemy {
+  static final rng = math.Random();
+  static final startPos = Vector2.all(8);
+
+  void playBloodAnimation({
+    Duration? delay,
+    int count = 200,
+    int maxForce = 500,
+  }) =>
+      add(
+        ParticleSystemComponent(
+          position: startPos,
+          particle: Particle.generate(
+            count: count,
+            generator: (i) => AcceleratedParticle(
+              acceleration: Vector2(
+                randBetween(-maxForce, maxForce),
+                randBetween(-maxForce, maxForce),
+              ),
+              child: CircleParticle(
+                paint: Paint()..color = Colors.red,
+                radius: rng.nextDouble() * 2,
+              ),
+            ),
+          ),
+        ),
+      );
+
+  double randBetween(int min, int max) =>
+      (rng.nextInt(max - min) + min).toDouble();
 }

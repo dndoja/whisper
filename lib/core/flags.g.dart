@@ -45,12 +45,16 @@ class CrazyJoeStabbingPriest extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeStabbingPriest();
 }
 
+class CrazyJoeDoomsaying extends BehaviourFlag<CrazyJoe> {
+  const CrazyJoeDoomsaying();
+}
+
 class CrazyJoeRunningFromUndead extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeRunningFromUndead();
 }
 
-class CrazyJoeAtoneing extends BehaviourFlag<CrazyJoe> {
-  const CrazyJoeAtoneing();
+class CrazyJoeRepenting extends BehaviourFlag<CrazyJoe> {
+  const CrazyJoeRepenting();
 }
 
 class PriestAbraham extends EntityType {

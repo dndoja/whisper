@@ -29,6 +29,21 @@ enum KeyLocation {
     Point16(13, 50),
     Point16(23, 59),
   ),
+  villageExitEast(
+    Point16(-5, 15),
+    Point16(0, 16),
+    Point16(0, 16),
+  ),
+  villageExitSouth(
+    Point16(31, 59),
+    Point16(31, 59),
+    Point16(31, 59),
+  ),
+  villageMainSquare(
+    Point16(6, 14),
+    Point16(22, 15),
+    Point16(37, 22),
+  ),
   ;
 
   const KeyLocation(this.tl, this.ref, this.br);

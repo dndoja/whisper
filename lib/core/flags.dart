@@ -12,15 +12,21 @@ enum MentalTrait {
 
 enum Level {
   none,
-  slight,
-  moderate,
-  major,
-  extreme,
+  slightly,
+  moderately,
+  highly,
+  extremely,
 }
 
 const Map<EntityType, int> entitiesInitialSanity = {
   CrazyJoe(): 2,
   PriestAbraham(): 5,
+};
+
+const Set<BehaviourFlag> leavingMapBehaviours = {
+  CrazyJoeRunningFromUndead(),
+  CrazyJoeFightingForPeace(),
+  CrazyJoeLeavingVillage(),
 };
 
 sealed class EntityType {
@@ -41,6 +47,8 @@ sealed class EntityFlag<T extends EntityType> {
           '${entity}MentalState($mentalStates)',
         _ => runtimeType.toString(),
       };
+
+  bool get endsInLeavingMap => leavingMapBehaviours.contains(this);
 }
 
 sealed class BehaviourFlag<T extends EntityType> extends EntityFlag<T> {
