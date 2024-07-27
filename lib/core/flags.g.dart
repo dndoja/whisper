@@ -9,6 +9,7 @@ class CrazyJoe extends EntityType {
 class CrazyJoeChilling extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeChilling();
 }
+
 class CrazyJoeCrusading extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeCrusading();
 }
@@ -57,10 +58,42 @@ class CrazyJoeRepenting extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeRepenting();
 }
 
-class PriestAbraham extends EntityType {
-  const PriestAbraham();
+class Priest extends EntityType {
+  const Priest();
 }
 
-class PriestAbrahamChilling extends BehaviourFlag<PriestAbraham> {
-  const PriestAbrahamChilling();
+class PriestPraying extends BehaviourFlag<Priest> {
+  const PriestPraying();
+}
+
+class Fisherman extends EntityType {
+  const Fisherman();
+}
+
+class FishermanFishing extends BehaviourFlag<Fisherman> {
+  const FishermanFishing();
+}
+
+class Astrologer extends EntityType {
+  const Astrologer();
+}
+
+class AstrologerObserving extends BehaviourFlag<Astrologer> {
+  const AstrologerObserving();
+}
+
+class Rolf extends EntityType {
+  const Rolf();
+}
+
+class RolfRolfing extends BehaviourFlag<Rolf> {
+  const RolfRolfing();
+}
+
+class Alchemist extends EntityType {
+  const Alchemist();
+}
+
+class AlchemistTravelling extends BehaviourFlag<Alchemist> {
+  const AlchemistTravelling();
 }

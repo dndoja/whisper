@@ -17,10 +17,10 @@ class CrazyJoeController extends SimpleEnemy
         GameCharacter<CrazyJoe>,
         PathFinding,
         ChaseMovement {
-  CrazyJoeController(Vector2 position)
+  CrazyJoeController()
       : super(
           size: Vector2.all(16),
-          position: position,
+          position: KeyLocation.crazyJoeFarm.ref.mapPosition,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
           animation: PlayerSpriteSheet.simpleDirectionAnimation,
         ) {
@@ -72,7 +72,7 @@ class CrazyJoeController extends SimpleEnemy
         if (!transitioningToNewTurn) {
           if (isVisibleInCamera()) {
             moveDown();
-          }else if (!isRemoved){
+          } else if (!isRemoved) {
             removeFromParent();
           }
         }

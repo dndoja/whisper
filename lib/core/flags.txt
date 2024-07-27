@@ -13,5 +13,17 @@ doomsaying
 runningFromUndead
 repenting
 
-Priest Abraham:
-chilling
+Priest:
+praying
+
+Fisherman:
+fishing
+
+Astrologer:
+observing
+
+Rolf:
+rolfing
+
+Alchemist:
+travelling

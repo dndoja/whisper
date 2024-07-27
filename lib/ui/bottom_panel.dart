@@ -366,7 +366,8 @@ class ShadowyTendrilsWidget extends StatelessWidget {
             text: TextSpan(
               style: const TextStyle(fontSize: 24),
               children: [
-                TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️❤️'}'),
+                TextSpan(text: '$target\n'),
+                TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️'}\n'),
                 TextSpan(
                   text: '${characterState.sanityLevel}/${target.initialSanity}',
                 ),

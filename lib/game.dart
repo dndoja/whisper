@@ -42,9 +42,11 @@ class GameWidget extends StatelessWidget {
       );
 }
 
-void initGame(BonfireGameInterface game) {
-  game.addAll([
-    characterTracker.register(CrazyJoeController(KeyLocation.crazyJoeFarm.ref.mapPosition)),
-    characterTracker.register(PriestController(KeyLocation.church.ref.mapPosition)),
-  ]);
-}
+void initGame(BonfireGameInterface game) => game.addAll([
+      characterTracker.register(AlchemistController()),
+      characterTracker.register(CrazyJoeController()),
+      characterTracker.register(PriestController()),
+      characterTracker.register(FishermanController()),
+      characterTracker.register(RolfController()),
+      characterTracker.register(AstrologerController()),
+    ]);

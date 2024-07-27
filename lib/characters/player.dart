@@ -1,6 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 
-import 'animations.dart';
+import 'common.dart';
 
 class ShadowPlayer extends SimplePlayer {
   ShadowPlayer(Vector2 position)

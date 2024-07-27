@@ -4,28 +4,28 @@ import 'package:whisper/core/core.dart';
 
 import 'common.dart';
 
-class PriestController extends SimpleEnemy
+class AlchemistController extends SimpleEnemy
     with
         BlockMovementCollision,
         RandomMovement,
         MouseEventListener,
-        GameCharacter<Priest>,
+        GameCharacter<Alchemist>,
         PathFinding {
-  PriestController()
+  AlchemistController()
       : super(
           size: Vector2.all(16),
           animation: PlayerSpriteSheet.simpleDirectionAnimation,
-          position: KeyLocation.church.ref.mapPosition,
+          position: KeyLocation.alchemistLab.ref.mapPosition,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
         ) {
     subscribeToGameState();
   }
 
-  BehaviourFlag<Priest> prevBehaviour = const PriestPraying();
-  BehaviourFlag<Priest> currBehaviour = const PriestPraying();
+  BehaviourFlag<Alchemist> prevBehaviour = const AlchemistTravelling();
+  BehaviourFlag<Alchemist> currBehaviour = const AlchemistTravelling();
 
   @override
-  Priest get entityType => const Priest();
+  Alchemist get entityType => const Alchemist();
 
   @override
   Future<void> onLoad() {
@@ -49,8 +49,7 @@ class PriestController extends SimpleEnemy
     if (gameState.isPaused) return;
 
     switch (currBehaviour) {
-      case PriestPraying():
-        patrol(KeyLocation.church, dt);
+      case AlchemistTravelling():
     }
     super.update(dt);
   }
@@ -59,7 +58,7 @@ class PriestController extends SimpleEnemy
   void onStateChange(CharacterState newState) {
     if (newState.behaviour != currBehaviour) {
       prevBehaviour = currBehaviour;
-      currBehaviour = newState.behaviour as BehaviourFlag<Priest>;
+      currBehaviour = newState.behaviour as BehaviourFlag<Alchemist>;
     }
   }
 

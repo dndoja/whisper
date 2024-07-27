@@ -1,28 +1,37 @@
-import 'package:bonfire/bonfire.dart';
-import 'package:whisper/core/state_machine.dart';
-
-import 'flags.dart';
+import 'core.dart';
 
 final characterTracker = CharacterTracker();
 
 class CharacterTracker {
-  late final SimpleEnemy crazyJoe;
-  late final SimpleEnemy priest;
+  late final GameCharacter alchemist;
+  late final GameCharacter crazyJoe;
+  late final GameCharacter priest;
+  late final GameCharacter rolf;
+  late final GameCharacter fisherman;
+  late final GameCharacter astrologer;
+
+  final Map<EntityType, GameCharacter> _byType = {};
 
   GameCharacter<T> register<T extends EntityType>(GameCharacter<T> character) {
     switch (character.entityType) {
+      case Alchemist():
+        alchemist = character;
+      case Fisherman():
+        fisherman = character;
+      case Rolf():
+        rolf = character;
+      case Astrologer():
+        astrologer = character;
       case CrazyJoe():
         crazyJoe = character;
-      case PriestAbraham():
+      case Priest():
         priest = character;
     }
+
+    _byType[character.entityType] = character;
 
     return character;
   }
 
-  SimpleEnemy ofType(EntityType type) => switch(type) {
-    const CrazyJoe() => crazyJoe,
-    const PriestAbraham() => priest,
-    _ => throw UnimplementedError()
-  };
+  GameCharacter ofType(EntityType type) => _byType[type]!; 
 }

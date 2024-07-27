@@ -31,8 +31,8 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
                 CurrentMentalState(
                   CrazyJoe(),
                   {
-                    MentalTrait.superstitious: Level.moderately,
-                    MentalTrait.zealous: Level.highly,
+                    MentalTrait.superstitious: Level.slightly,
+                    MentalTrait.zealous: Level.slightly,
                   },
                 )
               ],

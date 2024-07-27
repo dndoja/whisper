@@ -1,5 +1,4 @@
-import 'flags.dart';
-import 'state_machine.dart';
+import 'core.dart';
 
 typedef $ = StateTransition;
 
@@ -14,6 +13,15 @@ const List<List<StateTransition>> stateTransitions = [
   ],
   // Priest Abraham
   [
-    $([], [PriestAbrahamChilling()]),
+    $([], [PriestPraying()]),
+  ],
+  [
+    $([], [AstrologerObserving()]),
+  ],
+  [
+    $([], [RolfRolfing()]),
+  ],
+  [
+    $([], [FishermanFishing()]),
   ],
 ];

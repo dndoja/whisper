@@ -15,9 +15,9 @@ class Point16 {
 
 enum KeyLocation {
   alchemistLab(
-    Point16(0, 0),
-    Point16(0, 0),
-    Point16(0, 0),
+    Point16(93, 10),
+    Point16(93, 10),
+    Point16(93, 10),
   ),
   church(
     Point16(25, 10),
@@ -29,8 +29,23 @@ enum KeyLocation {
     Point16(13, 50),
     Point16(23, 59),
   ),
+  fishermanHut(
+    Point16(49, 23),
+    Point16(49, 26),
+    Point16(53, 26),
+  ),
+  graveyard(
+    Point16(6, 0),
+    Point16(17, 3),
+    Point16(16, 6),
+  ),
+  observatory(
+    Point16(41, 8),
+    Point16(41, 10),
+    Point16(44, 11),
+  ),
   villageExitEast(
-    Point16(-5, 15),
+    Point16(0, 16),
     Point16(0, 16),
     Point16(0, 16),
   ),

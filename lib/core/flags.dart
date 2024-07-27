@@ -18,9 +18,9 @@ enum Level {
   extremely,
 }
 
+const int defaultSanity = 5;
 const Map<EntityType, int> entitiesInitialSanity = {
   CrazyJoe(): 2,
-  PriestAbraham(): 5,
 };
 
 const Set<BehaviourFlag> leavingMapBehaviours = {
@@ -35,7 +35,7 @@ sealed class EntityType {
   @override
   String toString() => runtimeType.toString();
 
-  int get initialSanity => entitiesInitialSanity[this]!;
+  int get initialSanity => entitiesInitialSanity[this] ?? defaultSanity;
 }
 
 sealed class EntityFlag<T extends EntityType> {
@@ -121,8 +121,12 @@ class SanityLevel<T extends EntityType> extends EntityFlag<T> {
 
 extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {
   EntityType get type => switch (this) {
+        BehaviourFlag<Alchemist>() => const Alchemist(),
         BehaviourFlag<CrazyJoe>() => const CrazyJoe(),
-        BehaviourFlag<PriestAbraham>() => const PriestAbraham(),
+        BehaviourFlag<Priest>() => const Priest(),
+        BehaviourFlag<Fisherman>() => const Fisherman(),
+        BehaviourFlag<Astrologer>() => const Astrologer(),
+        BehaviourFlag<Rolf>() => const Rolf(),
         CurrentMentalState(:final entity) => entity,
         DominantMentalTrait(:final entity) => entity,
         EntityActionCount(:final entity) => entity,
