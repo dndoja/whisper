@@ -24,4 +24,21 @@ const List<List<StateTransition>> stateTransitions = [
   [
     $([], [FishermanFishing()]),
   ],
+  [
+    $([], [AlchemistIdle()]),
+    $([AlchemistIdle()], [AlchemistTravelling(0)]),
+    $([AlchemistTravelling(0)], [AlchemistTravelling(1)]),
+    $([AlchemistTravelling(1)], [AlchemistTravelling(2)]),
+    $([AlchemistTravelling(2)], [AlchemistTravelling(3)]),
+    $([AlchemistTravelling(3)], [AlchemistTravelling(4)]),
+    $([AlchemistTravelling(4)], [AlchemistTravelling(5)]),
+    $([AlchemistTravelling(5)], [AlchemistTravelling(6)]),
+    $([AlchemistTravelling(6)], [AlchemistTravelling(7)]),
+    $([AlchemistTravelling(7)], [AlchemistTravelling(8)]),
+    $([AlchemistTravelling(8)], [AlchemistTravelling(9)]),
+    $([AlchemistTravelling(9)], [AlchemistTravelling(10)]),
+    $([AlchemistTravelling(10)], [AlchemistPickingUpBones()]),
+    $([AlchemistPickingUpBones()], [AlchemistPickingUpHolyWater()]),
+    $([AlchemistPickingUpHolyWater()], [AlchemistPickingUpAstrologyTips()]),
+  ],
 ];

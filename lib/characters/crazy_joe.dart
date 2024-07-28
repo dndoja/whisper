@@ -5,13 +5,11 @@ import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/core/chase.dart';
-import 'package:whisper/core/utils.dart';
 
 import 'common.dart';
 
 class CrazyJoeController extends SimpleEnemy
     with
-        BlockMovementCollision,
         RandomMovement,
         MouseEventListener,
         GameCharacter<CrazyJoe>,
@@ -28,7 +26,7 @@ class CrazyJoeController extends SimpleEnemy
     subscribeToGameState();
   }
 
-  BehaviourFlag<CrazyJoe> prevBehaviour = const CrazyJoeChilling();
+  @override
   BehaviourFlag<CrazyJoe> currBehaviour = const CrazyJoeChilling();
 
   @override
@@ -36,13 +34,13 @@ class CrazyJoeController extends SimpleEnemy
 
   @override
   Future<void> onLoad() {
-    add(
-      CircleHitbox(
-        anchor: Anchor.topLeft,
-        position: Vector2(0, 0),
-        radius: 8,
-      ),
-    );
+    // add(
+    //   CircleHitbox(
+    //     anchor: Anchor.topLeft,
+    //     position: Vector2(0, 0),
+    //     radius: 8,
+    //   ),
+    // );
 
     return super.onLoad();
   }
@@ -136,14 +134,13 @@ class CrazyJoeController extends SimpleEnemy
 
     if (newState.behaviour == currBehaviour) return;
 
-    prevBehaviour = currBehaviour;
     currBehaviour = newState.behaviour as BehaviourFlag<CrazyJoe>;
 
-    setupBlockMovementCollision(enabled: false);
+    // setupBlockMovementCollision(enabled: false);
 
     switch (currBehaviour) {
       case CrazyJoeCrusading():
-        await pathfindToPosition(KeyLocation.church.ref.mapPosition);
+        await pathfindToPosition(KeyLocation.villageEntrance.ref.mapPosition);
       case CrazyJoeRunningFromZombies():
         await pathfindToPosition(KeyLocation.villageExitSouth.br.mapPosition);
       case CrazyJoeDoomsaying():
@@ -167,7 +164,7 @@ class CrazyJoeController extends SimpleEnemy
       default:
     }
 
-    setupBlockMovementCollision(enabled: true);
+    // setupBlockMovementCollision(enabled: true);
   }
 
   @override

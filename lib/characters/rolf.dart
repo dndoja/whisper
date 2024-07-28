@@ -21,7 +21,7 @@ class RolfController extends SimpleEnemy
     subscribeToGameState();
   }
 
-  BehaviourFlag<Rolf> prevBehaviour = const RolfRolfing();
+  @override
   BehaviourFlag<Rolf> currBehaviour = const RolfRolfing();
 
   @override
@@ -58,7 +58,6 @@ class RolfController extends SimpleEnemy
   @override
   void onStateChange(CharacterState newState) {
     if (newState.behaviour != currBehaviour) {
-      prevBehaviour = currBehaviour;
       currBehaviour = newState.behaviour as BehaviourFlag<Rolf>;
     }
   }

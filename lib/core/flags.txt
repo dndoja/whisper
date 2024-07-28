@@ -27,4 +27,7 @@ Rolf:
 rolfing
 
 Alchemist:
-travelling
+idle
+pickingUpBones
+pickingUpHolyWater
+pickingUpAstrologyTips

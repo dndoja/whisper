@@ -5,6 +5,7 @@ export 'dialogs.dart';
 export 'flags.dart';
 export 'game_character.dart';
 export 'key_locations.dart';
+export 'movement.dart';
 export 'pathfinding.dart';
 export 'tap_manager.dart';
 export 'state_machine.dart';

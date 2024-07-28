@@ -91,17 +91,27 @@ extension GameCharacterStateX on GameCharacter {
   }) async {
     print('Running turn transition on $entityType');
     transitioningToNewTurn = true;
-    gameRef.camera.follow(this);
-
+    if (!isVisible) {
+      final Completer<void> cameraCompleter = Completer();
+      gameRef.camera.moveToTargetAnimated(
+        target: this,
+        onComplete: cameraCompleter.complete,
+      );
+      await cameraCompleter.future;
+    }else{
+      // gameRef.camera.follow(this);
+    }
+    print('Cmera finish, ${newState.behaviour}');
     await onStateChange(newState);
 
-    print('Finished turn transition on $entityType');
+    // print('Finished turn transition on $entityType');
     if (!transitioningToNewTurn) return;
     gameState._nextTransition(entityType);
     transitioningToNewTurn = false;
 
     if (isLast) {
-      if (newState.behaviour.endsInLeavingMap) {
+      if (newState.behaviour.endsInLeavingMap ||
+          entityType == const Alchemist()) {
         gameRef.camera.moveToPlayerAnimated();
       } else {
         gameRef.player!.position = position + Vector2(0, 16);

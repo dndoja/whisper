@@ -1,13 +1,14 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
+import 'package:whisper/core/movement.dart';
 
 import 'common.dart';
 
 class AlchemistController extends SimpleEnemy
     with
         BlockMovementCollision,
-        RandomMovement,
+        SimpleMovement,
         MouseEventListener,
         GameCharacter<Alchemist>,
         PathFinding {
@@ -21,8 +22,8 @@ class AlchemistController extends SimpleEnemy
     subscribeToGameState();
   }
 
-  BehaviourFlag<Alchemist> prevBehaviour = const AlchemistTravelling();
-  BehaviourFlag<Alchemist> currBehaviour = const AlchemistTravelling();
+  @override
+  BehaviourFlag<Alchemist> currBehaviour = const AlchemistIdle();
 
   @override
   Alchemist get entityType => const Alchemist();
@@ -48,18 +49,44 @@ class AlchemistController extends SimpleEnemy
 
     if (gameState.isPaused) return;
 
-    switch (currBehaviour) {
-      case AlchemistTravelling():
-    }
     super.update(dt);
   }
 
   @override
-  void onStateChange(CharacterState newState) {
-    if (newState.behaviour != currBehaviour) {
-      prevBehaviour = currBehaviour;
-      currBehaviour = newState.behaviour as BehaviourFlag<Alchemist>;
+  Future<void> onStateChange(CharacterState newState) async {
+    if (newState.behaviour == currBehaviour) return;
+    currBehaviour = newState.behaviour as BehaviourFlag<Alchemist>;
+
+    setupBlockMovementCollision(enabled: false);
+
+    switch (currBehaviour) {
+      case AlchemistIdle():
+        break;
+      case AlchemistTravelling(:final turnCount):
+        final target = AlchemistTravelling.checkpoints[turnCount];
+        await moveToTarget(target);
+      case AlchemistPickingUpBones():
+        await pathfindToPosition(KeyLocation.graveyard.tl.mapPosition);
+        await showTextBubble('First off, let us get the bones');
+      case AlchemistPickingUpHolyWater():
+        final priest = characterTracker.priest;
+        await moveToTarget(KeyLocation.church.ref);
+        if (priest.getCurrentKeyLocation() != KeyLocation.church ||
+            priest.isDead) {
+          showTextBubble('Where is that scummy Priest?');
+        } else {
+          await showTextBubble(
+            'Your Holyness, could you please lend me some Holy Water, '
+            'one of my workers has a bad case of Posession.',
+          );
+          await priest.showTextBubble('Sure thing, here you go.');
+        }
+
+      case AlchemistPickingUpAstrologyTips():
+        await pathfindToPosition(KeyLocation.observatory.ref.mapPosition);
     }
+
+    setupBlockMovementCollision(enabled: true);
   }
 
   @override

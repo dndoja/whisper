@@ -57,6 +57,35 @@ sealed class BehaviourFlag<T extends EntityType> extends EntityFlag<T> {
   const BehaviourFlag();
 }
 
+class AlchemistTravelling extends BehaviourFlag<Alchemist> {
+  const AlchemistTravelling(this.turnCount);
+  final int turnCount;
+
+  static const List<Point16> checkpoints = [
+    Point16(93, 22), // 0
+    Point16(91, 24), // 1
+    Point16(91, 29), // 2
+    Point16(91, 44), // 3
+    Point16(81, 44), // 4
+    Point16(71, 44), // 5
+    Point16(61, 44), // 6
+    Point16(51, 44), // 7
+    Point16(41, 44), // 8
+    Point16(31, 44), // 9
+    Point16(31, 22), // 10
+  ];
+
+  @override
+  String toString() => 'AlchemistTravelling($turnCount)';
+
+  @override
+  int get hashCode => const Alchemist().hashCode ^ turnCount.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is AlchemistTravelling && other.turnCount == turnCount;
+}
+
 class EntityActionCount<T extends EntityType> extends EntityFlag<T> {
   const EntityActionCount(this.entity, this.actionType, this.actionCount);
   final T entity;

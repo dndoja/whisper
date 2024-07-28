@@ -137,7 +137,7 @@ class _BottomPanelState extends State<BottomPanel> {
       );
 
   void endTurn() {
-    if (turnActions.isEmpty) return;
+    // if (turnActions.isEmpty) return;
 
     setState(() {
       gameState.endTurn(turnActions);

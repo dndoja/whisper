@@ -1,6 +1,7 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
+import 'package:whisper/core/movement.dart';
 
 import 'common.dart';
 import 'zombie.dart';
@@ -8,9 +9,9 @@ import 'zombie.dart';
 class PriestController extends SimpleEnemy
     with
         BlockMovementCollision,
-        RandomMovement,
         MouseEventListener,
         GameCharacter<Priest>,
+        SimpleMovement,
         PathFinding {
   PriestController()
       : super(
@@ -22,7 +23,7 @@ class PriestController extends SimpleEnemy
     subscribeToGameState();
   }
 
-  BehaviourFlag<Priest> prevBehaviour = const PriestPraying();
+  @override
   BehaviourFlag<Priest> currBehaviour = const PriestPraying();
 
   @override
@@ -51,7 +52,7 @@ class PriestController extends SimpleEnemy
 
     switch (currBehaviour) {
       case PriestPraying():
-        patrol(KeyLocation.church, dt);
+        patrol(KeyLocation.church.patrol);
       case PriestSummoningZombies():
     }
     super.update(dt);
@@ -61,7 +62,6 @@ class PriestController extends SimpleEnemy
   Future<void> onStateChange(CharacterState newState) async {
     if (newState.behaviour == currBehaviour) return;
 
-    prevBehaviour = currBehaviour;
     currBehaviour = newState.behaviour as BehaviourFlag<Priest>;
 
     switch (currBehaviour) {

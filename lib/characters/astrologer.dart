@@ -21,7 +21,7 @@ class AstrologerController extends SimpleEnemy
     subscribeToGameState();
   }
 
-  BehaviourFlag<Astrologer> prevBehaviour = const AstrologerObserving();
+  @override
   BehaviourFlag<Astrologer> currBehaviour = const AstrologerObserving();
 
   @override
@@ -58,7 +58,6 @@ class AstrologerController extends SimpleEnemy
   @override
   void onStateChange(CharacterState newState) {
     if (newState.behaviour != currBehaviour) {
-      prevBehaviour = currBehaviour;
       currBehaviour = newState.behaviour as BehaviourFlag<Astrologer>;
     }
   }

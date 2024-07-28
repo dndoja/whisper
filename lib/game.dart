@@ -45,11 +45,11 @@ class GameWidget extends StatelessWidget {
 
 void initGame(BonfireGameInterface game) {
   game.addAll([
-    characterTracker.register(AlchemistController()),
     characterTracker.register(CrazyJoeController()),
     characterTracker.register(PriestController()),
     characterTracker.register(FishermanController()),
     characterTracker.register(RolfController()),
     characterTracker.register(AstrologerController()),
+    characterTracker.register(AlchemistController()),
   ]);
 }

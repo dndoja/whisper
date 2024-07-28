@@ -1,8 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:whisper/core/core.dart';
 
-
-
 class KeyLocationComponent extends GameComponent {
   KeyLocationComponent([this._keyLocation]);
 

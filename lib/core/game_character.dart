@@ -45,6 +45,7 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy {
     return completer.future;
   }
 
+  BehaviourFlag<T> get currBehaviour;
   T get entityType;
 
   FutureOr<void> onStateChange(CharacterState newState);

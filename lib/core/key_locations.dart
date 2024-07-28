@@ -91,9 +91,22 @@ enum KeyLocation {
           point.y >= tl.y &&
           point.y <= br.y);
 
+  List<Point16> get patrol => patrolCheckpoints[this] ?? const [];
+
   static const List<KeyLocation> massMurderLocations = [
     church,
     observatory,
     fishermanHut,
   ];
+
+  static const Map<KeyLocation, List<Point16>> patrolCheckpoints = {
+    KeyLocation.church: [
+      Point16(31, 15),
+      Point16(35, 15),
+      Point16(35, 21),
+      Point16(27, 21),
+      Point16(27, 21),
+      Point16(27, 15),
+    ],
+  };
 }

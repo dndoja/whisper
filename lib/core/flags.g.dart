@@ -98,6 +98,18 @@ class Alchemist extends EntityType {
   const Alchemist();
 }
 
-class AlchemistTravelling extends BehaviourFlag<Alchemist> {
-  const AlchemistTravelling();
+class AlchemistIdle extends BehaviourFlag<Alchemist> {
+  const AlchemistIdle();
+}
+
+class AlchemistPickingUpBones extends BehaviourFlag<Alchemist> {
+  const AlchemistPickingUpBones();
+}
+
+class AlchemistPickingUpHolyWater extends BehaviourFlag<Alchemist> {
+  const AlchemistPickingUpHolyWater();
+}
+
+class AlchemistPickingUpAstrologyTips extends BehaviourFlag<Alchemist> {
+  const AlchemistPickingUpAstrologyTips();
 }

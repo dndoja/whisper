@@ -21,7 +21,7 @@ class FishermanController extends SimpleEnemy
     subscribeToGameState();
   }
 
-  BehaviourFlag<Fisherman> prevBehaviour = const FishermanFishing();
+  @override
   BehaviourFlag<Fisherman> currBehaviour = const FishermanFishing();
 
   @override
@@ -58,7 +58,6 @@ class FishermanController extends SimpleEnemy
   @override
   void onStateChange(CharacterState newState) {
     if (newState.behaviour != currBehaviour) {
-      prevBehaviour = currBehaviour;
       currBehaviour = newState.behaviour as BehaviourFlag<Fisherman>;
     }
   }
