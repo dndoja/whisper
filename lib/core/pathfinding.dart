@@ -1,7 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
-import 'package:whisper/characters/common.dart';
 
 import 'core.dart';
 
@@ -21,48 +20,48 @@ mixin BugNav on SimpleEnemy {
 
     final dirToTarget =
         BonfireUtil.getDirectionFromAngle(getAngleFromTarget(target));
-    int rotations = 0;
 
     bool validDir(Direction dir) =>
         canMove(dir, ignoreHitboxes: target.shapeHitboxes) &&
-        dir != prevDir?.opposite();
+        dir != prevDir?.opposite;
 
-    void move(Direction dir) {
+    void move(Direction dir, String label) {
       moveFromDirection(dir);
-      printUnique('$prevDir -> $dir');
+      printUnique('$prevDir -> $dir $label');
       prevDir = dir;
     }
 
     if (validDir(dirToTarget)) {
-      move(dirToTarget);
+      move(dirToTarget, 'Target');
       return;
     }
 
-    final List<Direction> components = dirToTarget.components;
+    final List<Direction> components = dirToTarget.cardinalComponents;
     for (final dir in components) {
       if (validDir(dir)) {
-        move(dir);
+        move(dir, 'Component');
         return;
       }
     }
 
     if (prevDir != null && canMove(prevDir!)) {
-      move(prevDir!);
+      move(prevDir!, 'Previous');
       return;
     }
 
-    const maxRotations = 3;
-    Direction rotatedDir = dirToTarget;
-
-    while (rotations < maxRotations && !validDir(rotatedDir)) {
-      rotatedDir = rotatedDir.isLeftIsh
-          ? rotatedDir.rotateCounterClockwise()
-          : rotatedDir.rotateClockwise();
-
-      rotations++;
-    }
-
-    if (validDir(rotatedDir)) move(rotatedDir);
+    // const maxRotations = 3;
+    // Direction rotatedDir = dirToTarget.cardinal;
+    // int rotations = 0;
+    //
+    // while (rotations < maxRotations && !validDir(rotatedDir)) {
+    //   rotatedDir = rotatedDir.isLeftIsh
+    //       ? rotatedDir.rotateCounterClockwise()
+    //       : rotatedDir.rotateClockwise();
+    //
+    //   rotations++;
+    // }
+    //
+    // if (validDir(rotatedDir)) move(rotatedDir);
   }
 }
 

@@ -72,7 +72,7 @@ mixin ChaseMovement on Movement {
     List? ignoreCollisions,
     VoidCallback? onFinish,
   }) async {
-    if (!hasGameRef) return;
+    if (!hasGameRef || target == _target) return;
 
     _target = target;
     _onFinish = onFinish;
@@ -123,7 +123,7 @@ mixin ChaseMovement on Movement {
     if (targetLoc == null) return;
 
     if (distance(_target!) > _minDistanceToTarget) {
-      if (_currentPathTarget.distanceToSquared(targetLoc) > 512) {
+      if (_currentPathTarget.distanceToSquared(targetLoc) > 2000) {
         calculatePathTo(targetLoc);
       }
 

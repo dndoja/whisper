@@ -39,8 +39,8 @@ class CrazyJoeController extends SimpleEnemy
     add(
       CircleHitbox(
         anchor: Anchor.topLeft,
-        position: Vector2(4, 4),
-        radius: 4,
+        position: Vector2(0, 0),
+        radius: 8,
       ),
     );
 
@@ -143,7 +143,7 @@ class CrazyJoeController extends SimpleEnemy
 
     switch (currBehaviour) {
       case CrazyJoeCrusading():
-        await pathfindToPosition(KeyLocation.villageEntrance.ref.mapPosition);
+        await pathfindToPosition(KeyLocation.church.ref.mapPosition);
       case CrazyJoeRunningFromZombies():
         await pathfindToPosition(KeyLocation.villageExitSouth.br.mapPosition);
       case CrazyJoeDoomsaying():
