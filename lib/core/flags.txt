@@ -6,15 +6,16 @@ fearingDevil
 findingGod
 rampaging
 thinkingHeIsDead
-leavingVillage
+runningFromGhosts
 fightingForPeace
 stabbingPriest
 doomsaying
-runningFromUndead
+runningFromZombies
 repenting
 
 Priest:
 praying
+summoningZombies
 
 Fisherman:
 fishing

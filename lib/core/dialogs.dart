@@ -1,3 +1,5 @@
+import 'package:whisper/core/core.dart';
+
 import 'flags.dart';
 
 const Map<EntityType, EntityDialogs> entityDialogs = {
@@ -9,10 +11,10 @@ const Map<EntityType, EntityDialogs> entityDialogs = {
       CrazyJoeFindingGod(): '',
       CrazyJoeRampaging(): '',
       CrazyJoeThinkingHeIsDead(): '',
-      CrazyJoeLeavingVillage(): '',
+      CrazyJoeRunningFromGhosts(): '',
       CrazyJoeFightingForPeace(): '',
       CrazyJoeStabbingPriest(): '',
-      CrazyJoeRunningFromUndead(): "Joe ain't dealin' with no Zombies. Y'all stay safe tho!",
+      CrazyJoeRunningFromZombies(): "Joe ain't dealin' with no Zombies. Y'all stay safe tho!",
       CrazyJoeRepenting(): '',
       CrazyJoeDoomsaying(): '',
     },

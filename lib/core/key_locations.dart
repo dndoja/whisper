@@ -7,7 +7,20 @@ class Point16 {
 
   factory Point16.fromMapPos(Vector2 pos) => Point16(pos.x ~/ 16, pos.y ~/ 16);
 
+  @override
+  bool operator ==(Object other) =>
+      other is Point16 && other.x == x && other.y == y;
+
+  @override
+  int get hashCode => x.hashCode ^ y.hashCode;
+
   Vector2 get mapPosition => Vector2(x * 16.0, y * 16.0);
+
+  int distanceSquaredTo(Point16 other) {
+    final dx = (x - other.x).abs();
+    final dy = (y - other.y).abs();
+    return dx * dx + dy * dy;
+  }
 
   @override
   String toString() => '($x, $y)';
@@ -41,8 +54,13 @@ enum KeyLocation {
   ),
   observatory(
     Point16(41, 8),
-    Point16(41, 10),
+    Point16(42, 14),
     Point16(44, 11),
+  ),
+  villageEntrance(
+    Point16(30, 26),
+    Point16(31, 26),
+    Point16(32, 26),
   ),
   villageExitEast(
     Point16(0, 16),
@@ -67,5 +85,15 @@ enum KeyLocation {
   final Point16 ref;
 
   bool contains(Point16 point) =>
-      point.x >= tl.x && point.x <= br.x && point.y >= tl.y && point.y <= br.y;
+      (point.x == ref.x && point.y == ref.y) ||
+      (point.x >= tl.x &&
+          point.x <= br.x &&
+          point.y >= tl.y &&
+          point.y <= br.y);
+
+  static const List<KeyLocation> massMurderLocations = [
+    church,
+    observatory,
+    fishermanHut,
+  ];
 }

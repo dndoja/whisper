@@ -4,9 +4,8 @@ import 'dart:math' as math;
 
 import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
+import 'package:whisper/core/core.dart';
 
-import 'dialogs.dart';
-import 'flags.dart';
 import 'transitions.dart';
 
 export 'key_locations.dart';
@@ -83,16 +82,10 @@ class CharacterState<T extends EntityType> {
   }
 }
 
-mixin GameCharacter<T extends EntityType> on SimpleEnemy {
-  bool transitioningToNewTurn = false;
-  T get entityType;
-
+extension GameCharacterStateX on GameCharacter {
   void subscribeToGameState() => gameState._listeners.add(this);
-  FutureOr<void> onStateChange(CharacterState newState);
-}
 
-extension on GameCharacter {
-  Future<void> runTurnTransition(
+  Future<void> _runTurnTransition(
     CharacterState newState, {
     required bool isLast,
   }) async {
@@ -164,8 +157,13 @@ class GameState {
         entityStates[entity]?.lastOrNull?.flags() ?? const [];
     final List<ActionGroup> actionGroups = entityAvailableOptions[entity] ?? [];
 
+    print(entity);
+    print(currFlags);
+
     for (final group in actionGroups) {
+      print(group.conditions);
       if (flagsMatchPreReqs(currFlags, preReqs: group.conditions)) {
+        print('match');
         yield* group.actions;
       }
     }
@@ -329,7 +327,7 @@ class GameState {
 
     final curr = _turnTransitionQueue.removeFirst();
     lockedBy = curr.entityType;
-    curr.runTurnTransition(
+    curr._runTurnTransition(
       entityStates[curr.entityType]!.last,
       isLast: _turnTransitionQueue.isEmpty,
     );

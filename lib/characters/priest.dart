@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
 
 import 'common.dart';
+import 'zombie.dart';
 
 class PriestController extends SimpleEnemy
     with
@@ -51,15 +52,24 @@ class PriestController extends SimpleEnemy
     switch (currBehaviour) {
       case PriestPraying():
         patrol(KeyLocation.church, dt);
+      case PriestSummoningZombies():
     }
     super.update(dt);
   }
 
   @override
-  void onStateChange(CharacterState newState) {
-    if (newState.behaviour != currBehaviour) {
-      prevBehaviour = currBehaviour;
-      currBehaviour = newState.behaviour as BehaviourFlag<Priest>;
+  Future<void> onStateChange(CharacterState newState) async {
+    if (newState.behaviour == currBehaviour) return;
+
+    prevBehaviour = currBehaviour;
+    currBehaviour = newState.behaviour as BehaviourFlag<Priest>;
+
+    switch (currBehaviour) {
+      case PriestSummoningZombies():
+        await pathfindToPosition(KeyLocation.graveyard.ref.mapPosition);
+        await showTextBubble('*Chants in Latin*', yell: true);
+        gameRef.addAll(List.generate(10, (_) => Undead()));
+      default:
     }
   }
 

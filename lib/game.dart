@@ -32,9 +32,10 @@ class GameWidget extends StatelessWidget {
           overlayBuilderMap: {
             'bottom': (_, game) => BottomPanel(game),
           },
+          showCollisionArea: true,
           initialActiveOverlays: const ['bottom'],
           onReady: initGame,
-          player: ShadowPlayer(KeyLocation.church.br.mapPosition),
+          player: ShadowPlayer(KeyLocation.crazyJoeFarm.br.mapPosition),
           map: WorldMapByTiled(
             WorldMapReader.fromAsset('village.json'),
           ),
@@ -42,11 +43,13 @@ class GameWidget extends StatelessWidget {
       );
 }
 
-void initGame(BonfireGameInterface game) => game.addAll([
-      characterTracker.register(AlchemistController()),
-      characterTracker.register(CrazyJoeController()),
-      characterTracker.register(PriestController()),
-      characterTracker.register(FishermanController()),
-      characterTracker.register(RolfController()),
-      characterTracker.register(AstrologerController()),
-    ]);
+void initGame(BonfireGameInterface game) {
+  game.addAll([
+    characterTracker.register(AlchemistController()),
+    characterTracker.register(CrazyJoeController()),
+    characterTracker.register(PriestController()),
+    characterTracker.register(FishermanController()),
+    characterTracker.register(RolfController()),
+    characterTracker.register(AstrologerController()),
+  ]);
+}

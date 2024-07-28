@@ -5,6 +5,8 @@ import 'state_machine.dart';
 part 'flags.g.dart';
 
 enum MentalTrait {
+  doubtful,
+  fanatic,
   paranoid,
   superstitious,
   zealous,
@@ -18,15 +20,15 @@ enum Level {
   extremely,
 }
 
-const int defaultSanity = 5;
-const Map<EntityType, int> entitiesInitialSanity = {
-  CrazyJoe(): 2,
-};
+const int attackRangeSquared = 2;
+const int defaultSanity = 2;
+const int visionRadiusSquared = 100;
+const Map<EntityType, int> entitiesInitialSanity = {};
 
 const Set<BehaviourFlag> leavingMapBehaviours = {
-  CrazyJoeRunningFromUndead(),
+  CrazyJoeRunningFromZombies(),
   CrazyJoeFightingForPeace(),
-  CrazyJoeLeavingVillage(),
+  CrazyJoeRunningFromGhosts(),
 };
 
 sealed class EntityType {
@@ -64,6 +66,7 @@ class EntityActionCount<T extends EntityType> extends EntityFlag<T> {
   @override
   bool operator ==(Object other) =>
       other is EntityActionCount<T> &&
+      entity == other.entity &&
       actionType == other.actionType &&
       actionCount == other.actionCount;
 
@@ -85,6 +88,7 @@ class CurrentMentalState<T extends EntityType> extends EntityFlag<T> {
   @override
   bool operator ==(Object other) =>
       other is CurrentMentalState<T> &&
+      entity == other.entity &&
       mapEquals(mentalStates, other.mentalStates);
 
   @override
@@ -98,10 +102,15 @@ class DominantMentalTrait<T extends EntityType> extends EntityFlag<T> {
 
   @override
   bool operator ==(Object other) =>
-      other is DominantMentalTrait<T> && dominantTrait == other.dominantTrait;
+      other is DominantMentalTrait &&
+      entity == other.entity &&
+      dominantTrait == other.dominantTrait;
 
   @override
   int get hashCode => entity.hashCode ^ dominantTrait.hashCode;
+
+  @override
+  String toString() => 'DominantMentalTrait(${dominantTrait.name})';
 }
 
 class SanityLevel<T extends EntityType> extends EntityFlag<T> {
@@ -113,10 +122,15 @@ class SanityLevel<T extends EntityType> extends EntityFlag<T> {
 
   @override
   bool operator ==(Object other) =>
-      other is SanityLevel<T> && other.sanity == sanity;
+      other is SanityLevel &&
+      other.entity == other.entity &&
+      other.sanity == sanity;
 
   @override
   int get hashCode => entity.hashCode ^ sanity.hashCode;
+
+  @override
+  String toString() => 'SanityLevel@$entity($sanity)';
 }
 
 extension EntityFlagGetType<T extends EntityType> on EntityFlag<T> {

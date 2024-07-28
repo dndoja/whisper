@@ -16,7 +16,8 @@ class CrazyJoeController extends SimpleEnemy
         MouseEventListener,
         GameCharacter<CrazyJoe>,
         PathFinding,
-        ChaseMovement {
+        ChaseMovement,
+        BugNav {
   CrazyJoeController()
       : super(
           size: Vector2.all(16),
@@ -50,6 +51,11 @@ class CrazyJoeController extends SimpleEnemy
   void update(double dt) {
     if (gameState.isPaused) return;
 
+    if (transitioningToNewTurn) {
+      super.update(dt);
+      return;
+    }
+
     switch (currBehaviour) {
       case CrazyJoeChilling():
         patrol(KeyLocation.crazyJoeFarm, dt);
@@ -68,26 +74,57 @@ class CrazyJoeController extends SimpleEnemy
           periodSeconds: 10,
           onComplete: () => playBloodAnimation(maxForce: 200, count: 50),
         );
-      case CrazyJoeRunningFromUndead():
-        if (!transitioningToNewTurn) {
-          if (isVisibleInCamera()) {
-            moveDown();
-          } else if (!isRemoved) {
-            removeFromParent();
-          }
+      case CrazyJoeRunningFromZombies():
+      case CrazyJoeRunningFromGhosts():
+      case CrazyJoeSavingKingdom():
+      case CrazyJoeFightingForPeace():
+      case CrazyJoeFindingGod():
+        if (isVisibleInCamera()) {
+          moveDown();
+        } else if (!isRemoved) {
+          removeFromParent();
         }
-      case CrazyJoeLeavingVillage():
       case CrazyJoeRampaging():
       case CrazyJoeCrusading():
-      case CrazyJoeSavingKingdom():
+        doMassMurder();
       case CrazyJoeFearingDevil():
-      case CrazyJoeFindingGod():
       case CrazyJoeThinkingHeIsDead():
-      case CrazyJoeFightingForPeace():
       case CrazyJoeStabbingPriest():
     }
 
     super.update(dt);
+  }
+
+  final Set<KeyLocation> visitedKeyLocs = {};
+  final KeyLocationComponent nextMassMurderLoc = KeyLocationComponent();
+  List<Vector2>? pathToMassMurderLoc;
+
+  void doMassMurder() {
+    final nearbyVictim = nearbyCharacters().firstOrNull;
+
+    final KeyLocation? currKeyLoc = getCurrentKeyLocation();
+    if (currKeyLoc != null) visitedKeyLocs.add(currKeyLoc);
+
+    if (nearbyVictim != null) {
+      final bool attacked = tryAttack(nearbyVictim);
+      if (!attacked) bugPathTo(nearbyVictim);
+    } else {
+      if (visitedKeyLocs.containsAll(KeyLocation.massMurderLocations)) {
+        visitedKeyLocs.clear();
+      }
+
+      final KeyLocation? nextKeyLoc = nextMassMurderLoc.keyLocation;
+
+      if (nextKeyLoc == null || currKeyLoc == nextKeyLoc) {
+        final currPoint = Point16.fromMapPos(absoluteCenter);
+
+        nextMassMurderLoc.keyLocation = KeyLocation.massMurderLocations
+            .where((l) => l != currKeyLoc && !visitedKeyLocs.contains(l))
+            .minBy((l) => l.ref.distanceSquaredTo(currPoint));
+      }
+
+      if (nextMassMurderLoc.keyLocation != null) bugPathTo(nextMassMurderLoc);
+    }
   }
 
   @override
@@ -105,7 +142,9 @@ class CrazyJoeController extends SimpleEnemy
     setupBlockMovementCollision(enabled: false);
 
     switch (currBehaviour) {
-      case CrazyJoeRunningFromUndead():
+      case CrazyJoeCrusading():
+        await pathfindToPosition(KeyLocation.villageEntrance.ref.mapPosition);
+      case CrazyJoeRunningFromZombies():
         await pathfindToPosition(KeyLocation.villageExitSouth.br.mapPosition);
       case CrazyJoeDoomsaying():
         await pathfindToPosition(KeyLocation.villageMainSquare.ref.mapPosition);
@@ -117,15 +156,13 @@ class CrazyJoeController extends SimpleEnemy
         await pathfindToPosition(KeyLocation.church.ref.mapPosition);
         await chase(priest);
 
-        if (distance(priest) <= 16) {
-          showTextBubble('Die you piece of shit', onComplete: () {
-            priest.removeLife(100);
-            priest.playBloodAnimation();
-          });
+        if (isInAttackRange(priest)) {
+          showTextBubble('Die you piece of shit');
+          priest.removeLife(100);
+          priest.playBloodAnimation();
         }
 
         await pathfindToPosition(KeyLocation.crazyJoeFarm.ref.mapPosition);
-        if (!isRemoved) removeFromParent();
 
       default:
     }
@@ -148,36 +185,6 @@ class CrazyJoeController extends SimpleEnemy
   @override
   void onMouseHoverExit(int pointer, Vector2 position) {
     (gameRef as BonfireGame).mouseCursor = MouseCursor.defer;
-  }
-
-  TextBubble? currTextBubble;
-  double secondsElapsedSinceLastBubble = 0;
-  bool showTextBubble(
-    String text, {
-    int? periodSeconds,
-    double dt = 0,
-    bool yell = false,
-    void Function()? onComplete,
-  }) {
-    secondsElapsedSinceLastBubble += dt;
-    if (periodSeconds != null &&
-        secondsElapsedSinceLastBubble < periodSeconds) {
-      return false;
-    }
-
-    if (currTextBubble != null && !currTextBubble!.isRemoved) {
-      remove(currTextBubble!);
-    }
-
-    secondsElapsedSinceLastBubble = 0;
-    currTextBubble = TextBubble(
-      text,
-      onComplete: onComplete,
-      position: Vector2(8, -24),
-      yell: yell,
-    );
-    add(currTextBubble!);
-    return true;
   }
 }
 

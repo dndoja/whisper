@@ -12,6 +12,9 @@ class CharacterTracker {
 
   final Map<EntityType, GameCharacter> _byType = {};
 
+  Iterable<GameCharacter> get allAlive =>
+      _byType.values.where((c) => !c.isRemoved && !c.isRemoving && !c.isDead);
+
   GameCharacter<T> register<T extends EntityType>(GameCharacter<T> character) {
     switch (character.entityType) {
       case Alchemist():
@@ -33,5 +36,5 @@ class CharacterTracker {
     return character;
   }
 
-  GameCharacter ofType(EntityType type) => _byType[type]!; 
+  GameCharacter ofType(EntityType type) => _byType[type]!;
 }

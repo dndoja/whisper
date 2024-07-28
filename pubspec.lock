@@ -44,10 +44,9 @@ packages:
   bonfire:
     dependency: "direct main"
     description:
-      name: bonfire
-      sha256: "0ebf17580b66ffbc682cc471cfaaec705ac4034938ee6408eb63cfb06264099a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../bonfire"
+      relative: true
+    source: path
     version: "3.9.7"
   boolean_selector:
     dependency: transitive

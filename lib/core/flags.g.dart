@@ -34,8 +34,8 @@ class CrazyJoeThinkingHeIsDead extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeThinkingHeIsDead();
 }
 
-class CrazyJoeLeavingVillage extends BehaviourFlag<CrazyJoe> {
-  const CrazyJoeLeavingVillage();
+class CrazyJoeRunningFromGhosts extends BehaviourFlag<CrazyJoe> {
+  const CrazyJoeRunningFromGhosts();
 }
 
 class CrazyJoeFightingForPeace extends BehaviourFlag<CrazyJoe> {
@@ -50,8 +50,8 @@ class CrazyJoeDoomsaying extends BehaviourFlag<CrazyJoe> {
   const CrazyJoeDoomsaying();
 }
 
-class CrazyJoeRunningFromUndead extends BehaviourFlag<CrazyJoe> {
-  const CrazyJoeRunningFromUndead();
+class CrazyJoeRunningFromZombies extends BehaviourFlag<CrazyJoe> {
+  const CrazyJoeRunningFromZombies();
 }
 
 class CrazyJoeRepenting extends BehaviourFlag<CrazyJoe> {
@@ -64,6 +64,10 @@ class Priest extends EntityType {
 
 class PriestPraying extends BehaviourFlag<Priest> {
   const PriestPraying();
+}
+
+class PriestSummoningZombies extends BehaviourFlag<Priest> {
+  const PriestSummoningZombies();
 }
 
 class Fisherman extends EntityType {

@@ -9,10 +9,4 @@ class ShadowPlayer extends SimplePlayer {
           size: Vector2.all(16),
           animation: PlayerSpriteSheet.simpleDirectionAnimation,
         );
-
-  @override
-  Future<void> onLoad() {
-    add(RectangleHitbox(size: size));
-    return super.onLoad();
-  }
 }

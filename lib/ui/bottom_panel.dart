@@ -137,21 +137,12 @@ class _BottomPanelState extends State<BottomPanel> {
       );
 
   void endTurn() {
+    if (turnActions.isEmpty) return;
+
     setState(() {
       gameState.endTurn(turnActions);
       turnActions = {};
     });
-
-    final Iterable<(EntityType, String)> dialogs = gameState.characterDialogs();
-
-    if (dialogs.none((d) => d.$2.isNotEmpty)) return;
-
-    // TalkDialog.show(
-    //   context,
-    //   [
-    //     for (final (_, dialog) in dialogs) Say(text: [TextSpan(text: dialog)]),
-    //   ],
-    // );
   }
 
   bool _onKeyPressed(KeyEvent event) {
@@ -208,6 +199,8 @@ class _BottomPanelState extends State<BottomPanel> {
         darkWhispersStart();
       case LogicalKeyboardKey.digit4:
         visionsOfMadnessStart();
+      case LogicalKeyboardKey.space:
+        endTurn();
       default:
         return false;
     }
@@ -239,7 +232,7 @@ class _BottomPanelState extends State<BottomPanel> {
     }
 
     final GameCharacter target = shadowstepTargets.removeAt(nextTargetIndex);
-    if (target.isRemoved){
+    if (target.isRemoved) {
       shadowstep();
       return;
     }
@@ -299,6 +292,7 @@ class _BottomPanelState extends State<BottomPanel> {
         }
 
         tendrilsTarget = target;
+        print('${target.availableVisionsOfMadness}');
       });
 
   void darkWhispersStart() {
@@ -312,7 +306,7 @@ class _BottomPanelState extends State<BottomPanel> {
   Future<void> visionsOfMadnessStart() async {
     final ShadowyTendrilsTarget? target = tendrilsTarget;
     if (target == null) return;
-    if (target.availableDarkWhispers.isEmpty) return;
+    if (target.availableVisionsOfMadness.isEmpty) return;
 
     setState(() => selectedActionType = TurnActionType.visionsOfMadness);
   }
@@ -350,6 +344,8 @@ class ShadowyTendrilsWidget extends StatelessWidget {
     final characterState = gameState.ofCharacter(target);
     final hp = characterTracker.ofType(target).life;
     final isDead = characterTracker.ofType(target).isDead;
+    final pos =
+        Point16.fromMapPos(characterTracker.ofType(target).absoluteCenter);
 
     return Background(
       width: 300,
@@ -367,6 +363,7 @@ class ShadowyTendrilsWidget extends StatelessWidget {
               style: const TextStyle(fontSize: 24),
               children: [
                 TextSpan(text: '$target\n'),
+                TextSpan(text: '${pos.x}:${pos.y}\n'),
                 TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️'}\n'),
                 TextSpan(
                   text: '${characterState.sanityLevel}/${target.initialSanity}',
