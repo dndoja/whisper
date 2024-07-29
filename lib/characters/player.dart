@@ -3,7 +3,7 @@ import 'package:bonfire/util/line_path_component.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 
-import 'common.dart';
+import 'animations.dart';
 
 class ShadowPlayer extends SimplePlayer {
   LinePathComponent? _linePathComponent;
@@ -11,28 +11,38 @@ class ShadowPlayer extends SimplePlayer {
   ShadowPlayer(Vector2 position)
       : super(
           position: position,
-          size: Vector2.all(16),
-          animation: PlayerSpriteSheet.simpleDirectionAnimation,
+          size: Vector2.all(24),
+          animation: Animations.forCharacter(
+            CharacterSheet.monsters,
+            3,
+            invertHorizontal: true,
+          ),
         );
 
   @override
   void update(double dt) {
-    // final closest = characterTracker.allAlive.minBy((c) => c.distance(this));
-    // if (closest != null) {
-    //   final dir = Vector2(closest.x - x, closest.y - y).normalized();
-    //   final dist = distance(closest);
-    //   // printUnique(dir.toString());
-    //
-    //   final raycastResult = raycast(
-    //     dir,
-    //     ignoreHitboxes: closest.shapeHitboxes,
-    //     maxDistance: distance(closest),
-    //   );
-    //   showLine(
-    //     absoluteCenter,
-    //     absoluteCenter + (dir * dist),
-    //     raycastResult != null ? Colors.red : Colors.blue,
-    //   );
+    final closest = characterTracker.allAlive.minBy((c) => c.distance(this));
+    if (closest != null) {
+      final attack = AttackAnimation.fromAngle(getAngleFromTarget(closest));
+      final dir =
+          attack == AttackAnimation.left ? Direction.left : Direction.right;
+      final dist = distance(closest);
+
+      // if (closest != null) {
+      //   final dir = Vector2(closest.x - x, closest.y - y).normalized();
+      //   // printUnique(dir.toString());
+      //
+      //   final raycastResult = raycast(
+      //     dir,
+      //     ignoreHitboxes: closest.shapeHitboxes,
+      //     maxDistance: distance(closest),
+      //   );
+      showLine(
+        absoluteCenter,
+        absoluteCenter + (dir.toVector2() * dist),
+        Colors.red,
+      );
+    }
     // }
     super.update(dt);
   }

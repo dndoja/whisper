@@ -1,14 +1,25 @@
 import 'dart:async';
 
 import 'package:bonfire/bonfire.dart';
-import 'package:dartx/dartx.dart';
 import 'package:whisper/characters/characters.dart';
 
 import 'core.dart';
 
-mixin GameCharacter<T extends EntityType> on SimpleEnemy {
+mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
   bool transitioningToNewTurn = false;
   bool pausePeriodicBubbles = false;
+
+  @override
+  Future<void> onLoad() {
+    add(
+      CircleHitbox(
+        anchor: Anchor.center,
+        position: Vector2(12, 16),
+        radius: 4,
+      ),
+    );
+    return super.onLoad();
+  }
 
   TextBubble? currTextBubble;
   double secondsElapsedSinceLastBubble = -1;

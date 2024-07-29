@@ -6,23 +6,24 @@ import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/core/chase.dart';
 
-import 'common.dart';
+import 'animations.dart';
 
 class CrazyJoeController extends SimpleEnemy
     with
         RandomMovement,
         MouseEventListener,
+        SimpleMovement2,
         GameCharacter<CrazyJoe>,
         PathFinding,
-        SimpleMovement2,
         ChaseMovement,
         BugNav {
   CrazyJoeController()
       : super(
-          size: Vector2.all(16),
-          position: KeyLocation.crazyJoeFarm.ref.mapPosition,
+          // animation: Animations.forCharacter(CharacterSheet.b, 1),
+          animation: Animations.knight,
+          size: Vector2.all(24),
+          position: KeyLocation.crazyJoeFarm.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-          animation: PlayerSpriteSheet.simpleDirectionAnimation,
         ) {
     subscribeToGameState();
   }
@@ -39,14 +40,16 @@ class CrazyJoeController extends SimpleEnemy
     return super.onLoad();
   }
 
+  bool inAttackAnimation = false;
+
   @override
   void update(double dt) {
     if (gameState.isPaused) return;
 
-    // if (transitioningToNewTurn) {
-    //   super.update(dt);
-    //   return;
-    // }
+    if (inAttackAnimation) {
+      super.update(dt);
+      return;
+    }
 
     switch (currBehaviour) {
       case CrazyJoeChilling():
@@ -85,10 +88,27 @@ class CrazyJoeController extends SimpleEnemy
       case CrazyJoeCrusading():
         final nearbyVictim = nearbyCharacters().firstOrNull;
         if (nearbyVictim != null && hasClearPathTo(nearbyVictim)) {
-          // chaseTarget(nearbyVictim, onFinish: () => tryAttack(nearbyVictim));
           pausePatrolling();
-          final bool attacked = tryAttack(nearbyVictim);
-          if (!attacked) moveTowardsTarget(target: nearbyVictim);
+
+          // chaseTarget(nearbyVictim, onFinish: () => tryAttack(nearbyVictim));
+          if (isInAttackRange(nearbyVictim)) {
+            stopMove();
+            nearbyVictim
+              ..pausePatrolling()
+              ..stopMove();
+            inAttackAnimation = true;
+            animation?.playOnceOther(
+              AttackAnimation.fromAngle(getAngleFromTarget(nearbyVictim)),
+              onFinish: () {
+                inAttackAnimation = false;
+                nearbyVictim
+                  ..removeLife(nearbyVictim.maxLife)
+                  ..playBloodAnimation();
+              },
+            );
+          } else {
+            moveTowardsTarget(target: nearbyVictim);
+          }
         } else {
           resumePatrolling();
         }
@@ -103,35 +123,6 @@ class CrazyJoeController extends SimpleEnemy
   final Set<KeyLocation> visitedKeyLocs = {};
   final KeyLocationComponent nextMassMurderLoc = KeyLocationComponent();
   List<Vector2>? pathToMassMurderLoc;
-
-  void doMassMurder() {
-    final nearbyVictim = nearbyCharacters().firstOrNull;
-
-    final KeyLocation? currKeyLoc = getCurrentKeyLocation();
-    if (currKeyLoc != null) visitedKeyLocs.add(currKeyLoc);
-
-    if (nearbyVictim != null) {
-      // final bool attacked = tryAttack(nearbyVictim);
-      // if (!attacked) bugPathTo(nearbyVictim);
-      chaseTarget(nearbyVictim, onFinish: () => tryAttack(nearbyVictim));
-    } else {
-      if (visitedKeyLocs.containsAll(KeyLocation.massMurderLocations)) {
-        visitedKeyLocs.clear();
-      }
-
-      final KeyLocation? nextKeyLoc = nextMassMurderLoc.keyLocation;
-
-      if (nextKeyLoc == null || currKeyLoc == nextKeyLoc) {
-        final currPoint = Point16.fromMapPos(absoluteCenter);
-
-        nextMassMurderLoc.keyLocation = KeyLocation.massMurderLocations
-            .where((l) => l != currKeyLoc && !visitedKeyLocs.contains(l))
-            .minBy((l) => l.ref.distanceSquaredTo(currPoint));
-      }
-
-      if (nextMassMurderLoc.keyLocation != null) bugPathTo(nextMassMurderLoc);
-    }
-  }
 
   @override
   Future<void> onStateChange(CharacterState newState) async {
@@ -148,25 +139,9 @@ class CrazyJoeController extends SimpleEnemy
 
     switch (currBehaviour) {
       case CrazyJoeCrusading():
+        // replaceAnimation(Animations.knight);
         await followPath(KeyLocation.villageEntrancePath);
-        // for (final loc in KeyLocation.massMurderPatrol){
-        //
-        // }
-        //
-        // for (final keyLocation in KeyLocation.massMurderLocations) {
-        //   if (character == this || character.entityType == const Alchemist()) {
-        //     continue;
-        //   }
-        //   await chase(character);
-        //
-        //   if (isInAttackRange(character)) {
-        //     showTextBubble('Die you piece of shit');
-        //     character.removeLife(100);
-        //     character.playBloodAnimation();
-        //   }
-        // }
         await patrol(KeyLocation.massMurderPatrol, patrolSpeed: 1);
-
       case CrazyJoeRunningFromZombies():
         await pathfindToPosition(KeyLocation.villageExitSouth.br.mapPosition);
       case CrazyJoeDoomsaying():

@@ -1,5 +1,7 @@
 import 'package:bonfire/bonfire.dart' show Vector2;
 
+final spawnOffset = Vector2(-12, -16);
+
 class Point16 {
   const Point16(this.x, this.y);
   final int x;
@@ -14,7 +16,7 @@ class Point16 {
   @override
   int get hashCode => x.hashCode ^ y.hashCode;
 
-  Vector2 get mapPosition => Vector2(x * 16.0, y * 16.0);
+  Vector2 get mapPosition => Vector2(x * 16.0 + 8, y * 16.0 + 8);
 
   int distanceSquaredTo(Point16 other) {
     final dx = (x - other.x).abs();

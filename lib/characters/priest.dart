@@ -3,21 +3,21 @@ import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/core/movement.dart';
 
-import 'common.dart';
+import 'animations.dart';
 import 'zombie.dart';
 
 class PriestController extends SimpleEnemy
     with
         BlockMovementCollision,
         MouseEventListener,
-        GameCharacter<Priest>,
         SimpleMovement2,
+        GameCharacter<Priest>,
         PathFinding {
   PriestController()
       : super(
-          size: Vector2.all(16),
-          animation: PlayerSpriteSheet.simpleDirectionAnimation,
-          position: KeyLocation.church.ref.mapPosition,
+          animation: Animations.forCharacter(CharacterSheet.c, 2),
+          size: Vector2.all(24),
+          position: KeyLocation.church.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
         ) {
     subscribeToGameState();
@@ -31,13 +31,6 @@ class PriestController extends SimpleEnemy
 
   @override
   Future<void> onLoad() {
-    add(
-      CircleHitbox(
-        anchor: Anchor.topLeft,
-        position: Vector2(4, 4),
-        radius: 4,
-      ),
-    );
     patrol(KeyLocation.church.patrol);
     return super.onLoad();
   }

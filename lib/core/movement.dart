@@ -23,7 +23,7 @@ mixin SimpleMovement on SimpleEnemy {
     final checkpoints = _patrolCheckpoints;
     final currPoint = Point16.fromMapPos(absoluteCenter);
     if (target != null) {
-      // print('$currPoint -> $target');
+      print('$currPoint -> $target');
       if (currPoint == target) {
         onReachTarget!.complete();
         target = null;
@@ -47,8 +47,7 @@ mixin SimpleMovement on SimpleEnemy {
     super.update(dt);
   }
 
-  void moveToPoint(Point16 point) =>
-      moveToPosition(point.mapPosition + Vector2.all(8));
+  void moveToPoint(Point16 point) => moveToPosition(point.mapPosition);
 
   Future<void> moveToTarget(Point16 target) {
     if (target == this.target) return onReachTarget!.future;
@@ -64,8 +63,8 @@ mixin SimpleMovement2 on SimpleEnemy {
   Completer<void>? onReachTarget;
   bool isPatrolling = false;
   double patrolSpeed = 1;
-  bool isPaused = false;
   int visitedCheckpoints = 0;
+  bool _isPaused = false;
 
   Future<void> patrol(
     List<Point16> checkpoints, {
@@ -74,24 +73,23 @@ mixin SimpleMovement2 on SimpleEnemy {
     visitedCheckpoints = 0;
     targets = Queue.of(checkpoints);
     isPatrolling = true;
-    isPaused = false;
+    _isPaused = false;
     onReachTarget = Completer();
     this.patrolSpeed = patrolSpeed;
     return onReachTarget!.future;
   }
 
   void pausePatrolling() {
-    isPaused = true;
+    _isPaused = true;
+    // stopMove();
   }
 
-  void resumePatrolling() {
-    isPaused = false;
-  }
+  void resumePatrolling() => _isPaused = false;
 
   @override
   void update(double dt) {
     final target = targets.firstOrNull;
-    if (isPaused || target == null) {
+    if (_isPaused || target == null) {
       super.update(dt);
       return;
     }
@@ -117,7 +115,7 @@ mixin SimpleMovement2 on SimpleEnemy {
   }
 
   void moveToPoint(Point16 point) => moveToPosition(
-        point.mapPosition + Vector2.all(8),
+        point.mapPosition,
         speed: isPatrolling ? speed * patrolSpeed : null,
       );
 

@@ -2,20 +2,20 @@ import 'package:bonfire/bonfire.dart';
 import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
 
-import 'common.dart';
+import 'animations.dart';
 
 class FishermanController extends SimpleEnemy
     with
         BlockMovementCollision,
-        RandomMovement,
+        SimpleMovement2,
         MouseEventListener,
         GameCharacter<Fisherman>,
         PathFinding {
   FishermanController()
       : super(
-          size: Vector2.all(16),
-          animation: PlayerSpriteSheet.simpleDirectionAnimation,
-          position: KeyLocation.fishermanHut.tl.mapPosition,
+          animation: Animations.forCharacter(CharacterSheet.c, 5),
+          size: Vector2.all(24),
+          position: KeyLocation.fishermanHut.tl.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
         ) {
     subscribeToGameState();
@@ -29,13 +29,7 @@ class FishermanController extends SimpleEnemy
 
   @override
   Future<void> onLoad() {
-    add(
-      CircleHitbox(
-        anchor: Anchor.topLeft,
-        position: Vector2(4, 4),
-        radius: 4,
-      ),
-    );
+    patrol(KeyLocation.fishermanHut.patrol);
     return super.onLoad();
   }
 
@@ -50,7 +44,6 @@ class FishermanController extends SimpleEnemy
 
     switch (currBehaviour) {
       case FishermanFishing():
-        patrol(KeyLocation.fishermanHut, dt);
     }
     super.update(dt);
   }

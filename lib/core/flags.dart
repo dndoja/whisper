@@ -21,7 +21,7 @@ enum Level {
   extremely,
 }
 
-const int attackRangeSquared = 2;
+const int attackRangeSquared = 1;
 const int defaultSanity = 2;
 const int visionRadiusSquared = 100;
 const Map<EntityType, int> entitiesInitialSanity = {};

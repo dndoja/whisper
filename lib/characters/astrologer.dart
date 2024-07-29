@@ -2,20 +2,20 @@ import 'package:bonfire/bonfire.dart';
 import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
 
-import 'common.dart';
+import 'animations.dart';
 
 class AstrologerController extends SimpleEnemy
     with
         BlockMovementCollision,
         RandomMovement,
         MouseEventListener,
-        GameCharacter<Astrologer>,
-        PathFinding {
+        SimpleMovement2,
+        GameCharacter<Astrologer> {
   AstrologerController()
       : super(
-          size: Vector2.all(16),
-          animation: PlayerSpriteSheet.simpleDirectionAnimation,
-          position: KeyLocation.observatory.tl.mapPosition,
+          animation: Animations.forCharacter(CharacterSheet.a, 5),
+          size: Vector2.all(24),
+          position: KeyLocation.observatory.tl.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
         ) {
     subscribeToGameState();
@@ -29,13 +29,7 @@ class AstrologerController extends SimpleEnemy
 
   @override
   Future<void> onLoad() {
-    add(
-      CircleHitbox(
-        anchor: Anchor.topLeft,
-        position: Vector2(4, 4),
-        radius: 4,
-      ),
-    );
+    patrol(KeyLocation.observatory.patrol);
     return super.onLoad();
   }
 
@@ -48,10 +42,6 @@ class AstrologerController extends SimpleEnemy
 
     if (gameState.isPaused) return;
 
-    switch (currBehaviour) {
-      case AstrologerObserving():
-        patrol(KeyLocation.observatory, dt);
-    }
     super.update(dt);
   }
 

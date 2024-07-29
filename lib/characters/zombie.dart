@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:bonfire/bonfire.dart';
 import 'package:whisper/core/core.dart';
 
-import 'common.dart';
+import 'animations.dart';
 
 class UndeadConfig {
   const UndeadConfig({
@@ -92,10 +92,10 @@ class Undead extends SimpleEnemy with BlockMovementCollision, SimpleMovement2 {
   Undead()
       : config = configs[spawnIndex],
         super(
-          size: Vector2.all(16),
+          size: Vector2.all(24),
           position: Vector2.zero(),
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-          animation: PlayerSpriteSheet.simpleDirectionAnimation,
+          animation: Animations.forCharacter(CharacterSheet.monsters, 0),
         ) {
     if (config == configs.first) _undeadCaptain ??= this;
   }
@@ -105,7 +105,14 @@ class Undead extends SimpleEnemy with BlockMovementCollision, SimpleMovement2 {
 
   @override
   Future<void> onLoad() {
-    position = config.spawn.mapPosition;
+    add(
+      CircleHitbox(
+        anchor: Anchor.center,
+        position: Vector2(12, 16),
+        radius: 4,
+      ),
+    );
+    position = config.spawn.mapPosition + spawnOffset;
     followPath(config.initialPath).then((_) =>
         patrol(config.patrol, patrolSpeed: 1)
             .then((_) => massacreCompleter.complete()));

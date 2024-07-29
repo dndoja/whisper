@@ -1,9 +1,8 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
-import 'package:whisper/core/movement.dart';
 
-import 'common.dart';
+import 'animations.dart';
 
 enum AlchemistFailure {
   dead,
@@ -14,15 +13,15 @@ enum AlchemistFailure {
 class AlchemistController extends SimpleEnemy
     with
         BlockMovementCollision,
-        SimpleMovement,
+        SimpleMovement2,
         MouseEventListener,
         GameCharacter<Alchemist>,
         PathFinding {
   AlchemistController()
       : super(
-          size: Vector2.all(16),
-          animation: PlayerSpriteSheet.simpleDirectionAnimation,
-          position: KeyLocation.alchemistLab.ref.mapPosition,
+          animation: Animations.forCharacter(CharacterSheet.c, 3),
+          size: Vector2.all(24),
+          position: KeyLocation.alchemistLab.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
         ) {
     subscribeToGameState();
@@ -36,18 +35,6 @@ class AlchemistController extends SimpleEnemy
 
   @override
   Alchemist get entityType => const Alchemist();
-
-  @override
-  Future<void> onLoad() {
-    add(
-      CircleHitbox(
-        anchor: Anchor.topLeft,
-        position: Vector2(4, 4),
-        radius: 4,
-      ),
-    );
-    return super.onLoad();
-  }
 
   @override
   void update(double dt) {
@@ -70,11 +57,12 @@ class AlchemistController extends SimpleEnemy
       case AlchemistIdle():
         break;
       case AlchemistTravelling(:final turnCount):
-        for (int i = prevTravelCheckpoint + 1; i <= turnCount; i++) {
-          final target = AlchemistTravelling.checkpoints[i];
-          await moveToTarget(target);
-        }
+        final List<Point16> path = [
+          for (int i = prevTravelCheckpoint + 1; i <= turnCount; i++)
+            AlchemistTravelling.checkpoints[i],
+        ];
         prevTravelCheckpoint = turnCount;
+        await followPath(path);
       case AlchemistPickingUpBones():
         await pathfindToPosition(KeyLocation.graveyard.tl.mapPosition);
         await showTextBubble('First off, let us get the bones');
