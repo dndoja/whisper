@@ -52,6 +52,15 @@ class PriestController extends SimpleEnemy
     if (gameState.isPaused) return;
 
     switch (currBehaviour) {
+      case PriestScamming():
+        if (!transitioningToNewTurn) {
+          showTextBubble(
+            "Totally real and working holy artifacts for sale, 50% off!",
+            periodSeconds: 5,
+            yell: true,
+            dt: dt,
+          );
+        }
       case PriestPraying():
       case PriestSummoningZombies():
     }
@@ -66,15 +75,13 @@ class PriestController extends SimpleEnemy
 
     switch (currBehaviour) {
       case PriestSummoningZombies():
-        await followPath([
-          const Point16(22, 15),
-          const Point16(22, 3),
-          const Point16(17, 3),
-        ]);
+        await followPath(Paths.churchToGraveyard);
         await showTextBubble('*Chants in Latin*', yell: true);
         gameRef.addAll(List.generate(10, (_) => Undead()));
         gameRef.camera.follow(undeadCaptain);
         await undeadCaptain.massacreCompleter.future;
+      case PriestScamming():
+        await followPath(Paths.churchToMarket);
       default:
     }
   }

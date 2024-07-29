@@ -23,7 +23,7 @@ mixin SimpleMovement on SimpleEnemy {
     final checkpoints = _patrolCheckpoints;
     final currPoint = Point16.fromMapPos(absoluteCenter);
     if (target != null) {
-      print('$currPoint -> $target');
+      // print('$currPoint -> $target');
       if (currPoint == target) {
         onReachTarget!.complete();
         target = null;

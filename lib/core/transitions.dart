@@ -39,6 +39,19 @@ const List<List<StateTransition>> stateTransitions = [
     $([AlchemistTravelling(9)], [AlchemistTravelling(10)]),
     $([AlchemistTravelling(10)], [AlchemistPickingUpBones()]),
     $([AlchemistPickingUpBones()], [AlchemistPickingUpHolyWater()]),
+    $(
+      [AlchemistPickingUpBones(), PriestScamming()],
+      [AlchemistBuyingDefectiveHolyWater()],
+    ),
+    $(
+      [AlchemistBuyingOverpricedHolyWater()],
+      [AlchemistPickingUpAstrologyTips()],
+    ),
+    $(
+      [AlchemistBuyingDefectiveHolyWater()],
+      [AlchemistPickingUpAstrologyTips()],
+    ),
     $([AlchemistPickingUpHolyWater()], [AlchemistPickingUpAstrologyTips()]),
+    $([AlchemistPickingUpAstrologyTips()], [AlchemistPerformingExperiment()]),
   ],
 ];

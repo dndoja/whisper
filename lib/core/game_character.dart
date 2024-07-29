@@ -8,9 +8,10 @@ import 'core.dart';
 
 mixin GameCharacter<T extends EntityType> on SimpleEnemy {
   bool transitioningToNewTurn = false;
+  bool pausePeriodicBubbles = false;
 
   TextBubble? currTextBubble;
-  double secondsElapsedSinceLastBubble = 0;
+  double secondsElapsedSinceLastBubble = -1;
   FutureOr<void> showTextBubble(
     String text, {
     int? periodSeconds,
@@ -20,7 +21,9 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy {
   }) {
     secondsElapsedSinceLastBubble += dt;
     if (periodSeconds != null &&
-        secondsElapsedSinceLastBubble < periodSeconds) {
+        (pausePeriodicBubbles ||
+            (secondsElapsedSinceLastBubble >= 0 &&
+                secondsElapsedSinceLastBubble < periodSeconds))) {
       return Future.value();
     }
 

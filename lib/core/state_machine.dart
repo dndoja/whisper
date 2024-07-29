@@ -271,6 +271,8 @@ class GameState {
       }
     }
 
+    bool shouldFastForwardAlchemist = false;
+
     for (final transition in stagedTransitions) {
       final int startedAt = ongoingTransitions[transition] ??= currentTurn;
       final bool isReady = currentTurn + 1 - startedAt >= transition.duration;
@@ -313,7 +315,31 @@ class GameState {
           if (mutated != prev) stateHistory.add(mutated);
         }
 
+        if (gameEndingBehaviours.contains(nextState)) {
+          shouldFastForwardAlchemist = true;
+        }
+
         updated.add(nextState.type);
+      }
+    }
+
+    if (shouldFastForwardAlchemist) {
+      final lastAlchemistState = entityStates[const Alchemist()]!.last;
+      final lastBehaviour = lastAlchemistState.behaviour;
+      if (lastBehaviour is AlchemistTravelling) {
+        final newBehaviour =
+            AlchemistTravelling(AlchemistTravelling.checkpoints.lastIndex);
+        if (lastAlchemistState.updatedAt == currentTurn) {
+          lastAlchemistState.behaviour = newBehaviour;
+        } else {
+          entityStates[const Alchemist()]!.add(
+            CharacterState(
+              entityType: const Alchemist(),
+              behaviour: newBehaviour,
+            ),
+          );
+        }
+        updated.add(const Alchemist());
       }
     }
 

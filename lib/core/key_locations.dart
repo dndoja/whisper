@@ -26,7 +26,26 @@ class Point16 {
   String toString() => '($x, $y)';
 }
 
+class Paths {
+  static const churchToGraveyard = [
+    Point16(22, 15),
+    Point16(22, 3),
+    Point16(17, 3),
+  ];
+
+  static const churchToMarket = [
+    Point16(22, 15),
+    Point16(20, 11),
+    Point16(17, 12),
+  ];
+}
+
 enum KeyLocation {
+  appleFarm(
+    Point16(57, 1),
+    Point16(63, 11),
+    Point16(72, 12),
+  ),
   alchemistLab(
     Point16(93, 10),
     Point16(93, 10),

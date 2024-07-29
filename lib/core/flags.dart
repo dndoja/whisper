@@ -7,6 +7,7 @@ part 'flags.g.dart';
 enum MentalTrait {
   doubtful,
   fanatic,
+  greedy,
   paranoid,
   superstitious,
   zealous,
@@ -24,6 +25,13 @@ const int attackRangeSquared = 2;
 const int defaultSanity = 2;
 const int visionRadiusSquared = 100;
 const Map<EntityType, int> entitiesInitialSanity = {};
+
+const List<BehaviourFlag> gameEndingBehaviours = [
+  CrazyJoeRampaging(),
+  CrazyJoeCrusading(),
+  CrazyJoeStabbingPriest(),
+  PriestSummoningZombies(),
+];
 
 const Set<BehaviourFlag> leavingMapBehaviours = {
   CrazyJoeRunningFromZombies(),

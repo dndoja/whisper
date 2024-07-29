@@ -199,6 +199,15 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
             ),
           ],
         ),
+        VisionsOfMadness(
+          'Poor',
+          [
+            StateTransition(
+              [DominantMentalTrait(Priest(), MentalTrait.greedy)],
+              [PriestScamming()],
+            ),
+          ],
+        ),
       ],
     ),
     ActionGroup(
@@ -209,8 +218,8 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
           MentalTrait.fanatic,
         ),
         DarkWhispers(
-          'Fanatic',
-          MentalTrait.fanatic,
+          'Greedy',
+          MentalTrait.greedy,
         ),
         DarkWhispers(
           'Fanatic',

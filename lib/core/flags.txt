@@ -16,6 +16,7 @@ repenting
 Priest:
 praying
 summoningZombies
+scamming
 
 Fisherman:
 fishing
@@ -30,4 +31,7 @@ Alchemist:
 idle
 pickingUpBones
 pickingUpHolyWater
+buyingDefectiveHolyWater
+buyingOverpricedHolyWater
 pickingUpAstrologyTips
+performingExperiment

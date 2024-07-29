@@ -70,6 +70,10 @@ class PriestSummoningZombies extends BehaviourFlag<Priest> {
   const PriestSummoningZombies();
 }
 
+class PriestScamming extends BehaviourFlag<Priest> {
+  const PriestScamming();
+}
+
 class Fisherman extends EntityType {
   const Fisherman();
 }
@@ -110,6 +114,18 @@ class AlchemistPickingUpHolyWater extends BehaviourFlag<Alchemist> {
   const AlchemistPickingUpHolyWater();
 }
 
+class AlchemistBuyingDefectiveHolyWater extends BehaviourFlag<Alchemist> {
+  const AlchemistBuyingDefectiveHolyWater();
+}
+
+class AlchemistBuyingOverpricedHolyWater extends BehaviourFlag<Alchemist> {
+  const AlchemistBuyingOverpricedHolyWater();
+}
+
 class AlchemistPickingUpAstrologyTips extends BehaviourFlag<Alchemist> {
   const AlchemistPickingUpAstrologyTips();
+}
+
+class AlchemistPerformingExperiment extends BehaviourFlag<Alchemist> {
+  const AlchemistPerformingExperiment();
 }
