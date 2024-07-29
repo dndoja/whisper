@@ -52,6 +52,16 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy {
 }
 
 extension GameCharacterX on SimpleEnemy {
+  bool hasClearPathTo(GameComponent target) {
+    final dir = Vector2(target.x - x, target.y - y).normalized();
+    final raycastResult = raycast(
+      dir,
+      ignoreHitboxes: target.shapeHitboxes,
+      maxDistance: distance(target),
+    );
+    return raycastResult == null;
+  }
+
   KeyLocation? getCurrentKeyLocation() {
     final currPoint = Point16.fromMapPos(absoluteCenter);
     return KeyLocation.values.firstOrNullWhere((l) => l.contains(currPoint));

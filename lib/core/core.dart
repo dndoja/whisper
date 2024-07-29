@@ -1,3 +1,5 @@
+export 'package:dartx/dartx.dart';
+
 export 'character_tracker.dart';
 export 'bubble.dart';
 export 'extensions.dart';

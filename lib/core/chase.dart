@@ -123,9 +123,9 @@ mixin ChaseMovement on Movement {
     if (targetLoc == null) return;
 
     if (distance(_target!) > _minDistanceToTarget) {
-      if (_currentPathTarget.distanceToSquared(targetLoc) > 2000) {
-        calculatePathTo(targetLoc);
-      }
+      // if (_currentPathTarget.distanceToSquared(targetLoc) > 2000) {
+      //   calculatePathTo(targetLoc);
+      // }
 
       if (_currentIndex < _currentPath.length) {
         moveToPosition(_currentPath[_currentIndex]);

@@ -91,18 +91,17 @@ extension GameCharacterStateX on GameCharacter {
   }) async {
     print('Running turn transition on $entityType');
     transitioningToNewTurn = true;
-    if (!isVisible) {
-      final Completer<void> cameraCompleter = Completer();
-      gameRef.camera.moveToTargetAnimated(
-        target: this,
-        onComplete: cameraCompleter.complete,
-      );
-      await cameraCompleter.future;
-    }else{
-      // gameRef.camera.follow(this);
-    }
-    print('Cmera finish, ${newState.behaviour}');
+    final Completer<void> cameraCompleter = Completer();
+    gameRef.camera.moveToTargetAnimated(
+      target: this,
+      onComplete: cameraCompleter.complete,
+      effectController: EffectController(duration: isVisible ? 0.2 : 1),
+    );
+    await cameraCompleter.future;
+
     await onStateChange(newState);
+
+    await Future.delayed(const Duration(seconds: 1));
 
     // print('Finished turn transition on $entityType');
     if (!transitioningToNewTurn) return;

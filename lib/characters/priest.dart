@@ -11,7 +11,7 @@ class PriestController extends SimpleEnemy
         BlockMovementCollision,
         MouseEventListener,
         GameCharacter<Priest>,
-        SimpleMovement,
+        SimpleMovement2,
         PathFinding {
   PriestController()
       : super(
@@ -38,6 +38,7 @@ class PriestController extends SimpleEnemy
         radius: 4,
       ),
     );
+    patrol(KeyLocation.church.patrol);
     return super.onLoad();
   }
 
@@ -52,7 +53,6 @@ class PriestController extends SimpleEnemy
 
     switch (currBehaviour) {
       case PriestPraying():
-        patrol(KeyLocation.church.patrol);
       case PriestSummoningZombies():
     }
     super.update(dt);
@@ -66,9 +66,15 @@ class PriestController extends SimpleEnemy
 
     switch (currBehaviour) {
       case PriestSummoningZombies():
-        await pathfindToPosition(KeyLocation.graveyard.ref.mapPosition);
+        await followPath([
+          const Point16(22, 15),
+          const Point16(22, 3),
+          const Point16(17, 3),
+        ]);
         await showTextBubble('*Chants in Latin*', yell: true);
         gameRef.addAll(List.generate(10, (_) => Undead()));
+        gameRef.camera.follow(undeadCaptain);
+        await undeadCaptain.massacreCompleter.future;
       default:
     }
   }

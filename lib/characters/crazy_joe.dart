@@ -14,6 +14,7 @@ class CrazyJoeController extends SimpleEnemy
         MouseEventListener,
         GameCharacter<CrazyJoe>,
         PathFinding,
+        SimpleMovement2,
         ChaseMovement,
         BugNav {
   CrazyJoeController()
@@ -34,14 +35,7 @@ class CrazyJoeController extends SimpleEnemy
 
   @override
   Future<void> onLoad() {
-    // add(
-    //   CircleHitbox(
-    //     anchor: Anchor.topLeft,
-    //     position: Vector2(0, 0),
-    //     radius: 8,
-    //   ),
-    // );
-
+    patrol(KeyLocation.crazyJoeFarm.patrol);
     return super.onLoad();
   }
 
@@ -49,42 +43,55 @@ class CrazyJoeController extends SimpleEnemy
   void update(double dt) {
     if (gameState.isPaused) return;
 
-    if (transitioningToNewTurn) {
-      super.update(dt);
-      return;
-    }
+    // if (transitioningToNewTurn) {
+    //   super.update(dt);
+    //   return;
+    // }
 
     switch (currBehaviour) {
       case CrazyJoeChilling():
-        patrol(KeyLocation.crazyJoeFarm, dt);
+        break;
       case CrazyJoeDoomsaying():
-        patrol(KeyLocation.villageMainSquare, dt);
-        showTextBubble(
-          'DEATH IS COMING!',
-          dt: dt,
-          periodSeconds: 10,
-          yell: true,
-        );
+        if (!transitioningToNewTurn) {
+          showTextBubble(
+            'DEATH IS COMING!',
+            dt: dt,
+            periodSeconds: 10,
+            yell: true,
+          );
+        }
       case CrazyJoeRepenting():
-        showTextBubble(
-          'I must repent... *whips himself*',
-          dt: dt,
-          periodSeconds: 10,
-          onComplete: () => playBloodAnimation(maxForce: 200, count: 50),
-        );
+        if (!transitioningToNewTurn) {
+          showTextBubble(
+            'I must repent... *whips himself*',
+            dt: dt,
+            periodSeconds: 10,
+            onComplete: () => playBloodAnimation(maxForce: 200, count: 50),
+          );
+        }
       case CrazyJoeRunningFromZombies():
       case CrazyJoeRunningFromGhosts():
       case CrazyJoeSavingKingdom():
       case CrazyJoeFightingForPeace():
       case CrazyJoeFindingGod():
-        if (isVisibleInCamera()) {
-          moveDown();
-        } else if (!isRemoved) {
-          removeFromParent();
+        if (!transitioningToNewTurn) {
+          if (isVisibleInCamera()) {
+            moveDown();
+          } else if (!isRemoved) {
+            removeFromParent();
+          }
         }
       case CrazyJoeRampaging():
       case CrazyJoeCrusading():
-        doMassMurder();
+        final nearbyVictim = nearbyCharacters().firstOrNull;
+        if (nearbyVictim != null && hasClearPathTo(nearbyVictim)) {
+          // chaseTarget(nearbyVictim, onFinish: () => tryAttack(nearbyVictim));
+          pausePatrolling();
+          final bool attacked = tryAttack(nearbyVictim);
+          if (!attacked) moveTowardsTarget(target: nearbyVictim);
+        } else {
+          resumePatrolling();
+        }
       case CrazyJoeFearingDevil():
       case CrazyJoeThinkingHeIsDead():
       case CrazyJoeStabbingPriest():
@@ -104,8 +111,9 @@ class CrazyJoeController extends SimpleEnemy
     if (currKeyLoc != null) visitedKeyLocs.add(currKeyLoc);
 
     if (nearbyVictim != null) {
-      final bool attacked = tryAttack(nearbyVictim);
-      if (!attacked) bugPathTo(nearbyVictim);
+      // final bool attacked = tryAttack(nearbyVictim);
+      // if (!attacked) bugPathTo(nearbyVictim);
+      chaseTarget(nearbyVictim, onFinish: () => tryAttack(nearbyVictim));
     } else {
       if (visitedKeyLocs.containsAll(KeyLocation.massMurderLocations)) {
         visitedKeyLocs.clear();
@@ -140,11 +148,30 @@ class CrazyJoeController extends SimpleEnemy
 
     switch (currBehaviour) {
       case CrazyJoeCrusading():
-        await pathfindToPosition(KeyLocation.villageEntrance.ref.mapPosition);
+        await followPath(KeyLocation.villageEntrancePath);
+        // for (final loc in KeyLocation.massMurderPatrol){
+        //
+        // }
+        //
+        // for (final keyLocation in KeyLocation.massMurderLocations) {
+        //   if (character == this || character.entityType == const Alchemist()) {
+        //     continue;
+        //   }
+        //   await chase(character);
+        //
+        //   if (isInAttackRange(character)) {
+        //     showTextBubble('Die you piece of shit');
+        //     character.removeLife(100);
+        //     character.playBloodAnimation();
+        //   }
+        // }
+        await patrol(KeyLocation.massMurderPatrol, patrolSpeed: 1);
+
       case CrazyJoeRunningFromZombies():
         await pathfindToPosition(KeyLocation.villageExitSouth.br.mapPosition);
       case CrazyJoeDoomsaying():
-        await pathfindToPosition(KeyLocation.villageMainSquare.ref.mapPosition);
+        await followPath(KeyLocation.villageEntrancePath);
+        patrol(KeyLocation.villageMainSquare.patrol);
       case CrazyJoeRepenting():
         await pathfindToPosition(KeyLocation.church.ref.mapPosition);
       case CrazyJoeStabbingPriest():

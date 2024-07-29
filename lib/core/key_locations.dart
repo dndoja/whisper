@@ -93,20 +93,41 @@ enum KeyLocation {
 
   List<Point16> get patrol => patrolCheckpoints[this] ?? const [];
 
+  static const List<Point16> massMurderPatrol = [
+    Point16(31, 22),
+    Point16(25, 22),
+    Point16(25, 15),
+    Point16(38, 15),
+    Point16(38, 10),
+    Point16(41, 8),
+    Point16(44, 8),
+    Point16(44, 11),
+    Point16(42, 11),
+    Point16(42, 25),
+  ];
   static const List<KeyLocation> massMurderLocations = [
     church,
     observatory,
     fishermanHut,
   ];
 
+  static const List<Point16> villageEntrancePath = [
+    Point16(31, 44),
+    Point16(31, 22),
+  ];
+
   static const Map<KeyLocation, List<Point16>> patrolCheckpoints = {
     KeyLocation.church: [
       Point16(31, 15),
-      Point16(35, 15),
-      Point16(35, 21),
-      Point16(27, 21),
-      Point16(27, 21),
       Point16(27, 15),
+      Point16(35, 15),
+    ],
+    KeyLocation.villageMainSquare: [
+      Point16(25, 21),
+      Point16(25, 15),
+      Point16(12, 14),
+      Point16(12, 16),
+      Point16(20, 16),
     ],
   };
 }

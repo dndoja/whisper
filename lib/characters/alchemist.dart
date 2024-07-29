@@ -47,8 +47,6 @@ class AlchemistController extends SimpleEnemy
       return;
     }
 
-    if (gameState.isPaused) return;
-
     super.update(dt);
   }
 
