@@ -24,7 +24,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       [SanityLevel(CrazyJoe(), 1)],
       [
         VisionsOfMadness(
-          'God giving him a Herculean task. (P+Z)',
+          'God giving him a Herculean task.',
           [
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
@@ -53,14 +53,15 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
           ],
         ),
         VisionsOfMadness(
-          'A fake memory of everyone in the village having been killed in the war. (P+S)',
+          'A fake memory of everyone he knows having been killed in the war.',
           [
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
               [CrazyJoeThinkingHeIsDead()],
             ),
             StateTransition(
-              [DominantMentalTrait(CrazyJoe(), MentalTrait.zealous)],
+              [CrazyJoeChilling()],
+              // [DominantMentalTrait(CrazyJoe(), MentalTrait.zealous)],
               [CrazyJoeFightingForPeace()],
             ),
             StateTransition(
@@ -82,7 +83,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
           ],
         ),
         VisionsOfMadness(
-          'Priest turning to Necromancy and summoning an army of undead which kills the entire village. (S+Z)',
+          'Priest turning to Necromancy and summoning an army of undead which kills the entire village.',
           [
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
@@ -93,7 +94,8 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
               [CrazyJoeRepenting()],
             ),
             StateTransition(
-              [DominantMentalTrait(CrazyJoe(), MentalTrait.paranoid)],
+              [CrazyJoeChilling()],
+              // [DominantMentalTrait(CrazyJoe(), MentalTrait.paranoid)],
               [CrazyJoeRunningFromZombies()],
             ),
             StateTransition(

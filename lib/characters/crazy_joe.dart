@@ -7,6 +7,8 @@ import 'package:whisper/core/chase.dart';
 
 import 'animations.dart';
 
+const prayer = "Oh Heavenly Father please forgive me for my sinful desires!";
+
 class CrazyJoeController extends SimpleEnemy
     with
         RandomMovement,
@@ -19,7 +21,7 @@ class CrazyJoeController extends SimpleEnemy
         BugNav {
   CrazyJoeController()
       : super(
-          animation: Animations.forCharacter(CharacterSheet.b, 1, 'crazy-joe'),
+          animation: Animations.crazyJoe,
           size: Vector2.all(24),
           position: KeyLocation.crazyJoeFarm.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
@@ -63,10 +65,14 @@ class CrazyJoeController extends SimpleEnemy
       case CrazyJoeRepenting():
         if (!transitioningToNewTurn) {
           speak(
-            'I must repent... *whips himself*',
+            'I MUST REPENT!',
             dt: dt,
             periodSeconds: 10,
-            onComplete: () => playBloodAnimation(maxForce: 200, count: 50),
+            onComplete: () {
+              speak('*whips himself*', yell: true);
+              playBloodAnimation(maxForce: 200, count: 50);
+            },
+            yell: true,
           );
         }
       case CrazyJoeRunningFromZombies():
@@ -85,15 +91,31 @@ class CrazyJoeController extends SimpleEnemy
       case CrazyJoeCrusading():
         final nearbyVictim = nearbyCharacters().firstOrNull;
         if (nearbyVictim != null && hasClearPathTo(nearbyVictim)) {
-          pausePatrolling();
+          pausePatrolling(forceStop: true);
           final bool didAttack = tryAttack(nearbyVictim);
           if (!didAttack) moveTowardsTarget(target: nearbyVictim);
         } else {
           resumePatrolling();
         }
       case CrazyJoeFearingDevil():
+        if (!transitioningToNewTurn) speak(prayer, periodSeconds: 10, dt: dt);
       case CrazyJoeThinkingHeIsDead():
       case CrazyJoeStabbingPriest():
+        final priest = characterTracker.priest;
+        if (!priest.isDead && hasClearPathTo(priest)) {
+          pausePatrolling(forceStop: true);
+          final bool didAttack = tryAttack(
+            priest,
+            onFinish: () => speak(
+              'GO TRY NECROMANCY ON YOURSELF NOW YOU PIECE OF SHIT!',
+              yell: true,
+            ),
+          );
+
+          if (!didAttack) moveTowardsTarget(target: priest);
+        } else {
+          resumePatrolling();
+        }
     }
 
     super.update(dt);
@@ -115,40 +137,172 @@ class CrazyJoeController extends SimpleEnemy
 
     currBehaviour = newState.behaviour as BehaviourFlag<CrazyJoe>;
 
-    // setupBlockMovementCollision(enabled: false);
-
     switch (currBehaviour) {
+      case CrazyJoeChilling():
+        break;
       case CrazyJoeCrusading():
-        replaceAnimation(Animations.knight);
-        animationPrefix = 'knight';
-
-        await followPath(KeyLocation.villageEntrancePath);
-        await patrol(KeyLocation.massMurderPatrol, patrolSpeed: 1);
-      case CrazyJoeRunningFromZombies():
-        await pathfindToPosition(KeyLocation.villageExitSouth.br.mapPosition);
-      case CrazyJoeDoomsaying():
-        await followPath(KeyLocation.villageEntrancePath);
-        patrol(KeyLocation.villageMainSquare.patrol);
-      case CrazyJoeRepenting():
-        await pathfindToPosition(KeyLocation.church.ref.mapPosition);
+        await crusading();
+      case CrazyJoeSavingKingdom():
+        await savingKingdom();
+      case CrazyJoeFindingGod():
+        await findingGod();
+      case CrazyJoeFearingDevil():
+        await fearingDevil();
+      case CrazyJoeRampaging():
+        await rampaging();
+      case CrazyJoeThinkingHeIsDead():
+        await thinkingHesDead();
+      case CrazyJoeRunningFromGhosts():
+        await runningFromGhosts();
+      case CrazyJoeFightingForPeace():
+        await fightingForPeace();
       case CrazyJoeStabbingPriest():
-        final priest = characterTracker.priest;
-
-        await pathfindToPosition(KeyLocation.church.ref.mapPosition);
-        await chase(priest);
-
-        if (isInAttackRange(priest)) {
-          speak('Die you piece of shit');
-          priest.removeLife(100);
-          priest.playBloodAnimation();
-        }
-
-        await pathfindToPosition(KeyLocation.crazyJoeFarm.ref.mapPosition);
-
-      default:
+        await stabbingPriest();
+      case CrazyJoeDoomsaying():
+        await doomsaying();
+      case CrazyJoeRepenting():
+        await repenting();
+      case CrazyJoeRunningFromZombies():
+        await runningFromUndead();
     }
+  }
 
-    // setupBlockMovementCollision(enabled: true);
+  Future<void> putOnArmor({bool announce = true}) async {
+    if (announce) await speak('I must fetch my armor...');
+    await followPath2([(13, 51), (13, 47)], speed: 0.3);
+    isVisible = false;
+    await Future.delayed(const Duration(milliseconds: 200));
+    replaceAnimation(Animations.knight);
+    animationPrefix = 'knight';
+    isVisible = true;
+    await followPath2([(13, 51)]);
+  }
+
+  Future<void> crusading() async {
+    await putOnArmor();
+    speak(
+      "Those infidels in the village will bring ruin upon this land. "
+      "God Willing, I will save us!",
+    );
+    await followPath(KeyLocation.villageEntrancePath);
+    await patrol(KeyLocation.massMurderPatrol, patrolSpeed: 1);
+  }
+
+  Future<void> savingKingdom() async {
+    await putOnArmor();
+    speak('God has spoken to me, I must go save this kingdom. Deus Vult!');
+    await followPath2([(31, 51), (31, 59)]);
+  }
+
+  Future<void> fearingDevil() async {
+    await speak("God would never speak to someone like me, I'm not worthy.");
+    await speak("It must have been the Devil!", yell: true);
+    speak("I must pray...");
+    await followPath(KeyLocation.villageEntrancePath);
+    await followPath2([(26, 21), (26, 15), (31, 13)]);
+    await speak(prayer);
+  }
+
+  Future<void> findingGod() async {
+    speak(
+      'God has spoken to me. I am his disciple... I must go on a pilgrimage.',
+    );
+    await followPath2([(31, 51), (31, 59)]);
+  }
+
+  Future<void> rampaging() async {
+    await speak(
+      'I remember now, everyone was murdered on that attack 2 years ago...',
+    );
+    await speak(
+      'But then, if everyone is dead... Then who are those people in the village?',
+    );
+    await speak('THEY MUST BE DEMONS TRYING TO TAKE MY LAND!', yell: true);
+    speak('THIS IS MY PROPERTY. I WILL STAND MY GROUND! YOU HEAR ME?!',
+        yell: true);
+    await followPath(KeyLocation.villageEntrancePath);
+    await patrol(KeyLocation.massMurderPatrol, patrolSpeed: 1);
+  }
+
+  Future<void> thinkingHesDead() async {
+    await speak(
+      'I remember now, everyone was murdered on that attack 2 years ago...',
+    );
+    await speak("Wait a second, wasn't I murdered as well?");
+    await speak("Does this mean I'm a ghost?");
+    await speak("I'll test it out using my axe...");
+    die();
+    playBloodAnimation();
+  }
+
+  Future<void> runningFromGhosts() async {
+    await speak(
+      'I remember now, everyone was murdered on that attack 2 years ago...',
+    );
+    await speak(
+      'But then, if everyone is dead... Then who are those people in the village?',
+    );
+    await speak('THEY HAVE TO BE GHOSTS', yell: true);
+    await speak("THEY'RE GONNA COME AND TAKE MY SOUL!", yell: true);
+    speak(
+      "They might call me Crazy Joe but not even "
+      "I am crazy enough to stay in this haunted ass village. No thank you!",
+    );
+    await followPath2([(31, 51), (31, 59)]);
+  }
+
+  Future<void> fightingForPeace() async {
+    await speak(
+      'I remember now, everyone was murdered on that attack 2 years ago...',
+    );
+    await speak('OH THE HORROR, THE SADNESS, THE PAIN!', yell: true);
+    await speak(
+      "I must not let anyone else go through the same Hell as I have!",
+    );
+    await speak("I'll embark on a great journey to end all Wars...");
+    await putOnArmor(announce: false);
+    speak(
+      "I'LL BRING PEACE USING THE POWER OF RELENTLESS VIOLENCE!",
+      yell: true,
+    );
+    await followPath2([(31, 51), (31, 59)]);
+  }
+
+  Future<void> stabbingPriest() async {
+    await speak(
+      "NECROMANCY??? IN MY VILLAGE??? NOT AS LONG AS I'M STILL BREATHING.",
+      yell: true,
+    );
+    await followPath(KeyLocation.churchPath);
+    await patrol(KeyLocation.church.patrol, patrolSpeed: 1);
+  }
+
+  Future<void> doomsaying() async {
+    await followPath(KeyLocation.villageEntrancePath);
+    patrol(KeyLocation.villageMainSquare.patrol);
+    await speak('DEATH IS COMING TO THIS VILLAGE!', yell: true);
+  }
+
+  Future<void> repenting() async {
+    await speak(
+      "What's wrong with me!? How could I even dream that a Man of God would succumb to the Devil's arts?",
+    );
+    await speak("The Devil is playing tricks in my head");
+    await speak("I must go repent for these vile thoughts");
+    await followPath(KeyLocation.churchPath);
+    await speak('I MUST REPENT!', yell: true);
+    await speak('*whips himself*', yell: true);
+    playBloodAnimation();
+  }
+
+  Future<void> runningFromUndead() async {
+    await speak("Oh, well isn't that just lovely.");
+    await speak(
+      "As if I didn't already have 32543 problems. "
+      "Now I have to deal with Necromancy as well.",
+    );
+    speak("Nooope, Crazy Joe is out of here, this place is a shithole.");
+    await followPath2([(31, 51), (31, 59)]);
   }
 
   @override

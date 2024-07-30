@@ -25,7 +25,7 @@ const int attackRangeSquared = 1;
 const int defaultSanity = 4;
 const int visionRadiusSquared = 100;
 const Map<EntityType, int> entitiesInitialSanity = {
-  CrazyJoe(): 3,
+  CrazyJoe(): 1,
   Priest(): 2,
 };
 

@@ -40,34 +40,14 @@ enum AttackAnimation {
 enum DeathAnimation { dying }
 
 class Animations {
-  static SimpleDirectionAnimation undead =
+  static final SimpleDirectionAnimation undead =
       Animations.forCharacter(CharacterSheet.monsters, 0, null);
 
-  static SimpleDirectionAnimation knight = forCharacter(
-    CharacterSheet.d,
-    7,
-    'knight',
-    others: {
-      AttackAnimation.right: SpriteAnimation.load(
-        'knight-attack-right.png',
-        SpriteAnimationData.sequenced(
-          amount: 3,
-          loop: false,
-          stepTime: 0.1,
-          textureSize: Vector2.all(32),
-        ),
-      ),
-      AttackAnimation.left: SpriteAnimation.load(
-        'knight-attack-left.png',
-        SpriteAnimationData.sequenced(
-          amount: 3,
-          loop: false,
-          stepTime: 0.1,
-          textureSize: Vector2.all(32),
-        ),
-      ),
-    },
-  );
+  static final SimpleDirectionAnimation knight =
+      forCharacter(CharacterSheet.d, 7, 'knight', attackFramesCount: 3);
+
+  static final SimpleDirectionAnimation crazyJoe =
+      forCharacter(CharacterSheet.b, 1, 'crazy-joe', attackFramesCount: 4);
 
   static SimpleDirectionAnimation forDeadCharacter(String animationPrefix) {
     final animation = SpriteAnimation.load(
@@ -87,9 +67,10 @@ class Animations {
   static SimpleDirectionAnimation forCharacter(
     CharacterSheet sheet,
     int charIndex,
-    String? mortalName, {
+    String? prefix, {
     bool invertHorizontal = false,
     Map<dynamic, Future<SpriteAnimation>> others = const {},
+    int? attackFramesCount,
   }) {
     const charsPerSheet = 4;
     const charSize = 32.0;
@@ -143,9 +124,9 @@ class Animations {
     if (invertHorizontal) (runLeft, runRight) = (runRight, runLeft);
 
     final Map<dynamic, Future<SpriteAnimation>> othersEffective = {
-      if (mortalName != null) ...{
+      if (prefix != null) ...{
         DeathAnimation.dying: SpriteAnimation.load(
-          '$mortalName-dead.png',
+          '$prefix-dead.png',
           SpriteAnimationData.sequenced(
             amount: 4,
             loop: false,
@@ -153,6 +134,26 @@ class Animations {
             textureSize: Vector2.all(32),
           ),
         ),
+        if (attackFramesCount != null) ...{
+          AttackAnimation.right: SpriteAnimation.load(
+            '$prefix-attack-right.png',
+            SpriteAnimationData.sequenced(
+              amount: attackFramesCount,
+              loop: false,
+              stepTime: 0.1,
+              textureSize: Vector2.all(32),
+            ),
+          ),
+          AttackAnimation.left: SpriteAnimation.load(
+            '$prefix-attack-left.png',
+            SpriteAnimationData.sequenced(
+              amount: attackFramesCount,
+              loop: false,
+              stepTime: 0.1,
+              textureSize: Vector2.all(32),
+            ),
+          ),
+        },
       },
       ...others,
     };

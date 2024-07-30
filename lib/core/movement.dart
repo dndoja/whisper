@@ -132,7 +132,10 @@ mixin SimpleMovement2 on SimpleEnemy {
     return onReachTarget!.future;
   }
 
-  Future<void> followPath(List<Point16> path, {double speed = 1}) {
+  Future<void> followPath2(List<(int, int)> path, {double speed = 1}) =>
+      followPath(path.map((p) => Point16(p.$1, p.$2)), speed: speed);
+
+  Future<void> followPath(Iterable<Point16> path, {double speed = 1}) {
     pathSpeed = speed;
     targets = Queue.of(path);
     isPatrolling = false;

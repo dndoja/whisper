@@ -60,7 +60,7 @@ enum KeyLocation {
   ),
   crazyJoeFarm(
     Point16(0, 43),
-    Point16(13, 50),
+    Point16(13, 53),
     Point16(23, 59),
   ),
   fishermanHut(
@@ -121,16 +121,15 @@ enum KeyLocation {
 
   static const List<Point16> massMurderPatrol = [
     Point16(31, 22),
-    Point16(25, 22),
-    Point16(25, 15),
-    Point16(38, 15),
-    Point16(38, 10),
-    Point16(41, 8),
-    Point16(44, 8),
-    Point16(44, 11),
-    Point16(42, 11),
+    Point16(26, 22),
+    Point16(26, 14),
+    Point16(42, 14),
+    Point16(42, 9),
     Point16(42, 25),
+    Point16(49, 25),
+    Point16(31, 25),
   ];
+
   static const List<KeyLocation> massMurderLocations = [
     church,
     observatory,
@@ -138,8 +137,17 @@ enum KeyLocation {
   ];
 
   static const List<Point16> villageEntrancePath = [
+    Point16(31, 51),
     Point16(31, 44),
     Point16(31, 22),
+  ];
+
+  static const List<Point16> churchPath = [
+    Point16(31, 51),
+    Point16(31, 44),
+    Point16(31, 22),
+    Point16(26, 22),
+    Point16(26, 14),
   ];
 
   static const Map<KeyLocation, List<Point16>> patrolCheckpoints = {
@@ -147,6 +155,10 @@ enum KeyLocation {
       Point16(31, 15),
       Point16(27, 15),
       Point16(35, 15),
+    ],
+    KeyLocation.crazyJoeFarm: [
+      Point16(7, 53),
+      Point16(16, 53),
     ],
     KeyLocation.observatory: [
       Point16(42, 8),

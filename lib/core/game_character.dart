@@ -139,8 +139,9 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
 
 mixin Attacker on SimpleEnemy {
   bool inAttackAnimation = false;
+  final Set<EntityType> attacked = {};
 
-  bool tryAttack(GameCharacter nearbyVictim) {
+  bool tryAttack(GameCharacter nearbyVictim, {Function()? onFinish}) {
     if (!isInAttackRange(nearbyVictim)) return false;
     inAttackAnimation = true;
     stopMove();
@@ -151,6 +152,10 @@ mixin Attacker on SimpleEnemy {
       onFinish: () {
         inAttackAnimation = false;
         nearbyVictim.die();
+        if (!attacked.contains(nearbyVictim.entityType)) {
+          onFinish?.call();
+          attacked.add(nearbyVictim.entityType);
+        }
       },
     );
 
@@ -160,13 +165,17 @@ mixin Attacker on SimpleEnemy {
 
 extension GameCharacterX on SimpleEnemy {
   bool hasClearPathTo(GameComponent target) {
+    print(distance(target));
+    if (distance(target) > 16 * 8) return false;
     final dir = Vector2(target.x - x, target.y - y).normalized();
+    final dist = distance(target);
     final raycastResult = raycast(
       dir,
       ignoreHitboxes: target.shapeHitboxes,
       maxDistance: distance(target),
     );
-    return raycastResult == null;
+    // print('$dist, ${raycastResult == null}');
+    return distance(target) < 16 * 8 && raycastResult == null;
   }
 
   KeyLocation? currentKeyLocation() {
@@ -197,8 +206,7 @@ extension GameCharacterX on SimpleEnemy {
     return currPoint.distanceSquaredTo(otherPoint);
   }
 
-  bool isInAttackRange(GameCharacter target) =>
-      distSquaredTo(target) <= attackRangeSquared;
+  bool isInAttackRange(GameCharacter target) => distance(target) <= 24;
 
   bool tryAttack(GameCharacter target) {
     if (!isInAttackRange(target)) return false;

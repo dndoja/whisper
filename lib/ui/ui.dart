@@ -20,7 +20,7 @@ class ShadowyTendrilsTarget {
 
 final GlobalKey<_UIState> _bottomPanelKey = GlobalKey();
 
-const int maxShadowTendrilsPerTurn = 2;
+const int maxShadowTendrilsPerTurn = 1;
 
 enum GameOverResult {
   alchemistHarmed,
@@ -129,8 +129,8 @@ class _UIState extends State<UI> {
                       onSelected: (entityType, action) {
                         characterTracker.ofType(entityType).showShadowCard();
                         setState(() => stagedTurnActions[entityType] = action);
-                        if (stagedTurnActions.length >=
-                            maxShadowTendrilsPerTurn) endTurn();
+                        // if (stagedTurnActions.length >=
+                        //     maxShadowTendrilsPerTurn) endTurn();
                       },
                     ),
                   ),
