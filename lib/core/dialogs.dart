@@ -14,23 +14,10 @@ const Map<EntityType, EntityDialogs> entityDialogs = {
       CrazyJoeRunningFromGhosts(): '',
       CrazyJoeFightingForPeace(): '',
       CrazyJoeStabbingPriest(): '',
-      CrazyJoeRunningFromZombies(): "Joe ain't dealin' with no Zombies. Y'all stay safe tho!",
+      CrazyJoeRunningFromZombies():
+          "Joe ain't dealin' with no Zombies. Y'all stay safe tho!",
       CrazyJoeRepenting(): '',
       CrazyJoeDoomsaying(): '',
-    },
-    forMentalTraits: {
-      (MentalTrait.paranoid, Level.slightly): 'Slightly Paranoid',
-      (MentalTrait.paranoid, Level.moderately): '',
-      (MentalTrait.paranoid, Level.highly): '',
-      (MentalTrait.paranoid, Level.extremely): '',
-      (MentalTrait.superstitious, Level.slightly): '',
-      (MentalTrait.superstitious, Level.moderately): '',
-      (MentalTrait.superstitious, Level.highly): '',
-      (MentalTrait.superstitious, Level.extremely): '',
-      (MentalTrait.zealous, Level.slightly): '',
-      (MentalTrait.zealous, Level.moderately): '',
-      (MentalTrait.zealous, Level.highly): '',
-      (MentalTrait.zealous, Level.extremely): '',
     },
   ),
   Priest(): EntityDialogs<CrazyJoe>(
@@ -44,23 +31,10 @@ const Map<EntityType, EntityDialogs> entityDialogs = {
       CrazyJoeRunningFromGhosts(): '',
       CrazyJoeFightingForPeace(): '',
       CrazyJoeStabbingPriest(): '',
-      CrazyJoeRunningFromZombies(): "Joe ain't dealin' with no Zombies. Y'all stay safe tho!",
+      CrazyJoeRunningFromZombies():
+          "Joe ain't dealin' with no Zombies. Y'all stay safe tho!",
       CrazyJoeRepenting(): '',
       CrazyJoeDoomsaying(): '',
-    },
-    forMentalTraits: {
-      (MentalTrait.paranoid, Level.slightly): 'Slightly Paranoid',
-      (MentalTrait.paranoid, Level.moderately): '',
-      (MentalTrait.paranoid, Level.highly): '',
-      (MentalTrait.paranoid, Level.extremely): '',
-      (MentalTrait.superstitious, Level.slightly): '',
-      (MentalTrait.superstitious, Level.moderately): '',
-      (MentalTrait.superstitious, Level.highly): '',
-      (MentalTrait.superstitious, Level.extremely): '',
-      (MentalTrait.zealous, Level.slightly): '',
-      (MentalTrait.zealous, Level.moderately): '',
-      (MentalTrait.zealous, Level.highly): '',
-      (MentalTrait.zealous, Level.extremely): '',
     },
   ),
 };
@@ -68,7 +42,7 @@ const Map<EntityType, EntityDialogs> entityDialogs = {
 class EntityDialogs<T extends EntityType> {
   const EntityDialogs({
     required this.forBehaviours,
-    required this.forMentalTraits,
+    this.forMentalTraits = const {},
   });
   final Map<BehaviourFlag<T>, String> forBehaviours;
   final Map<(MentalTrait, Level), String> forMentalTraits;

@@ -22,7 +22,7 @@ enum Level {
 }
 
 const int attackRangeSquared = 1;
-const int defaultSanity = 2;
+const int defaultSanity = 3;
 const int visionRadiusSquared = 100;
 const Map<EntityType, int> entitiesInitialSanity = {};
 
@@ -46,6 +46,15 @@ sealed class EntityType {
   String toString() => runtimeType.toString();
 
   int get initialSanity => entitiesInitialSanity[this] ?? defaultSanity;
+
+  String get name => switch (this) {
+        CrazyJoe() => 'Crazy Joe',
+        Priest() => 'Priest Abraham',
+        Fisherman() => 'Fisherman Nat',
+        Astrologer() => 'Maria the Astrologer',
+        Rolf() => 'Rolf',
+        Alchemist() => 'The Alchemist',
+      };
 }
 
 sealed class EntityFlag<T extends EntityType> {

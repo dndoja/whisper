@@ -23,6 +23,47 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
 
   TextBubble? currTextBubble;
   double secondsElapsedSinceLastBubble = -1;
+  final Set<(MentalTrait, Level)> shownMentalStatusUpdates = {};
+  FutureOr<void> showMentalStateUpdates(Map<MentalTrait, Level> mentalStates) {
+    final List<(MentalTrait, Level)> toShow = mentalStates.entries
+        .map((e) => (e.key, e.value))
+        .whereNot(shownMentalStatusUpdates.contains)
+        .toList();
+    if (toShow.isEmpty) return Future.value();
+
+    if (currTextBubble != null && !currTextBubble!.isRemoved) {
+      remove(currTextBubble!);
+    }
+
+    final StringBuffer statusMessage = StringBuffer();
+    statusMessage.write('${entityType.name} has become ');
+
+    for (int i = 0; i < toShow.length; i++) {
+      final (mentalTrait, level) = toShow[i];
+      statusMessage.write('${level.name} ${mentalTrait.name}');
+      if (i < toShow.length - 2) {
+        statusMessage.write(', ');
+      } else if (i < toShow.length - 1) {
+        statusMessage.write(' and ');
+      } else {
+        statusMessage.write('.');
+      }
+    }
+
+    shownMentalStatusUpdates.addAll(toShow);
+
+    final Completer<void> completer = Completer();
+    currTextBubble = TextBubble(
+      statusMessage.toString(),
+      onComplete: completer.complete,
+      position: Vector2(8, -24),
+      status: true,
+    );
+    add(currTextBubble!);
+
+    return completer.future;
+  }
+
   FutureOr<void> speak(
     String text, {
     int? periodSeconds,

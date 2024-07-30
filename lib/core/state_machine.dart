@@ -100,6 +100,7 @@ extension GameCharacterStateX on GameCharacter {
     );
     await cameraCompleter.future;
 
+    await showMentalStateUpdates(newState.mentalStates);
     await onStateChange(newState);
 
     await Future.delayed(const Duration(seconds: 1));

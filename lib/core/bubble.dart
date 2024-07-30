@@ -8,6 +8,13 @@ final _renderer = TextPaint(
   ),
 );
 
+final _rendererStatus = TextPaint(
+  style: const TextStyle(
+    fontSize: 16,
+    fontStyle: FontStyle.italic,
+    color: Colors.white,
+  ),
+);
 final _rendererYell = TextPaint(
   style: const TextStyle(
     fontSize: 16,
@@ -21,11 +28,16 @@ class TextBubble extends TextBoxComponent {
     String text, {
     required Vector2 position,
     this.yell = false,
+    this.status = false,
     Function()? onComplete,
   }) : super(
           anchor: Anchor.topCenter,
           text: text,
-          textRenderer: yell ? _rendererYell : _renderer,
+          textRenderer: yell
+              ? _rendererYell
+              : status
+                  ? _rendererStatus
+                  : _renderer,
           position: position,
           onComplete: onComplete,
           scale: Vector2.all(0.3),
@@ -36,8 +48,10 @@ class TextBubble extends TextBoxComponent {
           ),
         );
 
+  final bool status;
   final bool yell;
-  final bgPaint = Paint()..color = Colors.black.withOpacity(0.7);
+  late final bgPaint = Paint()
+    ..color = status ? Colors.deepPurple : Colors.black.withOpacity(0.7);
   late final borderPaint = Paint()
     ..color = yell ? Colors.red : const Color(0xFFFFFFFF)
     ..style = PaintingStyle.stroke
@@ -45,8 +59,15 @@ class TextBubble extends TextBoxComponent {
 
   @override
   void render(Canvas canvas) {
-    const triangleHeight = 5.0;
+    if (status) {
+      final Rect rect = Rect.fromLTRB(0, 0, width, height);
+      canvas.drawRect(rect, bgPaint);
+      canvas.drawRect(rect, borderPaint);
+      super.render(canvas);
+      return;
+    }
 
+    const triangleHeight = 5.0;
     final RRect rect = RRect.fromLTRBR(
       0,
       0,
