@@ -13,7 +13,7 @@ class FishermanController extends SimpleEnemy
         PathFinding {
   FishermanController()
       : super(
-          animation: Animations.forCharacter(CharacterSheet.c, 5),
+          animation: Animations.forCharacter(CharacterSheet.c, 5, 'fisherman'),
           size: Vector2.all(24),
           position: KeyLocation.fishermanHut.tl.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,

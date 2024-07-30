@@ -13,7 +13,7 @@ class RolfController extends SimpleEnemy
         PathFinding {
   RolfController()
       : super(
-          animation: Animations.forCharacter(CharacterSheet.c, 6),
+          animation: Animations.forCharacter(CharacterSheet.c, 6, 'rolf'),
           size: Vector2.all(24),
           position: KeyLocation.observatory.br.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,

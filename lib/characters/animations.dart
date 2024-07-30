@@ -15,10 +15,10 @@ class KeyLocationComponent extends GameComponent {
 }
 
 enum CharacterSheet {
-  a('characters_a.png'),
-  b('characters_b.png'),
-  c('characters_c.png'),
-  d('characters_d.png'),
+  a('characters-a.png'),
+  b('characters-b.png'),
+  c('characters-c.png'),
+  d('characters-d.png'),
   monsters('monsters.png'),
   ;
 
@@ -37,42 +37,57 @@ enum AttackAnimation {
           : AttackAnimation.left;
 }
 
+enum DeathAnimation { dying }
+
 class Animations {
   static SimpleDirectionAnimation undead =
-      Animations.forCharacter(CharacterSheet.monsters, 0);
-
-  static Future<SpriteAnimation> knightAttackRight = SpriteAnimation.load(
-    'knight_attack_right.png',
-    SpriteAnimationData.sequenced(
-      amount: 3,
-      loop: false,
-      stepTime: 0.1,
-      textureSize: Vector2.all(32),
-    ),
-  );
-
-  static Future<SpriteAnimation> knightAttackLeft = SpriteAnimation.load(
-    'knight_attack_left.png',
-    SpriteAnimationData.sequenced(
-      amount: 3,
-      loop: false,
-      stepTime: 0.1,
-      textureSize: Vector2.all(32),
-    ),
-  );
+      Animations.forCharacter(CharacterSheet.monsters, 0, null);
 
   static SimpleDirectionAnimation knight = forCharacter(
     CharacterSheet.d,
     7,
+    'knight',
     others: {
-      AttackAnimation.left: knightAttackLeft,
-      AttackAnimation.right: knightAttackRight,
+      AttackAnimation.right: SpriteAnimation.load(
+        'knight-attack-right.png',
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          loop: false,
+          stepTime: 0.1,
+          textureSize: Vector2.all(32),
+        ),
+      ),
+      AttackAnimation.left: SpriteAnimation.load(
+        'knight-attack-left.png',
+        SpriteAnimationData.sequenced(
+          amount: 3,
+          loop: false,
+          stepTime: 0.1,
+          textureSize: Vector2.all(32),
+        ),
+      ),
     },
   );
 
+  static SimpleDirectionAnimation forDeadCharacter(String animationPrefix) {
+    final animation = SpriteAnimation.load(
+      '$animationPrefix-dead.png',
+      SpriteAnimationData.sequenced(
+        amount: 1,
+        loop: true,
+        stepTime: 1,
+        textureSize: Vector2.all(32),
+        texturePosition: Vector2(96, 0),
+      ),
+    );
+
+    return SimpleDirectionAnimation(idleRight: animation, runRight: animation);
+  }
+
   static SimpleDirectionAnimation forCharacter(
     CharacterSheet sheet,
-    int charIndex, {
+    int charIndex,
+    String? mortalName, {
     bool invertHorizontal = false,
     Map<dynamic, Future<SpriteAnimation>> others = const {},
   }) {
@@ -127,6 +142,21 @@ class Animations {
 
     if (invertHorizontal) (runLeft, runRight) = (runRight, runLeft);
 
+    final Map<dynamic, Future<SpriteAnimation>> othersEffective = {
+      if (mortalName != null) ...{
+        DeathAnimation.dying: SpriteAnimation.load(
+          '$mortalName-dead.png',
+          SpriteAnimationData.sequenced(
+            amount: 4,
+            loop: false,
+            stepTime: 0.15,
+            textureSize: Vector2.all(32),
+          ),
+        ),
+      },
+      ...others,
+    };
+
     return SimpleDirectionAnimation(
       idleRight: SpriteAnimation.load(
         sheet.assetName,
@@ -141,7 +171,7 @@ class Animations {
       runLeft: runLeft,
       runRight: runRight,
       runUp: runUp,
-      others: others,
+      others: othersEffective,
     );
   }
 }

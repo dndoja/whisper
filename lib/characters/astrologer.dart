@@ -13,7 +13,7 @@ class AstrologerController extends SimpleEnemy
         GameCharacter<Astrologer> {
   AstrologerController()
       : super(
-          animation: Animations.forCharacter(CharacterSheet.a, 5),
+          animation: Animations.forCharacter(CharacterSheet.a, 5, 'astrologer'),
           size: Vector2.all(24),
           position: KeyLocation.observatory.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,

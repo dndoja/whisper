@@ -68,7 +68,7 @@ class _UIState extends State<UI> {
   TurnActionType? selectedActionType;
 
   bool isTransitioningTurns = false;
-  GameOverData? gameOver; 
+  GameOverData? gameOver;
 
   @override
   void initState() {
@@ -214,6 +214,10 @@ class _UIState extends State<UI> {
       case LogicalKeyboardKey.keyF:
         endTurn();
         return true;
+      case LogicalKeyboardKey.keyR:
+        characterTracker.allAlive
+            .firstOrNullWhere((c) => c.entityType == tendrilsTarget?.entityType)
+            ?.die();
       default:
     }
 

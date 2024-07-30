@@ -14,12 +14,12 @@ class CrazyJoeController extends SimpleEnemy
         SimpleMovement2,
         GameCharacter<CrazyJoe>,
         PathFinding,
+        Attacker,
         ChaseMovement,
         BugNav {
   CrazyJoeController()
       : super(
-          // animation: Animations.forCharacter(CharacterSheet.b, 1),
-          animation: Animations.knight,
+          animation: Animations.forCharacter(CharacterSheet.b, 1, 'crazy-joe'),
           size: Vector2.all(24),
           position: KeyLocation.crazyJoeFarm.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
@@ -38,8 +38,6 @@ class CrazyJoeController extends SimpleEnemy
     patrol(KeyLocation.crazyJoeFarm.patrol);
     return super.onLoad();
   }
-
-  bool inAttackAnimation = false;
 
   @override
   void update(double dt) {
@@ -88,26 +86,8 @@ class CrazyJoeController extends SimpleEnemy
         final nearbyVictim = nearbyCharacters().firstOrNull;
         if (nearbyVictim != null && hasClearPathTo(nearbyVictim)) {
           pausePatrolling();
-
-          // chaseTarget(nearbyVictim, onFinish: () => tryAttack(nearbyVictim));
-          if (isInAttackRange(nearbyVictim)) {
-            stopMove();
-            nearbyVictim
-              ..pausePatrolling()
-              ..stopMove();
-            inAttackAnimation = true;
-            animation?.playOnceOther(
-              AttackAnimation.fromAngle(getAngleFromTarget(nearbyVictim)),
-              onFinish: () {
-                inAttackAnimation = false;
-                nearbyVictim
-                  ..removeLife(nearbyVictim.maxLife)
-                  ..playBloodAnimation();
-              },
-            );
-          } else {
-            moveTowardsTarget(target: nearbyVictim);
-          }
+          final bool didAttack = tryAttack(nearbyVictim);
+          if (!didAttack) moveTowardsTarget(target: nearbyVictim);
         } else {
           resumePatrolling();
         }
@@ -138,7 +118,9 @@ class CrazyJoeController extends SimpleEnemy
 
     switch (currBehaviour) {
       case CrazyJoeCrusading():
-        // replaceAnimation(Animations.knight);
+        replaceAnimation(Animations.knight);
+        animationPrefix = 'knight';
+
         await followPath(KeyLocation.villageEntrancePath);
         await patrol(KeyLocation.massMurderPatrol, patrolSpeed: 1);
       case CrazyJoeRunningFromZombies():

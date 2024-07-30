@@ -22,9 +22,12 @@ enum Level {
 }
 
 const int attackRangeSquared = 1;
-const int defaultSanity = 3;
+const int defaultSanity = 4;
 const int visionRadiusSquared = 100;
-const Map<EntityType, int> entitiesInitialSanity = {};
+const Map<EntityType, int> entitiesInitialSanity = {
+  CrazyJoe(): 3,
+  Priest(): 2,
+};
 
 const List<BehaviourFlag> gameEndingBehaviours = [
   CrazyJoeRampaging(),
@@ -46,6 +49,15 @@ sealed class EntityType {
   String toString() => runtimeType.toString();
 
   int get initialSanity => entitiesInitialSanity[this] ?? defaultSanity;
+
+  String get animationPrefix => switch (this) {
+        CrazyJoe() => 'crazy-joe',
+        Priest() => 'priest',
+        Fisherman() => 'fisherman',
+        Astrologer() => 'astrologer',
+        Rolf() => 'rolf',
+        Alchemist() => 'alchemist',
+      };
 
   String get name => switch (this) {
         CrazyJoe() => 'Crazy Joe',

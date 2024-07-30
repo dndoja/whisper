@@ -22,7 +22,7 @@ class AlchemistController extends SimpleEnemy
         PathFinding {
   AlchemistController()
       : super(
-          animation: Animations.forCharacter(CharacterSheet.c, 3),
+          animation: Animations.forCharacter(CharacterSheet.c, 3, 'alchemist'),
           size: Vector2.all(24),
           position: KeyLocation.alchemistLab.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,

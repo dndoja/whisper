@@ -15,6 +15,7 @@ class ShadowPlayer extends SimplePlayer {
           animation: Animations.forCharacter(
             CharacterSheet.monsters,
             3,
+            null,
             invertHorizontal: true,
           ),
         );

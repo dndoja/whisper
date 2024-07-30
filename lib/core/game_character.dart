@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bonfire/bonfire.dart';
+import 'package:whisper/characters/animations.dart';
 import 'package:whisper/characters/characters.dart';
 
 import 'core.dart';
@@ -8,6 +9,9 @@ import 'core.dart';
 mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
   bool transitioningToNewTurn = false;
   bool pausePeriodicBubbles = false;
+  bool playingDeathAnimation = false;
+
+  late String animationPrefix = entityType.animationPrefix;
 
   @override
   Future<void> onLoad() {
@@ -19,6 +23,24 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
       ),
     );
     return super.onLoad();
+  }
+
+  void die() {
+    if (playingDeathAnimation) return;
+
+    playingDeathAnimation = true;
+    pausePatrolling(forceStop: true);
+    animation?.playOnceOther(
+      DeathAnimation.dying,
+      onFinish: () {
+        replaceAnimation(
+          Animations.forDeadCharacter(animationPrefix),
+          doIdle: true,
+        );
+        removeLife(maxLife);
+        playingDeathAnimation = false;
+      },
+    );
   }
 
   TextBubble? currTextBubble;
@@ -104,6 +126,27 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
   T get entityType;
 
   FutureOr<void> onStateChange(CharacterState newState);
+}
+
+mixin Attacker on SimpleEnemy {
+  bool inAttackAnimation = false;
+
+  bool tryAttack(GameCharacter nearbyVictim) {
+    if (!isInAttackRange(nearbyVictim)) return false;
+    inAttackAnimation = true;
+    stopMove();
+    nearbyVictim.pausePatrolling(forceStop: true);
+
+    animation?.playOnceOther(
+      AttackAnimation.fromAngle(getAngleFromTarget(nearbyVictim)),
+      onFinish: () {
+        inAttackAnimation = false;
+        nearbyVictim.die();
+      },
+    );
+
+    return true;
+  }
 }
 
 extension GameCharacterX on SimpleEnemy {

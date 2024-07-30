@@ -15,7 +15,7 @@ class PriestController extends SimpleEnemy
         PathFinding {
   PriestController()
       : super(
-          animation: Animations.forCharacter(CharacterSheet.c, 2),
+          animation: Animations.forCharacter(CharacterSheet.c, 2, 'priest'),
           size: Vector2.all(24),
           position: KeyLocation.church.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
@@ -37,10 +37,12 @@ class PriestController extends SimpleEnemy
 
   @override
   void update(double dt) {
-    if (isDead) {
-      // TODO: Play death animation
-      return;
-    }
+    // die();
+
+    // if (playingDeathAnimation) {
+    //   super.update(dt);
+    //   return;
+    // }
 
     if (gameState.isPaused) return;
 
