@@ -61,6 +61,7 @@ class AlchemistController extends SimpleEnemy
 
   @override
   Future<void> onStateChange(CharacterState newState) async {
+    super.onStateChange(newState);
     if (newState.behaviour == currBehaviour) return;
     currBehaviour = newState.behaviour as BehaviourFlag<Alchemist>;
 

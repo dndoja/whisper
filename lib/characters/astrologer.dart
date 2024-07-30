@@ -47,6 +47,7 @@ class AstrologerController extends SimpleEnemy
 
   @override
   void onStateChange(CharacterState newState) {
+    super.onStateChange(newState);
     if (newState.behaviour != currBehaviour) {
       currBehaviour = newState.behaviour as BehaviourFlag<Astrologer>;
     }

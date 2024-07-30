@@ -110,7 +110,11 @@ class _UIState extends State<UI> {
                   alignment: Alignment.topCenter,
                   child: Text(
                     'Turn: ${gameState.currentTurn}',
-                    style: const TextStyle(fontSize: 40),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      shadows: [BoxShadow(color: Colors.black, blurRadius: 8)],
+                    ),
                   ),
                 ),
                 if (!isTransitioningTurns) ...[
@@ -123,6 +127,7 @@ class _UIState extends State<UI> {
                     alignment: Alignment.center,
                     child: ActionCards(
                       onSelected: (entityType, action) {
+                        characterTracker.ofType(entityType).showShadowCard();
                         setState(() => stagedTurnActions[entityType] = action);
                         if (stagedTurnActions.length >=
                             maxShadowTendrilsPerTurn) endTurn();

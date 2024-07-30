@@ -105,6 +105,7 @@ class CrazyJoeController extends SimpleEnemy
 
   @override
   Future<void> onStateChange(CharacterState newState) async {
+    super.onStateChange(newState);
     final dialog = gameState
         .characterDialogs()
         .firstOrNullWhere((d) => d.$1 == entityType);

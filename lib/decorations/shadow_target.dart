@@ -1,5 +1,6 @@
 import 'package:bonfire/base/game_component.dart';
 import 'package:bonfire/bonfire.dart';
+import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/core/game_character.dart';
 import 'package:whisper/ui/ui.dart';
@@ -8,6 +9,23 @@ import 'ritual.dart';
 
 ShadowTarget? _instance;
 ShadowTarget get shadowTarget => _instance!;
+
+class ShadowCard extends GameDecoration with HiddenByDefault {
+  ShadowCard(Vector2 position)
+      : super.withSprite(
+          sprite: Sprite.load('shadow-card.png'),
+          position: position,
+          size: Vector2(5, 8),
+          lightingConfig: LightingConfig(
+            color: Colors.deepPurpleAccent.withOpacity(0.3),
+            blurBorder: 4,
+            radius: 8,
+            withPulse: true,
+            pulseSpeed: 0.2,
+          ),
+          objectPriority: 0,
+        );
+}
 
 class ShadowTarget extends GameDecoration {
   ShadowTarget()

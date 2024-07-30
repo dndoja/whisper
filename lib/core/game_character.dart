@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:bonfire/bonfire.dart';
+import 'package:flutter/material.dart';
 import 'package:whisper/characters/animations.dart';
 import 'package:whisper/characters/characters.dart';
+import 'package:whisper/decorations/shadow_target.dart';
 
 import 'core.dart';
 
@@ -12,6 +14,9 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
   bool playingDeathAnimation = false;
 
   late String animationPrefix = entityType.animationPrefix;
+  late final ShadowCard shadowCard = ShadowCard(Vector2(9, 4));
+
+  void showShadowCard() => shadowCard.isVisible = true;
 
   @override
   Future<void> onLoad() {
@@ -22,6 +27,7 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
         radius: 4,
       ),
     );
+    add(shadowCard);
     return super.onLoad();
   }
 
@@ -125,7 +131,10 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
   BehaviourFlag<T> get currBehaviour;
   T get entityType;
 
-  FutureOr<void> onStateChange(CharacterState newState);
+  @mustCallSuper
+  FutureOr<void> onStateChange(CharacterState newState) {
+    shadowCard.isVisible = false;
+  }
 }
 
 mixin Attacker on SimpleEnemy {
