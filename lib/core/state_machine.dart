@@ -6,6 +6,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
 import 'package:whisper/core/core.dart';
 
+import '../ui/bottom_panel.dart';
 import 'transitions.dart';
 
 export 'key_locations.dart';
@@ -161,21 +162,33 @@ class GameState {
     return buffer.toString();
   }
 
-  Iterable<TurnAction> availableActionsFor(EntityType entity) sync* {
-    final Iterable<EntityFlag> currFlags =
-        entityStates[entity]?.lastOrNull?.flags() ?? const [];
-    final List<ActionGroup> actionGroups = entityAvailableOptions[entity] ?? [];
+  Map<EntityType, List<TurnAction>> availableTurnActions() {
+    final Map<EntityType, List<TurnAction>> availableActions = {};
 
-    print(entity);
-    print(currFlags);
+    for (final entity in entityStates.keys) {
+      if (ofCharacter(entity).sanityLevel <= 0) continue;
 
-    for (final group in actionGroups) {
-      print(group.conditions);
-      if (flagsMatchPreReqs(currFlags, preReqs: group.conditions)) {
-        print('match');
-        yield* group.actions;
+      final List<TurnAction> actions = [];
+      final Iterable<EntityFlag> currFlags =
+          entityStates[entity]?.lastOrNull?.flags() ?? const [];
+      final List<ActionGroup> actionGroups =
+          entityAvailableOptions[entity] ?? [];
+
+      print(entity);
+      print(currFlags);
+
+      for (final group in actionGroups) {
+        print(group.conditions);
+        if (flagsMatchPreReqs(currFlags, preReqs: group.conditions)) {
+          print('match');
+          actions.addAll(group.actions);
+        }
       }
+
+      availableActions[entity] = actions;
     }
+
+    return availableActions;
   }
 
   CharacterState ofCharacter(EntityType entity) => entityStates[entity]!.last;
@@ -216,6 +229,8 @@ class GameState {
 
   void endTurn([Map<EntityType, TurnAction> turnActions = const {}]) {
     if (lockedBy != null || isPaused) return;
+
+    BottomPanel.startTurnTransition();
 
     final List<List<StateTransition>> potentialTransitions = [
       ...stateTransitions
@@ -357,6 +372,7 @@ class GameState {
       lockedBy = null;
       currentTurn++;
       print(toString());
+      BottomPanel.endTurnTransition();
       return;
     }
 

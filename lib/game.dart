@@ -1,5 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
+import 'package:whisper/decorations/shadow_target.dart';
 
 import 'characters/animations.dart';
 import 'characters/characters.dart';
@@ -38,7 +39,7 @@ class GameWidget extends StatelessWidget {
           // showCollisionArea: true,
           initialActiveOverlays: const ['bottom'],
           onReady: initGame,
-          player: ShadowPlayer(KeyLocation.crazyJoeFarm.br.mapPosition),
+          player: ShadowPlayer(KeyLocation.alchemistLab.br.mapPosition),
           map: WorldMapByTiled(
             WorldMapReader.fromAsset('village.json'),
             objectsBuilder: {
@@ -61,5 +62,6 @@ void initGame(BonfireGameInterface game) {
     // characterTracker.register(RolfController()),
     characterTracker.register(AstrologerController()),
     characterTracker.register(AlchemistController()),
+    ShadowTarget(),
   ]);
 }

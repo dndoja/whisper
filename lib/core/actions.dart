@@ -234,6 +234,11 @@ enum TurnActionType { darkWhispers, visionsOfMadness }
 
 sealed class TurnAction {
   const TurnAction();
+
+  String get name => switch (this) {
+    DarkWhispers() => 'Dark Whisper',
+    VisionsOfMadness() => 'Visions of Madness',
+  };
 }
 
 class DarkWhispers extends TurnAction {

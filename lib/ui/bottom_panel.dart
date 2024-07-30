@@ -1,5 +1,4 @@
 import 'package:bonfire/bonfire.dart';
-import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,41 +6,50 @@ import 'package:whisper/core/core.dart';
 
 class ShadowyTendrilsTarget {
   const ShadowyTendrilsTarget(
-    this.target, {
-    required this.availableVisionsOfMadness,
-    required this.availableDarkWhispers,
+    this.entityType, {
+    required this.availableActions,
   });
 
-  final EntityType target;
-  final List<VisionsOfMadness> availableVisionsOfMadness;
-  final List<DarkWhispers> availableDarkWhispers;
+  final EntityType entityType;
+  final List<TurnAction> availableActions;
 }
 
+final GlobalKey<_BottomPanelState> _bottomPanelKey = GlobalKey();
+
+const int maxShadowTendrilsPerTurn = 2;
+
 class BottomPanel extends StatefulWidget {
-  const BottomPanel(this.gameRef, {super.key});
+  BottomPanel(this.gameRef) : super(key: _bottomPanelKey);
   final BonfireGame gameRef;
 
   @override
   State<BottomPanel> createState() => _BottomPanelState();
+
+  static void setTendrilsTarget(EntityType? target) {
+    _bottomPanelKey.currentState?.setShadowyTendrilsTarget(target);
+  }
+
+  static void startTurnTransition() =>
+      _bottomPanelKey.currentState?.startTurnTransition();
+  static void endTurnTransition() =>
+      _bottomPanelKey.currentState?.endTurnTransition();
 }
 
 class _BottomPanelState extends State<BottomPanel> {
   final List<GameCharacter> shadowstepTargets = [];
-  Map<EntityType, TurnAction> turnActions = {};
+  Map<EntityType, TurnAction> stagedTurnActions = {};
+  Map<EntityType, List<TurnAction>> availableTurnActions = {};
 
   ShadowyTendrilsTarget? tendrilsTarget;
   TurnActionType? selectedActionType;
 
-  bool get canCastDarkWhispers =>
-      tendrilsTarget?.availableDarkWhispers.isNotEmpty == true;
-
-  bool get canCastVisionsOfMadness =>
-      tendrilsTarget?.availableVisionsOfMadness.isNotEmpty == true;
+  bool isTransitioningTurns = false;
 
   @override
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKeyPressed);
+    availableTurnActions = gameState.availableTurnActions();
   }
 
   @override
@@ -50,113 +58,130 @@ class _BottomPanelState extends State<BottomPanel> {
     super.dispose();
   }
 
+  void startTurnTransition() => setState(() => isTransitioningTurns = true);
+  void endTurnTransition() => setState(() => isTransitioningTurns = false);
+
   @override
-  Widget build(BuildContext context) => Material(
-        color: Colors.transparent,
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Text(
-                'Turn: ${gameState.currentTurn}',
-                style: const TextStyle(fontSize: 40),
-              ),
+  Widget build(BuildContext context) {
+    final target = tendrilsTarget;
+    final bool canCastTendrils = target != null &&
+        !stagedTurnActions.containsKey(target.entityType) &&
+        target.availableActions.isNotEmpty &&
+        stagedTurnActions.length < maxShadowTendrilsPerTurn;
+
+    return Material(
+      color: Colors.transparent,
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: Text(
+              'Turn: ${gameState.currentTurn}',
+              style: const TextStyle(fontSize: 40),
             ),
+          ),
+          if (!isTransitioningTurns) ...[
             if (tendrilsTarget != null)
               Align(
                 alignment: Alignment.centerLeft,
-                child: ShadowyTendrilsWidget(tendrilsTarget!.target),
+                child: ShadowyTendrilsWidget(tendrilsTarget!.entityType),
               ),
             Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (selectedActionType == TurnActionType.darkWhispers)
-                    SoulWhisperWidget(
-                      options: tendrilsTarget!.availableDarkWhispers,
-                      onPicked: finishOptionPicking,
-                    )
-                  else if (selectedActionType ==
-                      TurnActionType.visionsOfMadness)
-                    ShadowyVisionsWidget(
-                      options: tendrilsTarget!.availableVisionsOfMadness,
-                      onPicked: finishOptionPicking,
-                    ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        height: 80,
-                        width: 400,
-                        color: Colors.red,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ActionButton('1', onTap: shadowstep),
-                            const SizedBox(width: 32),
-                            ActionButton('2', onTap: shadowyTendrils),
-                            const SizedBox(width: 32),
-                            ActionButton(
-                              '3',
-                              onTap: canCastDarkWhispers
-                                  ? darkWhispersStart
-                                  : null,
-                            ),
-                            const SizedBox(width: 32),
-                            ActionButton(
-                              '4',
-                              onTap: canCastVisionsOfMadness
-                                  ? visionsOfMadnessStart
-                                  : null,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      InkWell(
-                        onTap: endTurn,
-                        child: Container(
-                          margin: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.circle,
-                          ),
-                          height: 70,
-                          width: 70,
-                          child: const Icon(Icons.arrow_right),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              alignment: Alignment.center,
+              child: ActionCards(
+                onSelected: (entityType, action) =>
+                    setState(() => stagedTurnActions[entityType] = action),
+              ),
+            ),
+            Positioned(
+              bottom: 60,
+              right: 220,
+              child: ActionButton(
+                name: 'Shadow\nStep',
+                keybind: 'Q',
+                onTap: ActionCards.areOpen ? null : shadowstep,
+                charges: '∞',
+                tooltip: "Instantly teleports to a vulnerable Mortal's location.",
+              ),
+            ),
+            Positioned(
+              bottom: 180,
+              right: 180,
+              child: ActionButton(
+                charges:
+                    '${maxShadowTendrilsPerTurn - stagedTurnActions.length}/'
+                    '$maxShadowTendrilsPerTurn',
+                name: 'Shadowy\nTendrils',
+                keybind: ' ',
+                onTap: canCastTendrils ? toggleCards : null,
+                tooltip: 'Invade the soul of a vulnerable mortal,\n'
+                    'allowing you to mess with their head',
               ),
             ),
           ],
-        ),
-      );
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: InkWell(
+              onTap: endTurn,
+              child: Container(
+                alignment: Alignment.center,
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isTransitioningTurns ? Colors.grey : Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+                height: 170,
+                width: 170,
+                child: isTransitioningTurns
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        'End Turn (F)',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   void endTurn() {
-    // if (turnActions.isEmpty) return;
+    if (isTransitioningTurns) return;
 
     setState(() {
-      gameState.endTurn(turnActions);
-      turnActions = {};
+      gameState.endTurn(stagedTurnActions);
+      stagedTurnActions = {};
+      availableTurnActions = gameState.availableTurnActions();
     });
+
+    if (tendrilsTarget != null) {
+      setShadowyTendrilsTarget(tendrilsTarget?.entityType, forceRefresh: true);
+    }
   }
 
   bool _onKeyPressed(KeyEvent event) {
-    if (event is! KeyUpEvent) return false;
+    if (isTransitioningTurns || event is! KeyUpEvent) return false;
 
-    final List<TurnAction> currentActions = switch (selectedActionType) {
-      TurnActionType.darkWhispers =>
-        tendrilsTarget?.availableDarkWhispers ?? const [],
-      TurnActionType.visionsOfMadness =>
-        tendrilsTarget?.availableVisionsOfMadness ?? const [],
-      _ => const []
-    };
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.keyQ:
+        shadowstep();
+        return true;
+      case LogicalKeyboardKey.space:
+        toggleCards();
+        return true;
+      case LogicalKeyboardKey.keyF:
+        endTurn();
+        return true;
+      default:
+    }
 
-    if (currentActions.isNotEmpty) {
+    if (ActionCards.areOpen) {
       final int index = -1 +
           switch (event.logicalKey) {
             LogicalKeyboardKey.digit0 => 0,
@@ -182,40 +207,22 @@ class _BottomPanelState extends State<BottomPanel> {
             _ => 0,
           };
 
-      if (index >= 0 && index < currentActions.length) {
-        finishOptionPicking(currentActions[index]);
-        return true;
-      }
-
-      return false;
+      return ActionCards.selectCard(index);
     }
 
-    switch (event.logicalKey) {
-      case LogicalKeyboardKey.digit1:
-        shadowstep();
-      case LogicalKeyboardKey.digit2:
-        shadowyTendrils();
-      case LogicalKeyboardKey.digit3:
-        darkWhispersStart();
-      case LogicalKeyboardKey.digit4:
-        visionsOfMadnessStart();
-      case LogicalKeyboardKey.space:
-        endTurn();
-      default:
-        return false;
-    }
-
-    return true;
+    return false;
   }
 
   void shadowstep() {
+    if (ActionCards.areOpen || isTransitioningTurns) return;
+
     gameState.isPaused = true;
 
     if (shadowstepTargets.isEmpty) {
-      final Iterable<GameCharacter> enemies =
-          widget.gameRef.query<GameCharacter>().where((e) => !e.isRemoved);
-      if (enemies.isEmpty) return;
-      shadowstepTargets.addAll(enemies);
+      final Iterable<GameCharacter> targets = characterTracker.allAlive
+          .where((c) => availableTurnActions[c.entityType]?.isNotEmpty == true);
+      if (targets.isEmpty) return;
+      shadowstepTargets.addAll(targets);
     }
 
     final player = widget.gameRef.player!;
@@ -254,83 +261,383 @@ class _BottomPanelState extends State<BottomPanel> {
     if (tendrilsTarget != null) setShadowyTendrilsTarget(target.entityType);
   }
 
-  void closeShadowyTendrils() {
-    setState(() {
-      tendrilsTarget = null;
-      selectedActionType = null;
-    });
-
-    if (gameState.isPaused) gameState.isPaused = false;
-  }
-
-  Future<void> shadowyTendrils() async {
-    if (tendrilsTarget != null) {
-      closeShadowyTendrils();
+  void setShadowyTendrilsTarget(
+    EntityType? entityType, {
+    bool forceRefresh = false,
+  }) {
+    if (!forceRefresh &&
+        (isTransitioningTurns || entityType == tendrilsTarget?.entityType)) {
+      return;
+    }
+    if (entityType == null) {
+      if (!ActionCards.areOpen) setState(() => tendrilsTarget = null);
       return;
     }
 
-    gameState.isPaused = true;
-    final character = await CharacterTapManager.$.waitForTap();
-    setShadowyTendrilsTarget(character);
-  }
-
-  void setShadowyTendrilsTarget(EntityType entityType) => setState(() {
-        final availableActions = gameState.availableActionsFor(entityType);
-        final target = ShadowyTendrilsTarget(
-          entityType,
-          availableDarkWhispers: [],
-          availableVisionsOfMadness: [],
-        );
-
-        for (final action in availableActions) {
-          switch (action) {
-            case DarkWhispers():
-              target.availableDarkWhispers.add(action);
-            case VisionsOfMadness():
-              target.availableVisionsOfMadness.add(action);
-          }
+    setState(() {
+      final List<TurnAction> availableActions =
+          availableTurnActions[entityType] ?? [];
+      final List<DarkWhispers> availableDarkWhispers = [];
+      final List<VisionsOfMadness> availableVisionsOfMadness = [];
+      for (final action in availableActions) {
+        switch (action) {
+          case DarkWhispers():
+            availableDarkWhispers.add(action);
+          case VisionsOfMadness():
+            availableVisionsOfMadness.add(action);
         }
+      }
 
-        tendrilsTarget = target;
-        print('${target.availableVisionsOfMadness}');
-      });
-
-  void darkWhispersStart() {
-    final ShadowyTendrilsTarget? target = tendrilsTarget;
-    if (target == null) return;
-    if (target.availableDarkWhispers.isEmpty) return;
-
-    setState(() => selectedActionType = TurnActionType.darkWhispers);
+      tendrilsTarget = ShadowyTendrilsTarget(
+        entityType,
+        availableActions: availableVisionsOfMadness.isNotEmpty
+            ? availableVisionsOfMadness
+            : availableDarkWhispers,
+      );
+    });
   }
 
-  Future<void> visionsOfMadnessStart() async {
-    final ShadowyTendrilsTarget? target = tendrilsTarget;
-    if (target == null) return;
-    if (target.availableVisionsOfMadness.isEmpty) return;
+  void toggleCards() {
+    if (ActionCards.areOpen) {
+      setState(() => ActionCards.close());
+      return;
+    }
 
-    setState(() => selectedActionType = TurnActionType.visionsOfMadness);
-  }
+    final target = tendrilsTarget;
+    if (target == null ||
+        stagedTurnActions.containsKey(target.entityType) ||
+        target.availableActions.isEmpty ||
+        stagedTurnActions.length >= maxShadowTendrilsPerTurn) return;
 
-  void finishOptionPicking(TurnAction pickedOption) {
-    turnActions[tendrilsTarget!.target] = pickedOption;
-    closeShadowyTendrils();
+    setState(() => ActionCards.openForTarget(target));
   }
 }
 
-class ActionButton extends StatelessWidget {
-  const ActionButton(this.text, {required this.onTap});
-  final String text;
-  final void Function()? onTap;
+final GlobalKey<_ActionCardsState> _actionCardsKey = GlobalKey();
+
+class ActionCards extends StatefulWidget {
+  ActionCards({
+    required this.onSelected,
+  }) : super(key: _actionCardsKey);
+
+  final Function(EntityType, TurnAction) onSelected;
 
   @override
-  Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
-        child: Container(
-          alignment: Alignment.center,
-          color: onTap != null ? Colors.blue : Colors.grey,
-          height: 50,
-          width: 50,
-          child: Text(text),
+  State<ActionCards> createState() => _ActionCardsState();
+
+  static void openForTarget(ShadowyTendrilsTarget target) =>
+      _actionCardsKey.currentState!
+          .updateActions(target.entityType, target.availableActions);
+
+  static bool selectCard(int index) =>
+      _actionCardsKey.currentState!.selectCard(index);
+
+  static bool areOpen = false;
+
+  static void close() => _actionCardsKey.currentState?.close();
+}
+
+class _ActionCardsState extends State<ActionCards>
+    with TickerProviderStateMixin {
+  late final AnimationController _tappedController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  );
+  late final Animation<double> animTappedScale = Tween<double>(
+    begin: 1,
+    end: 1.1,
+  ).animate(
+    CurvedAnimation(
+      parent: _tappedController,
+      curve: const Interval(
+        0,
+        0.250,
+        curve: Curves.easeOut,
+      ),
+    ),
+  );
+
+  late final Animation<Offset> animOffset = Tween<Offset>(
+    begin: Offset.zero,
+    end: const Offset(0, -2.0),
+  ).animate(
+    CurvedAnimation(
+      parent: _tappedController,
+      curve: const Interval(
+        0.8,
+        1,
+        curve: Curves.easeInOut,
+      ),
+    ),
+  );
+
+  late final Animation<double> animTappedOpacity = Tween<double>(
+    begin: 1,
+    end: 0,
+  ).animate(
+    CurvedAnimation(
+      parent: _tappedController,
+      curve: const Interval(
+        0.9,
+        1,
+        curve: Curves.fastOutSlowIn,
+      ),
+    ),
+  );
+  late final Animation<double> animOthersOpacity = Tween<double>(
+    begin: 1,
+    end: 0,
+  ).animate(
+    CurvedAnimation(
+      parent: _tappedController,
+      curve: const Interval(0, 0.25, curve: Curves.easeInOut),
+    ),
+  );
+  late final Animation<double> animOthersScale = Tween<double>(
+    begin: 1,
+    end: 0.9,
+  ).animate(
+    CurvedAnimation(
+      parent: _tappedController,
+      curve: const Interval(0, 0.25, curve: Curves.easeInOut),
+    ),
+  );
+
+  EntityType? target;
+  int tapped = -1;
+  List<TurnAction> actions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _tappedController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onSelected(target!, actions[tapped]);
+        tapped = -1;
+        target = null;
+        setState(() => actions = []);
+        ActionCards.areOpen = false;
+      }
+    });
+  }
+
+  void close() => setState(() {
+        tapped = -1;
+        target = null;
+        actions = [];
+        ActionCards.areOpen = false;
+      });
+
+  void updateActions(
+    EntityType target,
+    Iterable<TurnAction> actions,
+  ) =>
+      setState(() {
+        _tappedController.reset();
+        this.target = target;
+        this.actions = List.from(actions);
+        tapped = -1;
+        ActionCards.areOpen = true;
+        // _tappedController.stop();
+      });
+
+  bool selectCard(int index) {
+    if (index < 0 || index >= actions.length) return false;
+
+    tapped = index;
+    _tappedController.forward();
+    return true;
+  }
+
+  @override
+  void dispose() {
+    _tappedController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: actions.isNotEmpty ? 1 : 0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (int i = 0; i < actions.length; i++) ...[
+              AnimatedBuilder(
+                animation: _tappedController,
+                builder: (_, __) => FadeTransition(
+                  opacity: tapped == i ? animTappedOpacity : animOthersOpacity,
+                  child: ScaleTransition(
+                    scale: tapped == i ? animTappedScale : animOthersScale,
+                    child: SlideTransition(
+                      position: animOffset,
+                      child: ShadowCard(
+                        title: actions[i].name,
+                        text: switch (actions[i]) {
+                          VisionsOfMadness(:final text) => text,
+                          DarkWhispers(:final text) => text,
+                        },
+                        onTap: () {
+                          tapped = i;
+                          _tappedController.forward();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (i < actions.lastIndex) const SizedBox(width: 64),
+            ],
+          ],
+        ),
+      );
+}
+
+class ShadowCard extends StatefulWidget {
+  const ShadowCard({
+    required this.text,
+    required this.title,
+    required this.onTap,
+  });
+  final void Function() onTap;
+  final String title;
+  final String text;
+
+  @override
+  State<ShadowCard> createState() => _ShadowCardState();
+}
+
+class _ShadowCardState extends State<ShadowCard> {
+  bool isHovering = false;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: widget.onTap,
+        child: MouseRegion(
+          onEnter: (_) => setState(() => isHovering = true),
+          onExit: (_) => setState(() => isHovering = false),
+          cursor: SystemMouseCursors.click,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 200),
+            scale: isHovering ? 1.1 : 1,
+            child: Stack(
+              children: [
+                Container(
+                  height: 500,
+                  decoration: const BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.deepPurple,
+                        blurRadius: 16,
+                      ),
+                    ],
+                    color: Colors.black,
+                  ),
+                  child: Image.asset(
+                    'images/shadow-card.png',
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.none,
+                    isAntiAlias: false,
+                  ),
+                ),
+                Positioned(
+                  left: 48,
+                  right: 40,
+                  bottom: 40,
+                  child: SizedBox(
+                    height: 150,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          widget.text,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+class ActionButton extends StatelessWidget {
+  const ActionButton({
+    required this.name,
+    required this.keybind,
+    required this.onTap,
+    required this.charges,
+    required this.tooltip,
+  });
+  final String name;
+  final String keybind;
+  final String charges;
+  final void Function()? onTap;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+        message: tooltip,
+        child: InkWell(
+          onTap: onTap,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  // shape: BoxShape.circle,
+                  color: onTap != null ? Colors.deepPurpleAccent : Colors.grey,
+                  boxShadow: onTap != null
+                      ? const [
+                          BoxShadow(
+                            color: Colors.deepPurple,
+                            blurRadius: 8,
+                          )
+                        ]
+                      : null,
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                ),
+                alignment: Alignment.center,
+                height: 90,
+                width: 90,
+                child: Text(
+                  name,
+                  style: const TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Positioned(
+                top: 2,
+                right: 2,
+                child: keybind == ' '
+                    ? const Icon(Icons.space_bar)
+                    : Text(
+                        keybind,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+              Positioned(
+                bottom: 2,
+                child: Text(charges),
+              ),
+            ],
+          ),
         ),
       );
 }

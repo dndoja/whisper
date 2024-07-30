@@ -3,6 +3,7 @@ import 'package:bonfire/util/line_path_component.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/decorations/ritual.dart';
+import 'package:whisper/decorations/shadow_target.dart';
 
 import 'animations.dart';
 
@@ -32,10 +33,15 @@ class ShadowPlayer extends SimplePlayer {
 
     final closest = characterTracker.allAlive.minBy((c) => c.distance(this));
     if (closest != null) {
+      final dist = distance(closest);
+      if (dist < 100) {
+        shadowTarget.target = closest;
+      }else{
+        shadowTarget.target = null;
+      }
       final attack = AttackAnimation.fromAngle(getAngleFromTarget(closest));
       final dir =
           attack == AttackAnimation.left ? Direction.left : Direction.right;
-      final dist = distance(closest);
 
       // if (closest != null) {
       //   final dir = Vector2(closest.x - x, closest.y - y).normalized();
