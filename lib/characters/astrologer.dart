@@ -15,7 +15,7 @@ class AstrologerController extends SimpleEnemy
       : super(
           animation: Animations.forCharacter(CharacterSheet.a, 5),
           size: Vector2.all(24),
-          position: KeyLocation.observatory.tl.mapPosition + spawnOffset,
+          position: KeyLocation.observatory.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
         ) {
     subscribeToGameState();
@@ -29,7 +29,7 @@ class AstrologerController extends SimpleEnemy
 
   @override
   Future<void> onLoad() {
-    patrol(KeyLocation.observatory.patrol);
+    patrol(KeyLocation.observatory.patrol, patrolSpeed: 0.1);
     return super.onLoad();
   }
 

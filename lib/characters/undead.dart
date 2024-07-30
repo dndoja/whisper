@@ -95,7 +95,7 @@ class Undead extends SimpleEnemy with BlockMovementCollision, SimpleMovement2 {
           size: Vector2.all(24),
           position: Vector2.zero(),
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-          animation: Animations.forCharacter(CharacterSheet.monsters, 0),
+          animation: Animations.undead,
         ) {
     if (config == configs.first) _undeadCaptain ??= this;
   }

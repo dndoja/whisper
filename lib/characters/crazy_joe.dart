@@ -56,7 +56,7 @@ class CrazyJoeController extends SimpleEnemy
         break;
       case CrazyJoeDoomsaying():
         if (!transitioningToNewTurn) {
-          showTextBubble(
+          speak(
             'DEATH IS COMING!',
             dt: dt,
             periodSeconds: 10,
@@ -65,7 +65,7 @@ class CrazyJoeController extends SimpleEnemy
         }
       case CrazyJoeRepenting():
         if (!transitioningToNewTurn) {
-          showTextBubble(
+          speak(
             'I must repent... *whips himself*',
             dt: dt,
             periodSeconds: 10,
@@ -129,7 +129,7 @@ class CrazyJoeController extends SimpleEnemy
     final dialog = gameState
         .characterDialogs()
         .firstOrNullWhere((d) => d.$1 == entityType);
-    if (dialog != null) showTextBubble(dialog.$2);
+    if (dialog != null) speak(dialog.$2);
 
     if (newState.behaviour == currBehaviour) return;
 
@@ -156,7 +156,7 @@ class CrazyJoeController extends SimpleEnemy
         await chase(priest);
 
         if (isInAttackRange(priest)) {
-          showTextBubble('Die you piece of shit');
+          speak('Die you piece of shit');
           priest.removeLife(100);
           priest.playBloodAnimation();
         }

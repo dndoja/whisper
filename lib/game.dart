@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'characters/animations.dart';
 import 'characters/characters.dart';
 import 'core/core.dart';
+import 'decorations/ritual.dart';
 import 'ui/bottom_panel.dart';
 
 class GameWidget extends StatelessWidget {
@@ -33,12 +34,20 @@ class GameWidget extends StatelessWidget {
           overlayBuilderMap: {
             'bottom': (_, game) => BottomPanel(game),
           },
-          showCollisionArea: true,
+          lightingColorGame: Colors.black.withOpacity(0.4),
+          // showCollisionArea: true,
           initialActiveOverlays: const ['bottom'],
           onReady: initGame,
           player: ShadowPlayer(KeyLocation.crazyJoeFarm.br.mapPosition),
           map: WorldMapByTiled(
             WorldMapReader.fromAsset('village.json'),
+            objectsBuilder: {
+              'ritual-fire': (d) => RitualFire(d.position),
+              'ritual-holy-water': (d) => RitualHolyWater(d.position),
+              'ritual-holy-water-cursed': (d) =>
+                  RitualHolyWater(d.position, isCursed: true),
+              'ritual-scroll': (d) => RitualScroll(d.position),
+            },
           ),
         ),
       );
@@ -49,7 +58,7 @@ void initGame(BonfireGameInterface game) {
     characterTracker.register(CrazyJoeController()),
     characterTracker.register(PriestController()),
     characterTracker.register(FishermanController()),
-    characterTracker.register(RolfController()),
+    // characterTracker.register(RolfController()),
     characterTracker.register(AstrologerController()),
     characterTracker.register(AlchemistController()),
   ]);

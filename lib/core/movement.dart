@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
-import 'package:whisper/characters/zombie.dart';
+import 'package:whisper/characters/undead.dart';
 
 import 'core.dart';
 
@@ -79,10 +79,7 @@ mixin SimpleMovement2 on SimpleEnemy {
     return onReachTarget!.future;
   }
 
-  void pausePatrolling() {
-    _isPaused = true;
-    // stopMove();
-  }
+  void pausePatrolling() => _isPaused = true;
 
   void resumePatrolling() => _isPaused = false;
 
@@ -125,6 +122,7 @@ mixin SimpleMovement2 on SimpleEnemy {
     }
 
     onReachTarget = Completer();
+    _isPaused = false;
     isPatrolling = false;
     return onReachTarget!.future;
   }

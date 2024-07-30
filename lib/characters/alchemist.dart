@@ -1,6 +1,7 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/services.dart';
 import 'package:whisper/core/core.dart';
+import 'package:whisper/decorations/ritual.dart';
 
 import 'animations.dart';
 
@@ -28,13 +29,23 @@ class AlchemistController extends SimpleEnemy
   }
 
   int prevTravelCheckpoint = -1;
-  bool experimentWillFail = false;
+  bool hasCorruptedHolyWater = false;
 
   @override
   BehaviourFlag<Alchemist> currBehaviour = const AlchemistIdle();
 
   @override
   Alchemist get entityType => const Alchemist();
+
+  @override
+  Future<void> onLoad() {
+    gameRef.add(RitualDecorations.holyWater(KeyLocation.church.br.mapPosition));
+    gameRef.add(RitualDecorations.holyWater(
+      KeyLocation.church.tl.mapPosition,
+      isCorrupted: true,
+    ));
+    return super.onLoad();
+  }
 
   @override
   void update(double dt) {
@@ -64,53 +75,149 @@ class AlchemistController extends SimpleEnemy
         prevTravelCheckpoint = turnCount;
         await followPath(path);
       case AlchemistPickingUpBones():
-        await pathfindToPosition(KeyLocation.graveyard.tl.mapPosition);
-        await showTextBubble('First off, let us get the bones');
+
+        /// From village entrance to graveyard
+        await followPath(const [
+          Point16(22, 22),
+          Point16(22, 3),
+          Point16(22, 3),
+          Point16(7, 3),
+          Point16(7, 5),
+        ]);
+        await speak('First off, let us get the bones');
       case AlchemistPickingUpHolyWater():
         final priest = characterTracker.priest;
-        await moveToTarget(KeyLocation.church.ref);
-        if (priest.getCurrentKeyLocation() != KeyLocation.church ||
+        await followPath(const [
+          Point16(7, 3),
+          Point16(22, 3),
+          Point16(22, 14),
+          Point16(31, 14),
+        ]);
+        if (priest.currentKeyLocation() != KeyLocation.church ||
             priest.isDead) {
-          await showTextBubble('Where is that damn Priest?');
+          await speak('Where is that damn Priest?');
           await failNoIngredient("The Priest's Holy Water");
         } else {
-          await showTextBubble(
+          priest
+            ..pausePatrolling()
+            ..stopMove();
+
+          await speak(
             'Your Holyness, could you please lend me some Holy Water, '
             'one of my workers has a bad case of Posession.',
           );
-          await priest.showTextBubble('Sure thing, here you go.');
+          await priest.speak('Sure thing, here you go.');
+          priest.resumePatrolling();
         }
       case AlchemistBuyingDefectiveHolyWater():
       case AlchemistBuyingOverpricedHolyWater():
         final priest = characterTracker.priest;
-        await pathfindToPosition(const Point16(17, 14).mapPosition);
+        await followPath(const [
+          Point16(7, 3),
+          Point16(22, 3),
+          Point16(22, 14),
+          Point16(17, 14),
+        ]);
         if (priest.isDead) {
-          await showTextBubble("Holy mother of God, what happened to you?");
+          await speak("Holy mother of God, what happened to you?");
           await failNoIngredient("Holy Water");
         } else {
           priest.pausePeriodicBubbles = true;
-          await showTextBubble("Didn't take you for the entreprenurial type");
-          await priest.showTextBubble(
+          await speak("Didn't take you for the entreprenurial type");
+          await priest.speak(
             "Priesthood was not cutting it, anyhow, are you buying or just yapping?",
           );
-          await showTextBubble("Yes, sorry. Can I have some Holy Water?");
-          await priest.showTextBubble(
+          await speak("Yes, sorry. Can I have some Holy Water?");
+          await priest.speak(
             "Sure here's some genuine Holy Alkaline Water, that'll be 10 gold.",
           );
-          await showTextBubble("Kind of pricy but ok, here you go.");
-          await priest.showTextBubble(
+          await speak("Kind of pricy but ok, here you go.");
+          await priest.speak(
             "*hands over Holy Water* Pleasure doing business!",
           );
           priest.pausePeriodicBubbles = false;
-          experimentWillFail = true;
+          hasCorruptedHolyWater = true;
         }
       case AlchemistPickingUpAstrologyTips():
-        await pathfindToPosition(KeyLocation.observatory.ref.mapPosition);
+        await followPath(const [
+          Point16(42, 14),
+          Point16(42, 10),
+        ]);
+        final astrologer = characterTracker.astrologer;
+        bool failed = false;
+        if (astrologer.isDead) {
+          await speak(
+            "Oh the horror! Who could have done something like this..",
+            yell: true,
+          );
+          failed = true;
+        } else if (astrologer.currentKeyLocation() != KeyLocation.observatory) {
+          await speak(
+            "How strange, that young Astrologer lady is always here at night... "
+            "Maybe she's fallen ill, how unfortunate!",
+          );
+          failed = true;
+        } else {
+          astrologer
+            ..pausePatrolling()
+            ..stopMove();
+
+          await speak('Studying late as always I see');
+          await astrologer.speak("Proffessor Merlin! What brings you here?");
+          await speak(
+              "I need you to lend me a bit of your knowledge Maria, if you don't mind");
+          await astrologer.speak('Sure thing, what is it you want to know?');
+          await speak(
+            'I need to find a place that gets hit perfectly'
+            ' by Moonlight at exactly 23 minutes past midnight',
+          );
+          await astrologer
+              .speak("Oh I thought you were going to ask me a hard question.");
+          await astrologer.speak(
+              "The place you're looking for is the Apple Farm, just east of here.");
+          await astrologer.speak("Hurry though, you only have a few minutes");
+          await speak(
+              "You're a very talented young lady, many thanks. I'll be on my way.");
+          astrologer.speak("You're most welcome Proffessor! Good Night");
+
+          await followPath(const [Point16(42, 16)]);
+        }
+
+        if (failed) {
+          await failNoIngredient(
+            "knowing the location described in the scroll",
+          );
+        }
       case AlchemistPerformingExperiment():
-        await pathfindToPosition(KeyLocation.appleFarm.ref.mapPosition);
-        if (experimentWillFail) {
+        await followPath(const [Point16(66, 16), Point16(66, 10)]);
+
+        for (final ritualElement in ritualDecorations) {
+          if (ritualElement case RitualHolyWater(isCursed: final isCorrupted)) {
+            if (hasCorruptedHolyWater != isCorrupted) continue;
+          }
+
+          ritualElement.isVisible = true;
+          await Future.delayed(const Duration(milliseconds: 200));
+        }
+
+        final eclipseLight = RitualEclipseLight();
+        gameRef.add(eclipseLight);
+        speak('Here it comes!');
+        await eclipseLight.onReachRitualSite;
+
+        if (hasCorruptedHolyWater) {
+          await speak("Huh, I don't feel so good...");
+          replaceAnimation(Animations.undead);
+          speak('Blegh');
+          await patrol(KeyLocation.ritualSite.patrol);
+
           /// Fail catastrophically
         } else {
+          await speak(
+            "My joints don't hurt anymore... I AM UNSTOPPABLE!!!",
+            yell: true,
+          );
+
           /// Perform experiment successfully
         }
     }
@@ -119,7 +226,7 @@ class AlchemistController extends SimpleEnemy
   }
 
   Future<void> failNoIngredient(String ingredient) async {
-    await showTextBubble(
+    await speak(
       "I cannot perform this experiement without $ingredient. "
       "Guess I'll try again some other time...",
     );

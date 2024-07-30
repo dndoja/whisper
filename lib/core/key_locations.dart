@@ -75,8 +75,13 @@ enum KeyLocation {
   ),
   observatory(
     Point16(41, 8),
-    Point16(42, 14),
+    Point16(42, 9),
     Point16(44, 11),
+  ),
+  ritualSite(
+    Point16(64, 7),
+    Point16(66, 10),
+    Point16(69, 12),
   ),
   villageEntrance(
     Point16(30, 26),
@@ -143,12 +148,22 @@ enum KeyLocation {
       Point16(27, 15),
       Point16(35, 15),
     ],
+    KeyLocation.observatory: [
+      Point16(42, 8),
+      Point16(41, 11),
+      Point16(44, 11),
+    ],
     KeyLocation.villageMainSquare: [
       Point16(25, 21),
       Point16(25, 15),
       Point16(12, 14),
       Point16(12, 16),
       Point16(20, 16),
+    ],
+    KeyLocation.ritualSite: [
+      Point16(72, 8),
+      Point16(68, 11),
+      Point16(64, 8),
     ],
   };
 }

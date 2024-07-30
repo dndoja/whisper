@@ -4,7 +4,7 @@ import 'package:whisper/core/core.dart';
 import 'package:whisper/core/movement.dart';
 
 import 'animations.dart';
-import 'zombie.dart';
+import 'undead.dart';
 
 class PriestController extends SimpleEnemy
     with
@@ -47,7 +47,7 @@ class PriestController extends SimpleEnemy
     switch (currBehaviour) {
       case PriestScamming():
         if (!transitioningToNewTurn) {
-          showTextBubble(
+          speak(
             "Totally real and working holy artifacts for sale, 50% off!",
             periodSeconds: 5,
             yell: true,
@@ -69,7 +69,7 @@ class PriestController extends SimpleEnemy
     switch (currBehaviour) {
       case PriestSummoningZombies():
         await followPath(Paths.churchToGraveyard);
-        await showTextBubble('*Chants in Latin*', yell: true);
+        await speak('*Chants in Latin*', yell: true);
         gameRef.addAll(List.generate(10, (_) => Undead()));
         gameRef.camera.follow(undeadCaptain);
         await undeadCaptain.massacreCompleter.future;

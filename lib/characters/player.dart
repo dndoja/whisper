@@ -2,6 +2,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:bonfire/util/line_path_component.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
+import 'package:whisper/decorations/ritual.dart';
 
 import 'animations.dart';
 
@@ -19,8 +20,16 @@ class ShadowPlayer extends SimplePlayer {
           ),
         );
 
+  bool summoned = false;
+
   @override
   void update(double dt) {
+    // final point = Point16.fromMapPos(absoluteCenter);
+    // if (point == KeyLocation.ritualSite.ref && !summoned){
+    //   summoned = true;
+    //   gameRef.add(RitualEclipseLight());
+    // }
+
     final closest = characterTracker.allAlive.minBy((c) => c.distance(this));
     if (closest != null) {
       final attack = AttackAnimation.fromAngle(getAngleFromTarget(closest));
@@ -37,11 +46,11 @@ class ShadowPlayer extends SimplePlayer {
       //     ignoreHitboxes: closest.shapeHitboxes,
       //     maxDistance: distance(closest),
       //   );
-      showLine(
-        absoluteCenter,
-        absoluteCenter + (dir.toVector2() * dist),
-        Colors.red,
-      );
+      // showLine(
+      //   absoluteCenter,
+      //   absoluteCenter + (dir.toVector2() * dist),
+      //   Colors.red,
+      // );
     }
     // }
     super.update(dt);

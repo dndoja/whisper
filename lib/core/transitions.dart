@@ -26,7 +26,7 @@ const List<List<StateTransition>> stateTransitions = [
   ],
   [
     $([], [AlchemistIdle()]),
-    $([AlchemistIdle()], [AlchemistTravelling(0)]),
+    $([AlchemistIdle()], [AlchemistTravelling(10)]),
     $([AlchemistTravelling(0)], [AlchemistTravelling(1)]),
     $([AlchemistTravelling(1)], [AlchemistTravelling(2)]),
     $([AlchemistTravelling(2)], [AlchemistTravelling(3)]),

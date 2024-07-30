@@ -23,7 +23,7 @@ mixin GameCharacter<T extends EntityType> on SimpleEnemy, SimpleMovement2 {
 
   TextBubble? currTextBubble;
   double secondsElapsedSinceLastBubble = -1;
-  FutureOr<void> showTextBubble(
+  FutureOr<void> speak(
     String text, {
     int? periodSeconds,
     double dt = 0,
@@ -76,7 +76,7 @@ extension GameCharacterX on SimpleEnemy {
     return raycastResult == null;
   }
 
-  KeyLocation? getCurrentKeyLocation() {
+  KeyLocation? currentKeyLocation() {
     final currPoint = Point16.fromMapPos(absoluteCenter);
     return KeyLocation.values.firstOrNullWhere((l) => l.contains(currPoint));
   }

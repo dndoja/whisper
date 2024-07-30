@@ -38,6 +38,9 @@ enum AttackAnimation {
 }
 
 class Animations {
+  static SimpleDirectionAnimation undead =
+      Animations.forCharacter(CharacterSheet.monsters, 0);
+
   static Future<SpriteAnimation> knightAttackRight = SpriteAnimation.load(
     'knight_attack_right.png',
     SpriteAnimationData.sequenced(
