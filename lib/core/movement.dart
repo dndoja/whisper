@@ -65,6 +65,7 @@ mixin SimpleMovement2 on SimpleEnemy {
   double patrolSpeed = 1;
   int visitedCheckpoints = 0;
   bool _isPaused = false;
+  double pathSpeed = 1;
 
   Future<void> patrol(
     List<Point16> checkpoints, {
@@ -108,15 +109,15 @@ mixin SimpleMovement2 on SimpleEnemy {
         if (!isPatrolling) stopMove();
       }
     } else {
-      moveToPoint(target);
+      _moveToPoint(target);
     }
 
     super.update(dt);
   }
 
-  void moveToPoint(Point16 point) => moveToPosition(
+  void _moveToPoint(Point16 point) => moveToPosition(
         point.mapPosition,
-        speed: isPatrolling ? speed * patrolSpeed : null,
+        speed: speed * (isPatrolling ? patrolSpeed : pathSpeed),
       );
 
   Future<void> moveToTarget(Point16 target) {
@@ -127,10 +128,12 @@ mixin SimpleMovement2 on SimpleEnemy {
     onReachTarget = Completer();
     _isPaused = false;
     isPatrolling = false;
+    pathSpeed = 1;
     return onReachTarget!.future;
   }
 
-  Future<void> followPath(List<Point16> path) {
+  Future<void> followPath(List<Point16> path, {double speed = 1}) {
+    pathSpeed = speed;
     targets = Queue.of(path);
     isPatrolling = false;
     onReachTarget = Completer();

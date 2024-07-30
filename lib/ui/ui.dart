@@ -122,8 +122,11 @@ class _UIState extends State<UI> {
                   Align(
                     alignment: Alignment.center,
                     child: ActionCards(
-                      onSelected: (entityType, action) => setState(
-                          () => stagedTurnActions[entityType] = action),
+                      onSelected: (entityType, action) {
+                        setState(() => stagedTurnActions[entityType] = action);
+                        if (stagedTurnActions.length >=
+                            maxShadowTendrilsPerTurn) endTurn();
+                      },
                     ),
                   ),
                   Positioned(

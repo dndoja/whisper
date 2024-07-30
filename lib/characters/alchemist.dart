@@ -100,8 +100,11 @@ class AlchemistController extends SimpleEnemy
           for (int i = prevTravelCheckpoint + 1; i <= turnCount; i++)
             AlchemistTravelling.checkpoints[i],
         ];
+        if (turnCount - prevTravelCheckpoint > 1) {
+          speak("I must hurry, it's almost time for the ritual");
+        }
         prevTravelCheckpoint = turnCount;
-        await followPath(path);
+        await followPath(path, speed: 1.5);
       case AlchemistPickingUpBones():
 
         /// From village entrance to graveyard
