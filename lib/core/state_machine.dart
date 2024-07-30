@@ -6,7 +6,7 @@ import 'package:bonfire/bonfire.dart';
 import 'package:dartx/dartx.dart';
 import 'package:whisper/core/core.dart';
 
-import '../ui/bottom_panel.dart';
+import '../ui/ui.dart';
 import 'transitions.dart';
 
 export 'key_locations.dart';
@@ -129,6 +129,7 @@ class GameState {
 
   final Map<EntityType, List<CharacterState>> entityStates = {};
   final Map<StateTransition, int> ongoingTransitions = {};
+  final Set<BehaviourFlag> visitedFinalBehaviours = {};
 
   final List<GameCharacter> _listeners = [];
   final Queue<GameCharacter> _turnTransitionQueue = Queue();
@@ -231,7 +232,7 @@ class GameState {
   void endTurn([Map<EntityType, TurnAction> turnActions = const {}]) {
     if (lockedBy != null || isPaused) return;
 
-    BottomPanel.startTurnTransition();
+    UI.startTurnTransition();
 
     final List<List<StateTransition>> potentialTransitions = [
       ...stateTransitions
@@ -331,6 +332,10 @@ class GameState {
           if (mutated != prev) stateHistory.add(mutated);
         }
 
+        if (possibleFinalOutcomes.contains(nextState)) {
+          visitedFinalBehaviours.add(nextState as BehaviourFlag);
+        }
+
         if (gameEndingBehaviours.contains(nextState)) {
           shouldFastForwardAlchemist = true;
         }
@@ -373,7 +378,7 @@ class GameState {
       lockedBy = null;
       currentTurn++;
       print(toString());
-      BottomPanel.endTurnTransition();
+      UI.endTurnTransition();
       return;
     }
 

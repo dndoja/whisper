@@ -20,6 +20,8 @@ dependencies:
   logger: ^2.2.0
   stack_trace: ^1.11.1
   bonfire: ^3.6.2
+  typewritertext: ^3.0.8
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

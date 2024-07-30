@@ -2,7 +2,7 @@ import 'package:bonfire/base/game_component.dart';
 import 'package:bonfire/bonfire.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/core/game_character.dart';
-import 'package:whisper/ui/bottom_panel.dart';
+import 'package:whisper/ui/ui.dart';
 
 import 'ritual.dart';
 
@@ -25,7 +25,7 @@ class ShadowTarget extends GameDecoration {
     if (_target == target) return;
     _target = target;
     syncPosition();
-    BottomPanel.setTendrilsTarget(target?.entityType);
+    UI.setTendrilsTarget(target?.entityType);
   }
 
   static final animation = SpriteAnimation.load(

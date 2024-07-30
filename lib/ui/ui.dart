@@ -1,6 +1,10 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:whisper/core/core.dart';
 
@@ -14,16 +18,33 @@ class ShadowyTendrilsTarget {
   final List<TurnAction> availableActions;
 }
 
-final GlobalKey<_BottomPanelState> _bottomPanelKey = GlobalKey();
+final GlobalKey<_UIState> _bottomPanelKey = GlobalKey();
 
 const int maxShadowTendrilsPerTurn = 2;
 
-class BottomPanel extends StatefulWidget {
-  BottomPanel(this.gameRef) : super(key: _bottomPanelKey);
+enum GameOverResult {
+  alchemistHarmed,
+  interruptedExperiment,
+  experimentSuccess,
+}
+
+class GameOverData {
+  const GameOverData({
+    required this.result,
+    required this.scenariosDiscoveredSession,
+    required this.scenariosDiscoveredTotal,
+  });
+  final GameOverResult result;
+  final int scenariosDiscoveredSession;
+  final int scenariosDiscoveredTotal;
+}
+
+class UI extends StatefulWidget {
+  UI(this.gameRef) : super(key: _bottomPanelKey);
   final BonfireGame gameRef;
 
   @override
-  State<BottomPanel> createState() => _BottomPanelState();
+  State<UI> createState() => _UIState();
 
   static void setTendrilsTarget(EntityType? target) {
     _bottomPanelKey.currentState?.setShadowyTendrilsTarget(target);
@@ -33,9 +54,12 @@ class BottomPanel extends StatefulWidget {
       _bottomPanelKey.currentState?.startTurnTransition();
   static void endTurnTransition() =>
       _bottomPanelKey.currentState?.endTurnTransition();
+  static void endTurn() => _bottomPanelKey.currentState?.endTurn();
+  static void finishGame(GameOverResult result) =>
+      _bottomPanelKey.currentState?.finishGame(result);
 }
 
-class _BottomPanelState extends State<BottomPanel> {
+class _UIState extends State<UI> {
   final List<GameCharacter> shadowstepTargets = [];
   Map<EntityType, TurnAction> stagedTurnActions = {};
   Map<EntityType, List<TurnAction>> availableTurnActions = {};
@@ -44,12 +68,14 @@ class _BottomPanelState extends State<BottomPanel> {
   TurnActionType? selectedActionType;
 
   bool isTransitioningTurns = false;
+  GameOverData? gameOver; 
 
   @override
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKeyPressed);
     availableTurnActions = gameState.availableTurnActions();
+    endTurn();
   }
 
   @override
@@ -72,81 +98,89 @@ class _BottomPanelState extends State<BottomPanel> {
     return Material(
       color: Colors.transparent,
       child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Text(
-              'Turn: ${gameState.currentTurn}',
-              style: const TextStyle(fontSize: 40),
-            ),
-          ),
-          if (!isTransitioningTurns) ...[
-            if (tendrilsTarget != null)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ShadowyTendrilsWidget(tendrilsTarget!.entityType),
-              ),
-            Align(
-              alignment: Alignment.center,
-              child: ActionCards(
-                onSelected: (entityType, action) =>
-                    setState(() => stagedTurnActions[entityType] = action),
-              ),
-            ),
-            Positioned(
-              bottom: 60,
-              right: 220,
-              child: ActionButton(
-                name: 'Shadow\nStep',
-                keybind: 'Q',
-                onTap: ActionCards.areOpen ? null : shadowstep,
-                charges: '∞',
-                tooltip: "Instantly teleports to a vulnerable Mortal's location.",
-              ),
-            ),
-            Positioned(
-              bottom: 180,
-              right: 180,
-              child: ActionButton(
-                charges:
-                    '${maxShadowTendrilsPerTurn - stagedTurnActions.length}/'
-                    '$maxShadowTendrilsPerTurn',
-                name: 'Shadowy\nTendrils',
-                keybind: ' ',
-                onTap: canCastTendrils ? toggleCards : null,
-                tooltip: 'Invade the soul of a vulnerable mortal,\n'
-                    'allowing you to mess with their head',
-              ),
-            ),
-          ],
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: InkWell(
-              onTap: endTurn,
-              child: Container(
-                alignment: Alignment.center,
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isTransitioningTurns ? Colors.grey : Colors.blue,
-                  shape: BoxShape.circle,
+        children: gameOver != null
+            ? [
+                Align(
+                  alignment: Alignment.center,
+                  child: GameOver(gameOver!),
+                )
+              ]
+            : [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    'Turn: ${gameState.currentTurn}',
+                    style: const TextStyle(fontSize: 40),
+                  ),
                 ),
-                height: 170,
-                width: 170,
-                child: isTransitioningTurns
-                    ? const CircularProgressIndicator()
-                    : const Text(
-                        'End Turn (F)',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
+                if (!isTransitioningTurns) ...[
+                  if (tendrilsTarget != null)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ShadowyTendrilsWidget(tendrilsTarget!.entityType),
+                    ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: ActionCards(
+                      onSelected: (entityType, action) => setState(
+                          () => stagedTurnActions[entityType] = action),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 60,
+                    right: 220,
+                    child: ActionButton(
+                      name: 'Shadow\nStep',
+                      keybind: 'Q',
+                      onTap: ActionCards.areOpen ? null : shadowstep,
+                      charges: '∞',
+                      tooltip:
+                          "Instantly teleports to a vulnerable Mortal's location.",
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 180,
+                    right: 180,
+                    child: ActionButton(
+                      charges:
+                          '${maxShadowTendrilsPerTurn - stagedTurnActions.length}/'
+                          '$maxShadowTendrilsPerTurn',
+                      name: 'Shadowy\nTendrils',
+                      keybind: ' ',
+                      onTap: canCastTendrils ? toggleCards : null,
+                      tooltip: 'Invade the soul of a vulnerable mortal,\n'
+                          'allowing you to mess with their head',
+                    ),
+                  ),
+                ],
+                Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: InkWell(
+                    onTap: endTurn,
+                    child: Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isTransitioningTurns ? Colors.grey : Colors.blue,
+                        shape: BoxShape.circle,
                       ),
-              ),
-            ),
-          ),
-        ],
+                      height: 170,
+                      width: 170,
+                      child: isTransitioningTurns
+                          ? const CircularProgressIndicator()
+                          : const Text(
+                              'End Turn (F)',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
       ),
     );
   }
@@ -166,7 +200,9 @@ class _BottomPanelState extends State<BottomPanel> {
   }
 
   bool _onKeyPressed(KeyEvent event) {
-    if (isTransitioningTurns || event is! KeyUpEvent) return false;
+    if (gameOver != null || isTransitioningTurns || event is! KeyUpEvent) {
+      return false;
+    }
 
     switch (event.logicalKey) {
       case LogicalKeyboardKey.keyQ:
@@ -310,6 +346,34 @@ class _BottomPanelState extends State<BottomPanel> {
         stagedTurnActions.length >= maxShadowTendrilsPerTurn) return;
 
     setState(() => ActionCards.openForTarget(target));
+  }
+
+  Future<void> finishGame(GameOverResult result) async {
+    gameState.isPaused = true;
+
+    final prefs = await SharedPreferences.getInstance();
+    const key = 'whisper_visited_outcomes';
+    final Iterable<String> prevVisitedOutcomes =
+        prefs.getStringList(key) ?? const [];
+    final Iterable<String> currVisitedOutcomes =
+        gameState.visitedFinalBehaviours.map((b) => b.toString());
+    final Set<String> mergedVisitedOutcomes = {...prevVisitedOutcomes};
+    final List<String> newVisitedOutcomes = [];
+
+    for (final outcome in currVisitedOutcomes) {
+      final bool added = mergedVisitedOutcomes.add(outcome);
+      if (added) newVisitedOutcomes.add(outcome);
+    }
+
+    await prefs.setStringList(key, mergedVisitedOutcomes.toList());
+
+    setState(
+      () => gameOver = GameOverData(
+        result: result,
+        scenariosDiscoveredTotal: mergedVisitedOutcomes.length,
+        scenariosDiscoveredSession: newVisitedOutcomes.length,
+      ),
+    );
   }
 }
 
@@ -669,22 +733,33 @@ class ShadowyTendrilsWidget extends StatelessWidget {
             text: TextSpan(
               style: const TextStyle(fontSize: 24),
               children: [
-                TextSpan(text: '$target\n'),
-                TextSpan(text: '${pos.x}:${pos.y}\n'),
-                TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️'}\n'),
+                TextSpan(text: target.name),
+                const TextSpan(text: '\n'),
+                TextSpan(text: '${pos.x}:${pos.y}'),
+                const TextSpan(text: '\n'),
+                TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️'}'),
+                const TextSpan(text: '\n'),
                 TextSpan(
-                  text: '${characterState.sanityLevel}/${target.initialSanity}',
+                  text:
+                      'Sanity Level: ${characterState.sanityLevel}/${target.initialSanity}',
                 ),
+                const TextSpan(text: '\n'),
+                TextSpan(text: target.description),
                 const TextSpan(text: '\n'),
                 TextSpan(
                   text: 'Behaviour: ${characterState.behaviour}',
                   style: const TextStyle(fontSize: 24),
                 ),
                 const TextSpan(text: '\n\n'),
-                const TextSpan(text: 'Mental States:'),
-                const TextSpan(text: '\n'),
-                for (final entry in characterState.mentalStates.entries)
-                  TextSpan(text: '${entry.key.name}: ${entry.value.name}\n'),
+                if (characterState.mentalStates.isNotEmpty) ...[
+                  const TextSpan(text: 'Mental States:'),
+                  const TextSpan(text: '\n'),
+                  for (final entry in characterState.mentalStates.entries)
+                    TextSpan(
+                      text: '${entry.value.name.capitalize()} '
+                          '${entry.key.name.capitalize()}\n',
+                    ),
+                ],
               ],
             ),
           ),
@@ -750,5 +825,63 @@ class Background extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         width: width,
         child: child,
+      );
+}
+
+class GameOver extends StatelessWidget {
+  const GameOver(this.data);
+  final GameOverData data;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 600,
+        height: 600,
+        decoration: const BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.all(Radius.circular(32)),
+          boxShadow: [BoxShadow(color: Colors.black, blurRadius: 16)],
+        ),
+        padding: const EdgeInsets.all(64),
+        child: Column(
+          children: [
+            if (data.result == GameOverResult.experimentSuccess)
+              const Text(
+                'You failed',
+                style: TextStyle(fontSize: 70, color: Colors.red),
+              )
+            else
+              const Text(
+                'Success',
+                style: TextStyle(fontSize: 70, color: Colors.greenAccent),
+              ),
+            Text(
+              switch (data.result) {
+                GameOverResult.alchemistHarmed =>
+                  'The Alchemist suffered a terrible fate... '
+                      'A necessary sacrifice to ensure that the balance of the universe remains maintained.',
+                GameOverResult.interruptedExperiment =>
+                  "The Alchemist's efforts have been thwarted. We must remain on our guard for he may try again. ",
+                GameOverResult.experimentSuccess =>
+                  'The God of Death has been outsmarted.'
+                      ' The entire Universe is now in disarray, good job!',
+              },
+              style: const TextStyle(fontSize: 18, color: Colors.white),
+            ),
+            const SizedBox(height: 32),
+            Text(
+              'This game you experienced ${data.scenariosDiscoveredSession}'
+              ' out of ${possibleFinalOutcomes.length} total possible outcomes.\n'
+              'Throughout all of your playthroughs, you have discovered '
+              '${data.scenariosDiscoveredTotal}/${possibleFinalOutcomes.length} total possible outcomes.',
+              style: const TextStyle(fontSize: 14, color: Colors.white70),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 132),
+            ElevatedButton(
+              onPressed: html.window.location.reload,
+              child: const Text('Back to main menu'),
+            ),
+          ],
+        ),
       );
 }

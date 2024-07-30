@@ -55,6 +55,15 @@ sealed class EntityType {
         Rolf() => 'Rolf',
         Alchemist() => 'The Alchemist',
       };
+
+  String get description => switch (this) {
+        CrazyJoe() => 'Crazy Joe',
+        Priest() => 'Priest Abraham',
+        Fisherman() => 'Fisherman Nat',
+        Astrologer() => 'Maria the Astrologer',
+        Rolf() => 'Rolf',
+        Alchemist() => 'The Alchemist',
+      };
 }
 
 sealed class EntityFlag<T extends EntityType> {

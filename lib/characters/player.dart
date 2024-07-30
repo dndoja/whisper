@@ -1,8 +1,6 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:bonfire/util/line_path_component.dart';
-import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
-import 'package:whisper/decorations/ritual.dart';
 import 'package:whisper/decorations/shadow_target.dart';
 
 import 'animations.dart';
@@ -24,6 +22,11 @@ class ShadowPlayer extends SimplePlayer {
   bool summoned = false;
 
   @override
+  Future<void> onLoad() {
+    return super.onLoad();
+  }
+
+  @override
   void update(double dt) {
     // final point = Point16.fromMapPos(absoluteCenter);
     // if (point == KeyLocation.ritualSite.ref && !summoned){
@@ -36,7 +39,7 @@ class ShadowPlayer extends SimplePlayer {
       final dist = distance(closest);
       if (dist < 100) {
         shadowTarget.target = closest;
-      }else{
+      } else {
         shadowTarget.target = null;
       }
       final attack = AttackAnimation.fromAngle(getAngleFromTarget(closest));

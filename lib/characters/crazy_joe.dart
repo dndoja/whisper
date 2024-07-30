@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:bonfire/bonfire.dart';
-import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/core/chase.dart';

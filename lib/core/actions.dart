@@ -6,6 +6,18 @@ class ActionGroup {
   final List<TurnAction> actions;
 }
 
+final Set<BehaviourFlag> possibleFinalOutcomes = {
+  const AlchemistBuyingDefectiveHolyWater(),
+  const AlchemistPerformingExperiment(),
+  for (final bigGroup in entityAvailableOptions.values)
+    for (final group in bigGroup)
+      for (final action in group.actions)
+        if (action case VisionsOfMadness(:final transitions))
+          for (final transition in transitions)
+            for (final flag in transition.next)
+              if (flag is BehaviourFlag) flag,
+};
+
 const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
   CrazyJoe(): [
     ActionGroup(
@@ -236,9 +248,9 @@ sealed class TurnAction {
   const TurnAction();
 
   String get name => switch (this) {
-    DarkWhispers() => 'Dark Whisper',
-    VisionsOfMadness() => 'Visions of Madness',
-  };
+        DarkWhispers() => 'Dark Whisper',
+        VisionsOfMadness() => 'Visions of Madness',
+      };
 }
 
 class DarkWhispers extends TurnAction {

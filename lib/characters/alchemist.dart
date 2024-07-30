@@ -1,7 +1,9 @@
 import 'package:bonfire/bonfire.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whisper/core/core.dart';
 import 'package:whisper/decorations/ritual.dart';
+import 'package:whisper/ui/ui.dart';
 
 import 'animations.dart';
 
@@ -50,7 +52,7 @@ class AlchemistController extends SimpleEnemy
   @override
   void update(double dt) {
     if (isDead) {
-      // TODO: Play death animation, end game
+      UI.finishGame(GameOverResult.alchemistHarmed);
       return;
     }
 
@@ -67,6 +69,32 @@ class AlchemistController extends SimpleEnemy
     switch (currBehaviour) {
       case AlchemistIdle():
         break;
+      case AlchemistExplainingMasterPlan():
+        final prefs = await SharedPreferences.getInstance();
+        const key = 'w_alchemist_said_intro';
+        final bool hasSpoken = prefs.getBool(key) ?? false;
+        if (!hasSpoken) {
+          await speak(
+            'Tonight is a full moon, the perfect time to try out '
+            'the ritual described in this ancient scroll.',
+          );
+          await speak("It supposedly makes you immortal...");
+          await speak("According to the instructions, I'll need: ");
+          await speak(
+              "The ashes of a dead warrior. I can loot that from the village graveyard.");
+          await speak(
+              "Some Holy Water. I can just ask the Priest for a small amount.");
+          await speak(
+            "Lastly, I need to perform the ritual at exactly 23 "
+            "minutes past midnight in a place that is \"Bathed by Moonlight\".",
+          );
+          await speak(
+            "There's a young astrologer at the village who can maybe point me in the right direction.",
+          );
+          prefs.setBool(key, true);
+        }
+
+        await speak("Alright time to get going, I don't have a lot of time");
       case AlchemistTravelling(:final turnCount):
         final List<Point16> path = [
           for (int i = prevTravelCheckpoint + 1; i <= turnCount; i++)
@@ -84,7 +112,7 @@ class AlchemistController extends SimpleEnemy
           Point16(7, 3),
           Point16(7, 5),
         ]);
-        await speak('First off, let us get the bones');
+        await speak('First off, let me get the Ash for the kindling...');
       case AlchemistPickingUpHolyWater():
         final priest = characterTracker.priest;
         await followPath(const [
@@ -211,14 +239,14 @@ class AlchemistController extends SimpleEnemy
           speak('Blegh');
           await patrol(KeyLocation.ritualSite.patrol);
 
-          /// Fail catastrophically
+          UI.finishGame(GameOverResult.alchemistHarmed);
         } else {
           await speak(
             "My joints don't hurt anymore... I AM UNSTOPPABLE!!!",
             yell: true,
           );
 
-          /// Perform experiment successfully
+          UI.finishGame(GameOverResult.experimentSuccess);
         }
     }
 
@@ -231,7 +259,7 @@ class AlchemistController extends SimpleEnemy
       "Guess I'll try again some other time...",
     );
 
-    // show victory screen
+    UI.finishGame(GameOverResult.interruptedExperiment);
   }
 
   @override

@@ -29,6 +29,7 @@ rolfing
 
 Alchemist:
 idle
+explainingMasterPlan
 pickingUpBones
 pickingUpHolyWater
 buyingDefectiveHolyWater

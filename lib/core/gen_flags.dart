@@ -41,6 +41,9 @@ void main() {
       buffer
         ..writeln('class $className extends BehaviourFlag<$entityName> {')
         ..writeln('  const $className();')
+        ..writeln()
+        ..writeln('  @override')
+        ..writeln("  String toString() => '$className';")
         ..writeln('}');
     }
 
