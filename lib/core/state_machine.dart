@@ -88,7 +88,7 @@ extension GameCharacterStateX on GameCharacter {
 
   Future<void> _runTurnTransition(
     CharacterState newState, {
-    required bool isLast,
+    required bool isLastBeforeAlchemist,
   }) async {
     print('Running turn transition on $entityType');
     transitioningToNewTurn = true;
@@ -110,14 +110,11 @@ extension GameCharacterStateX on GameCharacter {
     gameState._nextTransition(entityType);
     transitioningToNewTurn = false;
 
-    if (isLast) {
-      if (newState.behaviour.endsInLeavingMap ||
-          entityType == const Alchemist()) {
-        gameRef.camera.moveToPlayerAnimated();
-      } else {
-        gameRef.player!.position = position + Vector2(0, 16);
-        gameRef.camera.follow(gameRef.query<SimplePlayer>().first);
-      }
+    if (isLastBeforeAlchemist) {
+      gameRef.player!.position = position + Vector2(0, 16);
+    } else if (newState.behaviour.endsInLeavingMap ||
+        entityType == const Alchemist()) {
+      gameRef.camera.moveToPlayerAnimated();
     }
   }
 }
@@ -386,7 +383,8 @@ class GameState {
     lockedBy = curr.entityType;
     curr._runTurnTransition(
       entityStates[curr.entityType]!.last,
-      isLast: _turnTransitionQueue.isEmpty,
+      isLastBeforeAlchemist: _turnTransitionQueue.length == 1 &&
+          _turnTransitionQueue.first.entityType == const Alchemist(),
     );
   }
 }

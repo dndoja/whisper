@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'state_machine.dart';
+import 'whispers.dart';
 
 part 'flags.g.dart';
 
@@ -11,6 +12,9 @@ enum MentalTrait {
   paranoid,
   superstitious,
   zealous,
+  ;
+
+  List<String> get soulWhispers => soulWhispersByTrait[this] ?? const [];
 }
 
 enum Level {
@@ -100,17 +104,13 @@ class AlchemistTravelling extends BehaviourFlag<Alchemist> {
   final int turnCount;
 
   static const List<Point16> checkpoints = [
-    Point16(93, 22), // 0
-    Point16(91, 24), // 1
-    Point16(91, 29), // 2
-    Point16(91, 44), // 3
-    Point16(81, 44), // 4
-    Point16(71, 44), // 5
-    Point16(61, 44), // 6
-    Point16(51, 44), // 7
-    Point16(41, 44), // 8
-    Point16(31, 44), // 9
-    Point16(31, 22), // 10
+    Point16(93, 22),
+    Point16(91, 24),
+    Point16(91, 29),
+    Point16(91, 44),
+    Point16(41, 44),
+    Point16(31, 44),
+    Point16(31, 22),
   ];
 
   @override

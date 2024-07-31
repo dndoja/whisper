@@ -35,11 +35,8 @@ const List<List<StateTransition>> stateTransitions = [
     $([AlchemistTravelling(3)], [AlchemistTravelling(4)]),
     $([AlchemistTravelling(4)], [AlchemistTravelling(5)]),
     $([AlchemistTravelling(5)], [AlchemistTravelling(6)]),
-    $([AlchemistTravelling(6)], [AlchemistTravelling(7)]),
-    $([AlchemistTravelling(7)], [AlchemistTravelling(8)]),
-    $([AlchemistTravelling(8)], [AlchemistTravelling(9)]),
-    $([AlchemistTravelling(9)], [AlchemistTravelling(10)]),
-    $([AlchemistTravelling(10)], [AlchemistPickingUpBones()]),
+    $([AlchemistTravelling(6)], [AlchemistPickingUpBones()]),
+    // $([AlchemistTravelling(6)], [AlchemistTravelling(7)]),
     $([AlchemistPickingUpBones()], [AlchemistPickingUpHolyWater()]),
     $(
       [AlchemistPickingUpBones(), PriestScamming()],

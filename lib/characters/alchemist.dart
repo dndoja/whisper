@@ -93,7 +93,7 @@ class AlchemistController extends SimpleEnemy
           prefs.setBool(key, true);
         }
 
-      // await speak("Alright time to get going, I don't have a lot of time");
+      await speak("Alright time to get going, I don't have a lot of time");
       case AlchemistTravelling(:final turnCount):
         final List<Point16> path = [
           for (int i = prevTravelCheckpoint + 1; i <= turnCount; i++)

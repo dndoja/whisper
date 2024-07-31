@@ -28,6 +28,7 @@ abolishingGreed
 ridiculingNecromancy
 
 Fisherman:
+forcingNecromancy
 fishing
 huntingPriest
 

@@ -58,6 +58,7 @@ class FishermanController extends SimpleEnemy
         } else {
           resumePatrolling();
         }
+      default:
     }
     super.update(dt);
   }
@@ -88,6 +89,7 @@ class FishermanController extends SimpleEnemy
               .toList(),
           patrolSpeed: 1.2,
         );
+      default:
     }
   }
 }

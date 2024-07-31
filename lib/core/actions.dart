@@ -24,7 +24,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       [SanityLevel(CrazyJoe(), 1)],
       [
         VisionsOfMadness(
-          'God giving him a Herculean task.',
+          'A Herculean Task, handed to you by God himself',
           [
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
@@ -43,8 +43,8 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
                 CurrentMentalState(
                   CrazyJoe(),
                   {
+                    MentalTrait.zealous: Level.moderately,
                     MentalTrait.paranoid: Level.slightly,
-                    MentalTrait.zealous: Level.slightly,
                   },
                 )
               ],
@@ -53,15 +53,14 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
           ],
         ),
         VisionsOfMadness(
-          'A fake memory of everyone he knows having been killed in the war.',
+          'A fake memory where everyone in the village has been killed in the war.',
           [
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
               [CrazyJoeThinkingHeIsDead()],
             ),
             StateTransition(
-              [CrazyJoeChilling()],
-              // [DominantMentalTrait(CrazyJoe(), MentalTrait.zealous)],
+              [DominantMentalTrait(CrazyJoe(), MentalTrait.zealous)],
               [CrazyJoeFightingForPeace()],
             ),
             StateTransition(
@@ -73,7 +72,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
                 CurrentMentalState(
                   CrazyJoe(),
                   {
-                    MentalTrait.paranoid: Level.slightly,
+                    MentalTrait.paranoid: Level.moderately,
                     MentalTrait.superstitious: Level.slightly,
                   },
                 )
@@ -83,7 +82,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
           ],
         ),
         VisionsOfMadness(
-          'Priest turning to Necromancy and summoning an army of undead which kills the entire village.',
+          'The Priest turning to Necromancy and summoning an army of undead which kills the entire village.',
           [
             StateTransition(
               [DominantMentalTrait(CrazyJoe(), MentalTrait.superstitious)],
@@ -94,8 +93,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
               [CrazyJoeRepenting()],
             ),
             StateTransition(
-              [CrazyJoeChilling()],
-              // [DominantMentalTrait(CrazyJoe(), MentalTrait.paranoid)],
+              [DominantMentalTrait(CrazyJoe(), MentalTrait.paranoid)],
               [CrazyJoeRunningFromZombies()],
             ),
             StateTransition(
@@ -103,7 +101,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
                 CurrentMentalState(
                   CrazyJoe(),
                   {
-                    MentalTrait.superstitious: Level.slightly,
+                    MentalTrait.superstitious: Level.moderately,
                     MentalTrait.zealous: Level.slightly,
                   },
                 )
@@ -137,7 +135,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       [SanityLevel(Priest(), 1)],
       [
         VisionsOfMadness(
-          'You will be poor and miserable',
+          'A lookahead into a poor and miserable future',
           [
             StateTransition(
               [DominantMentalTrait(Priest(), MentalTrait.fanatic)],
@@ -160,7 +158,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
               [
                 CurrentMentalState(
                   Priest(),
-                  {MentalTrait.greedy: Level.extremely},
+                  {MentalTrait.greedy: Level.highly},
                 ),
               ],
               [PriestScamming()],
@@ -168,7 +166,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
           ],
         ),
         VisionsOfMadness(
-          "God is not pleased with the village's show of faith",
+          "A dissappointed God",
           [
             StateTransition(
               [DominantMentalTrait(Priest(), MentalTrait.fanatic)],
@@ -197,7 +195,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
           ],
         ),
         VisionsOfMadness(
-          'Immense necrotic powers',
+          'World Domination, through immense Necrotic powers',
           [
             StateTransition(
               [DominantMentalTrait(Priest(), MentalTrait.fanatic)],
@@ -216,8 +214,8 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
                 CurrentMentalState(
                   Priest(),
                   {
-                    MentalTrait.superstitious: Level.slightly,
-                    MentalTrait.zealous: Level.slightly,
+                    MentalTrait.fanatic: Level.moderately,
+                    MentalTrait.doubtful: Level.slightly,
                   },
                 )
               ],

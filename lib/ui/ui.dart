@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:whisper/core/core.dart';
+import 'package:whisper/core/whispers.dart';
 
 class ShadowyTendrilsTarget {
   const ShadowyTendrilsTarget(
@@ -134,30 +135,38 @@ class _UIState extends State<UI> {
                       },
                     ),
                   ),
-                  Positioned(
-                    bottom: 60,
-                    right: 220,
-                    child: ActionButton(
-                      name: 'Shadow\nStep',
-                      keybind: 'Q',
-                      onTap: ActionCards.areOpen ? null : shadowstep,
-                      charges: '∞',
-                      tooltip:
-                          "Instantly teleports to a vulnerable Mortal's location.",
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 180,
-                    right: 180,
-                    child: ActionButton(
-                      charges:
-                          '${maxShadowTendrilsPerTurn - stagedTurnActions.length}/'
-                          '$maxShadowTendrilsPerTurn',
-                      name: 'Shadowy\nTendrils',
-                      keybind: ' ',
-                      onTap: canCastTendrils ? toggleCards : null,
-                      tooltip: 'Invade the soul of a vulnerable mortal,\n'
-                          'allowing you to mess with their head',
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ActionButton(
+                            name: 'Shadow\nStep',
+                            color: Colors.blueGrey,
+                            keybind: 'Q',
+                            onTap: ActionCards.areOpen ? null : shadowstep,
+                            charges: '∞',
+                            tooltip:
+                                "Instantly teleports to a vulnerable Mortal's location.",
+                          ),
+                          const SizedBox(width: 16),
+                          ActionButton(
+                            wide: true,
+                            charges:
+                                '${maxShadowTendrilsPerTurn - stagedTurnActions.length}/'
+                                '$maxShadowTendrilsPerTurn',
+                            name: 'Shadowy Tendrils',
+                            keybind: ' ',
+                            onTap: canCastTendrils ? toggleCards : null,
+                            tooltip:
+                                'Invade the mind of a Sane nearby mortal with Vulnerable resolve.\n'
+                                'Once you invade them you can start planting thoughts and visions inside their heads.',
+                          ),
+                          const SizedBox(width: 106),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -170,7 +179,12 @@ class _UIState extends State<UI> {
                       alignment: Alignment.center,
                       margin: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isTransitioningTurns ? Colors.grey : Colors.blue,
+                        color: isTransitioningTurns
+                            ? Colors.grey
+                            : stagedTurnActions.length <
+                                    maxShadowTendrilsPerTurn
+                                ? Colors.orange
+                                : Colors.green,
                         shape: BoxShape.circle,
                       ),
                       height: 170,
@@ -403,7 +417,7 @@ class ActionCards extends StatefulWidget {
 
   static void openForTarget(ShadowyTendrilsTarget target) =>
       _actionCardsKey.currentState!
-          .updateActions(target.entityType, target.availableActions);
+          .updateActions(target.entityType, target.availableActions.shuffled());
 
   static bool selectCard(int index) =>
       _actionCardsKey.currentState!.selectCard(index);
@@ -482,7 +496,9 @@ class _ActionCardsState extends State<ActionCards>
   EntityType? target;
   int tapped = -1;
   List<TurnAction> actions = [];
+  List<String> actionNames = [];
 
+  final Set<String> shownCardNames = {};
   @override
   void initState() {
     super.initState();
@@ -512,6 +528,21 @@ class _ActionCardsState extends State<ActionCards>
         _tappedController.reset();
         this.target = target;
         this.actions = List.from(actions);
+        actionNames = [];
+        for (final action in actions) {
+          switch (action) {
+            case DarkWhispers(:final mentalState):
+              final whispers = soulWhispersByTrait[mentalState]!;
+              final notUsed =
+                  whispers.whereNot(shownCardNames.contains).toList();
+              final name = (notUsed.isEmpty ? whispers : notUsed).random();
+
+              shownCardNames.add(name);
+              actionNames.add(name);
+            case VisionsOfMadness(:final text):
+              actionNames.add(text);
+          }
+        }
         tapped = -1;
         ActionCards.areOpen = true;
         // _tappedController.stop();
@@ -535,35 +566,39 @@ class _ActionCardsState extends State<ActionCards>
   Widget build(BuildContext context) => AnimatedOpacity(
         duration: const Duration(milliseconds: 200),
         opacity: actions.isNotEmpty ? 1 : 0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            for (int i = 0; i < actions.length; i++) ...[
-              AnimatedBuilder(
-                animation: _tappedController,
-                builder: (_, __) => FadeTransition(
-                  opacity: tapped == i ? animTappedOpacity : animOthersOpacity,
-                  child: ScaleTransition(
-                    scale: tapped == i ? animTappedScale : animOthersScale,
-                    child: SlideTransition(
-                      position: animOffset,
-                      child: ShadowCard(
-                        title: actions[i].name,
-                        text: switch (actions[i]) {
-                          VisionsOfMadness(:final text) => text,
-                          DarkWhispers(:final text) => text,
-                        },
-                        onTap: () {
-                          tapped = i;
-                          _tappedController.forward();
-                        },
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (int i = 0; i < actions.length; i++) ...[
+                  AnimatedBuilder(
+                    animation: _tappedController,
+                    builder: (_, __) => FadeTransition(
+                      opacity:
+                          tapped == i ? animTappedOpacity : animOthersOpacity,
+                      child: ScaleTransition(
+                        scale: tapped == i ? animTappedScale : animOthersScale,
+                        child: SlideTransition(
+                          position: animOffset,
+                          child: ShadowCard(
+                            title: actions[i].name,
+                            text: actionNames[i],
+                            onTap: () {
+                              tapped = i;
+                              _tappedController.forward();
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              if (i < actions.lastIndex) const SizedBox(width: 64),
-            ],
+                  if (i < actions.lastIndex) const SizedBox(width: 64),
+                ],
+              ],
+            ),
           ],
         ),
       );
@@ -610,7 +645,7 @@ class _ShadowCardState extends State<ShadowCard> {
                     color: Colors.black,
                   ),
                   child: Image.asset(
-                    'images/shadow-card.png',
+                    'assets/images/shadow-card.png',
                     fit: BoxFit.cover,
                     filterQuality: FilterQuality.none,
                     isAntiAlias: false,
@@ -657,12 +692,16 @@ class ActionButton extends StatelessWidget {
     required this.onTap,
     required this.charges,
     required this.tooltip,
+    this.color,
+    this.wide = false,
   });
+  final Color? color;
   final String name;
   final String keybind;
   final String charges;
   final void Function()? onTap;
   final String tooltip;
+  final bool wide;
 
   @override
   Widget build(BuildContext context) => Tooltip(
@@ -675,11 +714,12 @@ class ActionButton extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   // shape: BoxShape.circle,
-                  color: onTap != null ? Colors.deepPurpleAccent : Colors.grey,
+                  color:
+                      onTap != null ? color ?? Colors.deepPurple : Colors.grey,
                   boxShadow: onTap != null
-                      ? const [
+                      ? [
                           BoxShadow(
-                            color: Colors.deepPurple,
+                            color: color ?? Colors.deepPurple,
                             blurRadius: 8,
                           )
                         ]
@@ -688,7 +728,7 @@ class ActionButton extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 height: 90,
-                width: 90,
+                width: wide ? 400 : 90,
                 child: Text(
                   name,
                   style: const TextStyle(fontSize: 18),
@@ -729,6 +769,9 @@ class ShadowyTendrilsWidget extends StatelessWidget {
     final isDead = characterTracker.ofType(target).isDead;
     final pos =
         Point16.fromMapPos(characterTracker.ofType(target).absoluteCenter);
+    final resolve = target == const CrazyJoe() || target == const Priest()
+        ? 'Vulnerable'
+        : 'Impenetrable';
 
     return Background(
       width: 300,
@@ -741,28 +784,39 @@ class ShadowyTendrilsWidget extends StatelessWidget {
           // ),
           const SizedBox(height: 16),
           RichText(
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.left,
             text: TextSpan(
               style: const TextStyle(fontSize: 24),
               children: [
-                TextSpan(text: target.name),
+                TextSpan(
+                  text: target.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const TextSpan(text: '\n'),
-                TextSpan(text: '${pos.x}:${pos.y}'),
-                const TextSpan(text: '\n'),
-                TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️'}'),
-                const TextSpan(text: '\n'),
+                // TextSpan(
+                //   text: target.description,
+                //   style: const TextStyle(fontSize: 16),
+                // ),
+                // const TextSpan(text: '\n'),
+                // TextSpan(text: '${pos.x}:${pos.y}'),
+                // const TextSpan(text: '\n'),
+                // TextSpan(text: '$hp/100 ${isDead ? '💀' : '❤️'}'),
+                // const TextSpan(text: '\n'),
                 TextSpan(
                   text:
-                      'Sanity Level: ${characterState.sanityLevel}/${target.initialSanity}',
+                      'Sanity: ${characterState.sanityLevel}/${target.initialSanity}',
                 ),
-                const TextSpan(text: '\n'),
-                TextSpan(text: target.description),
                 const TextSpan(text: '\n'),
                 TextSpan(
-                  text: 'Behaviour: ${characterState.behaviour}',
-                  style: const TextStyle(fontSize: 24),
+                  text: 'Resolve: $resolve',
                 ),
-                const TextSpan(text: '\n\n'),
+                const TextSpan(text: '\n'),
+                const TextSpan(text: '\n'),
+                // TextSpan(
+                //   text: 'Behaviour: ${characterState.behaviour}',
+                //   style: const TextStyle(fontSize: 24),
+                // ),
+                // const TextSpan(text: '\n\n'),
                 if (characterState.mentalStates.isNotEmpty) ...[
                   const TextSpan(text: 'Mental States:'),
                   const TextSpan(text: '\n'),
@@ -832,7 +886,7 @@ class Background extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: Colors.red, width: 5),
+          border: Border.all(color: Colors.deepPurple, width: 5),
         ),
         padding: const EdgeInsets.all(16),
         width: width,

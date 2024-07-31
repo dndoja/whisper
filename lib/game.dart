@@ -44,14 +44,15 @@ class NoTransitionsBuilder extends PageTransitionsBuilder {
   }
 }
 
-const gameLore =
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+const gameLore = 'You are a Divine Shadow, a hand of the God of Death. '
+    'Your job is to maintain balance in the universe by ensuring that the cycle of Life and Death continues undisturbed.'
+    "This means that you need to thwart whatever attempts Mortals make at achieving immortality. For this mission, you will need to stop a human Alchemist from completing a ritual that will grant him immortality. Also, you cannot interact with the physical world, so you'll have to achieve your goals by planting thoughts into weak mortals' heads to get them to do your bidding.";
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => Material(
         color: Colors.black,
         child: Column(
           children: [
@@ -69,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                 width: 800,
                 child: TypeWriter.text(
                   gameLore,
-                  duration: const Duration(milliseconds: 50),
+                  duration: const Duration(milliseconds: 20),
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.white,
@@ -83,7 +84,7 @@ class HomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const TheGame()),
               ),
               child: const Text(
-                'Play',
+                'Start',
                 style: TextStyle(fontSize: 24),
               ),
             ),
@@ -120,7 +121,7 @@ class TheGame extends StatelessWidget {
       // showCollisionArea: true,
       initialActiveOverlays: const ['bottom'],
       onReady: initGame,
-      player: ShadowPlayer(const Point16(31, 32).mapPosition),
+      player: ShadowPlayer(const Point16(31, 32).mapPosition - Vector2(16, 16)),
       map: WorldMapByTiled(
         WorldMapReader.fromAsset('village.json'),
         objectsBuilder: {

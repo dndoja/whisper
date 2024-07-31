@@ -189,6 +189,13 @@ class Fisherman extends EntityType {
   const Fisherman();
 }
 
+class FishermanForcingNecromancy extends BehaviourFlag<Fisherman> {
+  const FishermanForcingNecromancy();
+
+  @override
+  String toString() => 'FishermanForcingNecromancy';
+}
+
 class FishermanFishing extends BehaviourFlag<Fisherman> {
   const FishermanFishing();
 
