@@ -17,6 +17,7 @@ const List<List<StateTransition>> stateTransitions = [
   ],
   [
     $([], [AstrologerObserving()]),
+    $([AstrologerMockingPriest()], [AstrologerObserving()]),
   ],
   [
     $([], [RolfRolfing()]),
@@ -43,6 +44,10 @@ const List<List<StateTransition>> stateTransitions = [
     $(
       [AlchemistPickingUpBones(), PriestScamming()],
       [AlchemistBuyingDefectiveHolyWater()],
+    ),
+    $(
+      [AlchemistPickingUpBones(), PriestHustling()],
+      [AlchemistBuyingOverpricedHolyWater()],
     ),
     $(
       [AlchemistBuyingOverpricedHolyWater()],

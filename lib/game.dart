@@ -120,7 +120,7 @@ class TheGame extends StatelessWidget {
       // showCollisionArea: true,
       initialActiveOverlays: const ['bottom'],
       onReady: initGame,
-      player: ShadowPlayer(KeyLocation.alchemistLab.br.mapPosition),
+      player: ShadowPlayer(const Point16(31, 32).mapPosition),
       map: WorldMapByTiled(
         WorldMapReader.fromAsset('village.json'),
         objectsBuilder: {

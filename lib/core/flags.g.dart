@@ -108,18 +108,81 @@ class PriestPraying extends BehaviourFlag<Priest> {
   String toString() => 'PriestPraying';
 }
 
-class PriestSummoningZombies extends BehaviourFlag<Priest> {
-  const PriestSummoningZombies();
-
-  @override
-  String toString() => 'PriestSummoningZombies';
-}
-
 class PriestScamming extends BehaviourFlag<Priest> {
   const PriestScamming();
 
   @override
   String toString() => 'PriestScamming';
+}
+
+class PriestHustling extends BehaviourFlag<Priest> {
+  const PriestHustling();
+
+  @override
+  String toString() => 'PriestHustling';
+}
+
+class PriestUpholdingGodsWill extends BehaviourFlag<Priest> {
+  const PriestUpholdingGodsWill();
+
+  @override
+  String toString() => 'PriestUpholdingGodsWill';
+}
+
+class PriestThreateningInquisition extends BehaviourFlag<Priest> {
+  const PriestThreateningInquisition();
+
+  @override
+  String toString() => 'PriestThreateningInquisition';
+}
+
+class PriestAskingForIndulgences extends BehaviourFlag<Priest> {
+  const PriestAskingForIndulgences();
+
+  @override
+  String toString() => 'PriestAskingForIndulgences';
+}
+
+class PriestRediscoveringFaith extends BehaviourFlag<Priest> {
+  const PriestRediscoveringFaith();
+
+  @override
+  String toString() => 'PriestRediscoveringFaith';
+}
+
+class PriestSelfFlagellating extends BehaviourFlag<Priest> {
+  const PriestSelfFlagellating();
+
+  @override
+  String toString() => 'PriestSelfFlagellating';
+}
+
+class PriestNecromancing extends BehaviourFlag<Priest> {
+  const PriestNecromancing();
+
+  @override
+  String toString() => 'PriestNecromancing';
+}
+
+class PriestSelfPitying extends BehaviourFlag<Priest> {
+  const PriestSelfPitying();
+
+  @override
+  String toString() => 'PriestSelfPitying';
+}
+
+class PriestAbolishingGreed extends BehaviourFlag<Priest> {
+  const PriestAbolishingGreed();
+
+  @override
+  String toString() => 'PriestAbolishingGreed';
+}
+
+class PriestRidiculingNecromancy extends BehaviourFlag<Priest> {
+  const PriestRidiculingNecromancy();
+
+  @override
+  String toString() => 'PriestRidiculingNecromancy';
 }
 
 class Fisherman extends EntityType {
@@ -133,6 +196,13 @@ class FishermanFishing extends BehaviourFlag<Fisherman> {
   String toString() => 'FishermanFishing';
 }
 
+class FishermanHuntingPriest extends BehaviourFlag<Fisherman> {
+  const FishermanHuntingPriest();
+
+  @override
+  String toString() => 'FishermanHuntingPriest';
+}
+
 class Astrologer extends EntityType {
   const Astrologer();
 }
@@ -142,6 +212,13 @@ class AstrologerObserving extends BehaviourFlag<Astrologer> {
 
   @override
   String toString() => 'AstrologerObserving';
+}
+
+class AstrologerMockingPriest extends BehaviourFlag<Astrologer> {
+  const AstrologerMockingPriest();
+
+  @override
+  String toString() => 'AstrologerMockingPriest';
 }
 
 class Rolf extends EntityType {

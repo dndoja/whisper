@@ -17,9 +17,7 @@ class RolfController extends SimpleEnemy
           size: Vector2.all(24),
           position: KeyLocation.observatory.br.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-        ) {
-    subscribeToGameState();
-  }
+        );
 
   @override
   BehaviourFlag<Rolf> currBehaviour = const RolfRolfing();

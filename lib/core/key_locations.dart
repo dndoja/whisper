@@ -179,3 +179,12 @@ enum KeyLocation {
     ],
   };
 }
+
+extension PatrolStartFrom on List<Point16> {
+  List<Point16> startFrom(Point16 point) {
+    final startIndex = indexOf(point);
+    if (startIndex < 0) return this;
+
+    return [...sublist(startIndex), ...sublist(0, startIndex)];
+  }
+}

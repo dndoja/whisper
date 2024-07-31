@@ -115,75 +115,7 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       ],
     ),
     ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 0)],
-      [
-        DarkWhispers(
-          'Paranoid',
-          MentalTrait.paranoid,
-        ),
-        DarkWhispers(
-          'Zealous',
-          MentalTrait.zealous,
-        ),
-        DarkWhispers(
-          'Superstitious',
-          MentalTrait.superstitious,
-        ),
-      ],
-    ),
-    ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 1)],
-      [
-        DarkWhispers(
-          'Paranoid',
-          MentalTrait.paranoid,
-        ),
-        DarkWhispers(
-          'Zealous',
-          MentalTrait.zealous,
-        ),
-        DarkWhispers(
-          'Superstitious',
-          MentalTrait.superstitious,
-        ),
-      ],
-    ),
-    ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 2)],
-      [
-        DarkWhispers(
-          'Paranoid',
-          MentalTrait.paranoid,
-        ),
-        DarkWhispers(
-          'Zealous',
-          MentalTrait.zealous,
-        ),
-        DarkWhispers(
-          'Superstitious',
-          MentalTrait.superstitious,
-        ),
-      ],
-    ),
-    ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 3)],
-      [
-        DarkWhispers(
-          'Paranoid',
-          MentalTrait.paranoid,
-        ),
-        DarkWhispers(
-          'Zealous',
-          MentalTrait.zealous,
-        ),
-        DarkWhispers(
-          'Superstitious',
-          MentalTrait.superstitious,
-        ),
-      ],
-    ),
-    ActionGroup(
-      [EntityActionCount(CrazyJoe(), TurnActionType.darkWhispers, 4)],
+      [],
       [
         DarkWhispers(
           'Paranoid',
@@ -205,31 +137,102 @@ const Map<EntityType, List<ActionGroup>> entityAvailableOptions = {
       [SanityLevel(Priest(), 1)],
       [
         VisionsOfMadness(
-          'Zombies',
+          'You will be poor and miserable',
           [
             StateTransition(
               [DominantMentalTrait(Priest(), MentalTrait.fanatic)],
-              [PriestSummoningZombies()],
+              [PriestUpholdingGodsWill()],
+            ),
+            StateTransition(
+              [DominantMentalTrait(Priest(), MentalTrait.doubtful)],
+              [PriestUpholdingGodsWill()],
+            ),
+            StateTransition(
+              [
+                CurrentMentalState(
+                  Priest(),
+                  {MentalTrait.greedy: Level.slightly},
+                ),
+              ],
+              [PriestHustling()],
+            ),
+            StateTransition(
+              [
+                CurrentMentalState(
+                  Priest(),
+                  {MentalTrait.greedy: Level.extremely},
+                ),
+              ],
+              [PriestScamming()],
             ),
           ],
         ),
         VisionsOfMadness(
-          'Poor',
+          "God is not pleased with the village's show of faith",
           [
             StateTransition(
+              [DominantMentalTrait(Priest(), MentalTrait.fanatic)],
+              [PriestSelfFlagellating()],
+            ),
+            StateTransition(
+              [DominantMentalTrait(Priest(), MentalTrait.doubtful)],
+              [PriestRediscoveringFaith()],
+            ),
+            StateTransition(
               [DominantMentalTrait(Priest(), MentalTrait.greedy)],
-              [PriestScamming()],
+              [PriestAskingForIndulgences(), AstrologerMockingPriest()],
+            ),
+            StateTransition(
+              [
+                CurrentMentalState(
+                  Priest(),
+                  {
+                    MentalTrait.greedy: Level.slightly,
+                    MentalTrait.fanatic: Level.moderately,
+                  },
+                ),
+              ],
+              [FishermanHuntingPriest(), PriestThreateningInquisition()],
+            ),
+          ],
+        ),
+        VisionsOfMadness(
+          'Immense necrotic powers',
+          [
+            StateTransition(
+              [DominantMentalTrait(Priest(), MentalTrait.fanatic)],
+              [PriestRidiculingNecromancy()],
+            ),
+            StateTransition(
+              [DominantMentalTrait(Priest(), MentalTrait.doubtful)],
+              [PriestSelfPitying()],
+            ),
+            StateTransition(
+              [DominantMentalTrait(Priest(), MentalTrait.greedy)],
+              [PriestAbolishingGreed()],
+            ),
+            StateTransition(
+              [
+                CurrentMentalState(
+                  Priest(),
+                  {
+                    MentalTrait.superstitious: Level.slightly,
+                    MentalTrait.zealous: Level.slightly,
+                  },
+                )
+              ],
+              [PriestNecromancing()],
             ),
           ],
         ),
       ],
     ),
     ActionGroup(
-      [EntityActionCount(Priest(), TurnActionType.darkWhispers, 0)],
+      [],
       [
         DarkWhispers(
-          'Fanatic',
-          MentalTrait.fanatic,
+          'Doubtful',
+          MentalTrait.doubtful,
         ),
         DarkWhispers(
           'Greedy',

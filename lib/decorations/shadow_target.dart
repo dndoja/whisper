@@ -4,7 +4,7 @@ import 'package:whisper/core/core.dart';
 import 'package:whisper/core/game_character.dart';
 import 'package:whisper/ui/ui.dart';
 
-import 'ritual.dart';
+import 'decorations.dart';
 
 ShadowTarget? _instance;
 ShadowTarget get shadowTarget => _instance!;

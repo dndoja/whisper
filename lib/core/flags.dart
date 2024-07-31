@@ -25,15 +25,15 @@ const int attackRangeSquared = 1;
 const int defaultSanity = 4;
 const int visionRadiusSquared = 100;
 const Map<EntityType, int> entitiesInitialSanity = {
-  CrazyJoe(): 1,
-  Priest(): 2,
+  // CrazyJoe(): 1,
+  // Priest(): 2,
 };
 
 const List<BehaviourFlag> gameEndingBehaviours = [
   CrazyJoeRampaging(),
   CrazyJoeCrusading(),
   CrazyJoeStabbingPriest(),
-  PriestSummoningZombies(),
+  PriestNecromancing(),
 ];
 
 const Set<BehaviourFlag> leavingMapBehaviours = {

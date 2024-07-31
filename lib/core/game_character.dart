@@ -165,7 +165,6 @@ mixin Attacker on SimpleEnemy {
 
 extension GameCharacterX on SimpleEnemy {
   bool hasClearPathTo(GameComponent target) {
-    print(distance(target));
     if (distance(target) > 16 * 8) return false;
     final dir = Vector2(target.x - x, target.y - y).normalized();
     final dist = distance(target);

@@ -25,9 +25,7 @@ class CrazyJoeController extends SimpleEnemy
           size: Vector2.all(24),
           position: KeyLocation.crazyJoeFarm.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-        ) {
-    subscribeToGameState();
-  }
+        );
 
   @override
   BehaviourFlag<CrazyJoe> currBehaviour = const CrazyJoeChilling();

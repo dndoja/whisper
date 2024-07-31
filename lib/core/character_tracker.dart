@@ -31,6 +31,8 @@ class CharacterTracker {
         priest = character;
     }
 
+    character.subscribeToGameState();
+
     _byType[character.entityType] = character;
 
     return character;

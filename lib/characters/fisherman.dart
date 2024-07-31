@@ -8,18 +8,17 @@ class FishermanController extends SimpleEnemy
     with
         BlockMovementCollision,
         SimpleMovement2,
-        MouseEventListener,
         GameCharacter<Fisherman>,
-        PathFinding {
+        Attacker {
   FishermanController()
       : super(
-          animation: Animations.forCharacter(CharacterSheet.c, 5, 'fisherman'),
+          animation: Animations.fisherman,
           size: Vector2.all(24),
           position: KeyLocation.fishermanHut.tl.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-        ) {
-    subscribeToGameState();
-  }
+        );
+
+  bool allowedToKillPriest = false;
 
   @override
   BehaviourFlag<Fisherman> currBehaviour = const FishermanFishing();
@@ -35,41 +34,60 @@ class FishermanController extends SimpleEnemy
 
   @override
   void update(double dt) {
-    if (isDead) {
-      // TODO: Play death animation
+    if (isDead || gameState.isPaused) return;
+
+    if (inAttackAnimation) {
+      super.update(dt);
       return;
     }
 
-    if (gameState.isPaused) return;
-
     switch (currBehaviour) {
       case FishermanFishing():
+      case FishermanHuntingPriest():
+        final priest = characterTracker.priest;
+        if (allowedToKillPriest && !priest.isDead && hasClearPathTo(priest)) {
+          pausePatrolling(forceStop: true);
+          final bool didAttack = tryAttack(
+            priest,
+            onFinish: () => speak("THAT'S FOR MY WIFE!",
+                yell: true,
+                onComplete: () => pausePatrolling(notifyFinish: true)),
+          );
+
+          if (!didAttack) moveTowardsTarget(target: priest);
+        } else {
+          resumePatrolling();
+        }
     }
     super.update(dt);
   }
 
   @override
-  void onStateChange(CharacterState newState) {
+  Future<void> onStateChange(CharacterState newState) async {
     super.onStateChange(newState);
-    if (newState.behaviour != currBehaviour) {
-      currBehaviour = newState.behaviour as BehaviourFlag<Fisherman>;
+    if (newState.behaviour == currBehaviour) return;
+    currBehaviour = newState.behaviour as BehaviourFlag<Fisherman>;
+
+    switch (currBehaviour) {
+      case FishermanFishing():
+        break;
+      case FishermanHuntingPriest():
+        await speak(
+          "The love of my life got unfairly executed in "
+          "the previous inquisition and I couldn't do anything...",
+        );
+        await speak(
+          "I won't let a tragedy like that happen again!",
+          yell: true,
+        );
+        allowedToKillPriest = true;
+        await patrol(
+          KeyLocation.massMurderPatrol
+              .startFrom(const Point16(49, 25))
+              .reversed
+              .toList(),
+          patrolSpeed: 1.2,
+        );
     }
-  }
-
-  @override
-  void onMouseTap(MouseButton button) {
-    if (button == MouseButton.left) CharacterTapManager.$.onTap(entityType);
-  }
-
-  @override
-  void onMouseHoverEnter(int pointer, Vector2 position) {
-    if (CharacterTapManager.$.waitingForTaps) {
-      (gameRef as BonfireGame).mouseCursor = SystemMouseCursors.click;
-    }
-  }
-
-  @override
-  void onMouseHoverExit(int pointer, Vector2 position) {
-    (gameRef as BonfireGame).mouseCursor = MouseCursor.defer;
   }
 }

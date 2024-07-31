@@ -4,6 +4,8 @@ import 'package:bonfire/bonfire.dart';
 import 'package:flutter/material.dart';
 import 'package:whisper/core/core.dart';
 
+import 'decorations.dart';
+
 final Vector2 size32 = Vector2.all(32);
 final List<HiddenByDefault> ritualDecorations = [];
 
@@ -16,13 +18,6 @@ class RitualDecorations {
       RitualHolyWater(position, isCursed: isCorrupted);
 }
 
-mixin HiddenByDefault on GameComponent {
-  @override
-  Future<void> onLoad() {
-    isVisible = false;
-    return super.onLoad();
-  }
-}
 
 class RitualHolyWater extends GameDecoration with HiddenByDefault {
   RitualHolyWater(Vector2 position, {this.isCursed = false})

@@ -15,14 +15,25 @@ repenting
 
 Priest:
 praying
-summoningZombies
 scamming
+hustling
+upholdingGodsWill
+threateningInquisition
+askingForIndulgences
+rediscoveringFaith
+selfFlagellating
+necromancing
+selfPitying
+abolishingGreed
+ridiculingNecromancy
 
 Fisherman:
 fishing
+huntingPriest
 
 Astrologer:
 observing
+mockingPriest
 
 Rolf:
 rolfing

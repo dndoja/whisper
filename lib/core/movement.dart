@@ -80,9 +80,10 @@ mixin SimpleMovement2 on SimpleEnemy {
     return onReachTarget!.future;
   }
 
-  void pausePatrolling({bool forceStop = false}) {
+  void pausePatrolling({bool forceStop = false, bool notifyFinish = false}) {
     _isPaused = true;
     if (forceStop) stopMove();
+    if (notifyFinish) onReachTarget?.complete();
   }
 
   void resumePatrolling() => _isPaused = false;

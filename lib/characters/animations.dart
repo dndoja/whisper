@@ -40,14 +40,22 @@ enum AttackAnimation {
 enum DeathAnimation { dying }
 
 class Animations {
-  static final SimpleDirectionAnimation undead =
-      Animations.forCharacter(CharacterSheet.monsters, 0, null);
+  static final SimpleDirectionAnimation undead = forCharacter(
+    CharacterSheet.monsters,
+    0,
+    'undead',
+    attackFramesCount: 4,
+    hasDeath: false,
+  );
 
   static final SimpleDirectionAnimation knight =
       forCharacter(CharacterSheet.d, 7, 'knight', attackFramesCount: 3);
 
   static final SimpleDirectionAnimation crazyJoe =
       forCharacter(CharacterSheet.b, 1, 'crazy-joe', attackFramesCount: 4);
+
+  static final SimpleDirectionAnimation fisherman =
+      forCharacter(CharacterSheet.c, 4, 'fisherman', attackFramesCount: 4);
 
   static SimpleDirectionAnimation forDeadCharacter(String animationPrefix) {
     final animation = SpriteAnimation.load(
@@ -68,6 +76,7 @@ class Animations {
     CharacterSheet sheet,
     int charIndex,
     String? prefix, {
+    bool hasDeath = true,
     bool invertHorizontal = false,
     Map<dynamic, Future<SpriteAnimation>> others = const {},
     int? attackFramesCount,
@@ -125,15 +134,16 @@ class Animations {
 
     final Map<dynamic, Future<SpriteAnimation>> othersEffective = {
       if (prefix != null) ...{
-        DeathAnimation.dying: SpriteAnimation.load(
-          '$prefix-dead.png',
-          SpriteAnimationData.sequenced(
-            amount: 4,
-            loop: false,
-            stepTime: 0.15,
-            textureSize: Vector2.all(32),
+        if (hasDeath)
+          DeathAnimation.dying: SpriteAnimation.load(
+            '$prefix-dead.png',
+            SpriteAnimationData.sequenced(
+              amount: 4,
+              loop: false,
+              stepTime: 0.15,
+              textureSize: Vector2.all(32),
+            ),
           ),
-        ),
         if (attackFramesCount != null) ...{
           AttackAnimation.right: SpriteAnimation.load(
             '$prefix-attack-right.png',

@@ -17,9 +17,7 @@ class AstrologerController extends SimpleEnemy
           size: Vector2.all(24),
           position: KeyLocation.observatory.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-        ) {
-    subscribeToGameState();
-  }
+        );
 
   @override
   BehaviourFlag<Astrologer> currBehaviour = const AstrologerObserving();
@@ -35,21 +33,22 @@ class AstrologerController extends SimpleEnemy
 
   @override
   void update(double dt) {
-    if (isDead) {
-      // TODO: Play death animation
-      return;
-    }
-
-    if (gameState.isPaused) return;
+    if (isDead || gameState.isPaused) return;
 
     super.update(dt);
   }
 
   @override
-  void onStateChange(CharacterState newState) {
+  Future<void> onStateChange(CharacterState newState) async {
     super.onStateChange(newState);
-    if (newState.behaviour != currBehaviour) {
-      currBehaviour = newState.behaviour as BehaviourFlag<Astrologer>;
+    if (newState.behaviour == currBehaviour) return;
+    currBehaviour = newState.behaviour as BehaviourFlag<Astrologer>;
+
+    switch (currBehaviour) {
+      case AstrologerObserving():
+        break;
+      case AstrologerMockingPriest():
+        await speak('What the hell is that senile old man rambling on about again?');
     }
   }
 

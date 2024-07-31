@@ -26,9 +26,7 @@ class AlchemistController extends SimpleEnemy
           size: Vector2.all(24),
           position: KeyLocation.alchemistLab.ref.mapPosition + spawnOffset,
           receivesAttackFrom: AcceptableAttackOriginEnum.ALL,
-        ) {
-    subscribeToGameState();
-  }
+        );
 
   int prevTravelCheckpoint = -1;
   bool hasCorruptedHolyWater = false;
@@ -95,7 +93,7 @@ class AlchemistController extends SimpleEnemy
           prefs.setBool(key, true);
         }
 
-        // await speak("Alright time to get going, I don't have a lot of time");
+      // await speak("Alright time to get going, I don't have a lot of time");
       case AlchemistTravelling(:final turnCount):
         final List<Point16> path = [
           for (int i = prevTravelCheckpoint + 1; i <= turnCount; i++)
@@ -132,44 +130,25 @@ class AlchemistController extends SimpleEnemy
         } else {
           priest
             ..pausePatrolling()
+            ..pausePeriodicBubbles = true
             ..stopMove();
 
           await speak(
             'Your Holyness, could you please lend me some Holy Water, '
-            'one of my workers has a bad case of Posession.',
+            'one of my workers has a bad case of the Posessions.',
           );
           await priest.speak('Sure thing, here you go.');
-          priest.resumePatrolling();
+
+          priest
+            ..resumePatrolling()
+            ..pausePeriodicBubbles = false;
         }
       case AlchemistBuyingDefectiveHolyWater():
+        final canBuy = await startHolyWaterTransaction();
+        if (canBuy) await buyFakeHolyWater();
       case AlchemistBuyingOverpricedHolyWater():
-        final priest = characterTracker.priest;
-        await followPath(const [
-          Point16(7, 3),
-          Point16(22, 3),
-          Point16(22, 14),
-          Point16(17, 14),
-        ]);
-        if (priest.isDead) {
-          await speak("Holy mother of God, what happened to you?");
-          await failNoIngredient("Holy Water");
-        } else {
-          priest.pausePeriodicBubbles = true;
-          await speak("Didn't take you for the entreprenurial type");
-          await priest.speak(
-            "Priesthood was not cutting it, anyhow, are you buying or just yapping?",
-          );
-          await speak("Yes, sorry. Can I have some Holy Water?");
-          await priest.speak(
-            "Sure here's some genuine Holy Alkaline Water, that'll be 10 gold.",
-          );
-          await speak("Kind of pricy but ok, here you go.");
-          await priest.speak(
-            "*hands over Holy Water* Pleasure doing business!",
-          );
-          priest.pausePeriodicBubbles = false;
-          hasCorruptedHolyWater = true;
-        }
+        final canBuy = await startHolyWaterTransaction();
+        if (canBuy) await buyRealHolyWater();
       case AlchemistPickingUpAstrologyTips():
         await followPath(const [
           Point16(42, 14),
@@ -255,6 +234,63 @@ class AlchemistController extends SimpleEnemy
     }
 
     setupBlockMovementCollision(enabled: true);
+  }
+
+  Future<bool> startHolyWaterTransaction() async {
+    final priest = characterTracker.priest;
+    await followPath(const [
+      Point16(7, 3),
+      Point16(22, 3),
+      Point16(22, 14),
+      Point16(17, 14),
+    ]);
+    if (priest.isDead) {
+      await speak("Holy mother of God, what happened to you?");
+      await failNoIngredient("Holy Water");
+      return false;
+    }
+
+    priest.pausePeriodicBubbles = true;
+    await speak("Didn't take you for the entreprenurial type your Holyness.");
+    await priest.speak(
+      "Priesthood was not cutting it, anyhow, are you buying or just yapping?",
+    );
+    await speak("Yes, sorry. Can I have some Holy Water?");
+
+    return true;
+  }
+
+  Future<bool> buyFakeHolyWater() async {
+    final priest = characterTracker.priest;
+
+    await priest.speak(
+      "Sure here's some genuine Holy Alkaline Water, that'll be 10 gold.",
+    );
+    await speak("That's suspiciously cheap but ok.");
+    await priest.speak("*hands over Fake Holy Water*");
+    priest.speak("Pleasure doing business with you! *ahem* dumbass");
+
+    priest.pausePeriodicBubbles = false;
+    hasCorruptedHolyWater = true;
+
+    return true;
+  }
+
+  Future<bool> buyRealHolyWater() async {
+    final priest = characterTracker.priest;
+
+    await priest.speak(
+      "Sure here's some plain Holy Water, that'll be 70 gold.",
+    );
+    await speak(
+      "Holy Hell that's expensive, I have no choice though. Here you go.",
+    );
+    await priest.speak("*hands over Holy Water*");
+    priest.speak("Pleasure doing business with you!");
+
+    priest.pausePeriodicBubbles = false;
+
+    return true;
   }
 
   Future<void> failNoIngredient(String ingredient) async {

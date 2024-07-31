@@ -9,75 +9,39 @@ import 'animations.dart';
 class UndeadConfig {
   const UndeadConfig({
     required this.spawn,
-    required this.initialPath,
-    required this.patrol,
+    this.initialPath = const [],
+    this.patrol,
   });
 
   final Point16 spawn;
   final List<Point16> initialPath;
-  final List<Point16> patrol;
+  final List<Point16>? patrol;
 }
 
-const List<UndeadConfig> configs = [
+final List<UndeadConfig> configs = [
   UndeadConfig(
-    spawn: Point16(15, 1),
+    spawn: const Point16(15, 1),
     initialPath: [
-      Point16(22, 3),
-      Point16(22, 14),
-      Point16(42, 14),
-      Point16(42, 11),
-      Point16(42, 25),
+      const Point16(22, 3),
+      const Point16(22, 14),
     ],
-    patrol: [Point16(55, 25), Point16(42, 25)],
+    patrol: KeyLocation.massMurderPatrol.startFrom(const Point16(26, 14)),
   ),
-  // UndeadConfig(
-  //   spawn: Point16(7, 1),
-  //   initialPath: [Point16(20, 2)],
-  //   patrol: [
-  //     Point16(20, 12),
-  //     Point16(20, 22),
-  //     Point16(25, 22),
-  //     Point16(25, 15)
-  //   ],
-  // ),
-  // UndeadConfig(
-  //   spawn: Point16(9, 1),
-  //   initialPath: [Point16(22, 15)],
-  //   patrol: [
-  //     Point16(27, 15),
-  //     Point16(35, 15),
-  //     Point16(35, 21),
-  //     Point16(27, 21)
-  //   ],
-  // ),
-  // UndeadConfig(
-  //   spawn: Point16(11, 1),
-  //   initialPath: [Point16(38, 3), Point16(38, 10)],
-  //   patrol: [
-  //     Point16(41, 10),
-  //     Point16(41, 8),
-  //     Point16(44, 8),
-  //     Point16(44, 11),
-  //     Point16(41, 11),
-  //   ],
-  // ),
-  // UndeadConfig(
-  //   spawn: Point16(13, 1),
-  //   initialPath: [
-  //     Point16(22, 3),
-  //     Point16(22, 16),
-  //     Point16(42, 15),
-  //     Point16(42, 25),
-  //   ],
-  //   patrol: [Point16(55, 25), Point16(42, 25)],
-  // ),
+  const UndeadConfig(spawn: Point16(7, 1)),
+  const UndeadConfig(spawn: Point16(9, 1)),
+  const UndeadConfig(spawn: Point16(11, 1)),
+  const UndeadConfig(spawn: Point16(13, 1)),
+  const UndeadConfig(spawn: Point16(7, 5)),
+  const UndeadConfig(spawn: Point16(9, 5)),
+  const UndeadConfig(spawn: Point16(11, 5)),
+  const UndeadConfig(spawn: Point16(13, 5)),
 ];
 
 int _spawnIndex = 0;
 int get spawnIndex {
   final curr = _spawnIndex;
   if (_spawnIndex + 1 == configs.length) {
-    _spawnIndex = 0;
+    _spawnIndex = 1;
   } else {
     _spawnIndex++;
   }
@@ -88,7 +52,8 @@ int get spawnIndex {
 Undead? _undeadCaptain;
 Undead get undeadCaptain => _undeadCaptain!;
 
-class Undead extends SimpleEnemy with BlockMovementCollision, SimpleMovement2 {
+class Undead extends SimpleEnemy
+    with BlockMovementCollision, SimpleMovement2, RandomMovement, Attacker {
   Undead()
       : config = configs[spawnIndex],
         super(
@@ -113,9 +78,11 @@ class Undead extends SimpleEnemy with BlockMovementCollision, SimpleMovement2 {
       ),
     );
     position = config.spawn.mapPosition + spawnOffset;
-    followPath(config.initialPath).then((_) =>
-        patrol(config.patrol, patrolSpeed: 1)
-            .then((_) => massacreCompleter.complete()));
+    if (this == _undeadCaptain) {
+      followPath(config.initialPath).then((_) =>
+          patrol(config.patrol ?? KeyLocation.massMurderPatrol, patrolSpeed: 1)
+              .then((_) => massacreCompleter.complete()));
+    }
 
     return super.onLoad();
   }
@@ -124,49 +91,28 @@ class Undead extends SimpleEnemy with BlockMovementCollision, SimpleMovement2 {
   void update(double dt) {
     if (gameState.isPaused) return;
 
+    if (inAttackAnimation) {
+      super.update(dt);
+      return;
+    }
+
     final nearbyVictim = nearbyCharacters().firstOrNull;
+
+    if (this != _undeadCaptain) {
+      final bool attacked = nearbyVictim != null && tryAttack(nearbyVictim);
+      if (!attacked) runRandomMovement(dt);
+      super.update(dt);
+      return;
+    }
+
     if (nearbyVictim != null && hasClearPathTo(nearbyVictim)) {
-      // chaseTarget(nearbyVictim, onFinish: () => tryAttack(nearbyVictim));
       pausePatrolling();
       final bool attacked = tryAttack(nearbyVictim);
       if (!attacked) moveTowardsTarget(target: nearbyVictim);
     } else {
       resumePatrolling();
     }
-    // doMassMurder();
 
     super.update(dt);
   }
-
-  final Set<KeyLocation> visitedKeyLocs = {};
-  final KeyLocationComponent nextMassMurderLoc = KeyLocationComponent();
-  List<Vector2>? pathToMassMurderLoc;
-
-  // void doMassMurder() {
-  //   final nearbyVictim = nearbyCharacters().firstOrNull;
-  //
-  //   final KeyLocation? currKeyLoc = getCurrentKeyLocation();
-  //   if (currKeyLoc != null) visitedKeyLocs.add(currKeyLoc);
-  //
-  //   if (nearbyVictim != null) {
-  //     final bool attacked = tryAttack(nearbyVictim);
-  //     if (!attacked) bugPathTo(nearbyVictim);
-  //   } else {
-  //     if (visitedKeyLocs.containsAll(KeyLocation.massMurderLocations)) {
-  //       visitedKeyLocs.clear();
-  //     }
-  //
-  //     final KeyLocation? nextKeyLoc = nextMassMurderLoc.keyLocation;
-  //
-  //     if (nextKeyLoc == null || currKeyLoc == nextKeyLoc) {
-  //       final validLocs = KeyLocation.massMurderLocations
-  //           .where((l) => l != currKeyLoc && !visitedKeyLocs.contains(l))
-  //           .toList();
-  //       nextMassMurderLoc.keyLocation =
-  //           validLocs[math.Random().nextInt(validLocs.length)];
-  //     }
-  //
-  //     if (nextMassMurderLoc.keyLocation != null) bugPathTo(nextMassMurderLoc);
-  //   }
-  // }
 }

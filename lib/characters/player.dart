@@ -23,11 +23,6 @@ class ShadowPlayer extends SimplePlayer {
   bool summoned = false;
 
   @override
-  Future<void> onLoad() {
-    return super.onLoad();
-  }
-
-  @override
   void update(double dt) {
     // final point = Point16.fromMapPos(absoluteCenter);
     // if (point == KeyLocation.ritualSite.ref && !summoned){
